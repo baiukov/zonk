@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "ES2015",
+    "outDir": "./build",
+    "rootDir": "./dev",
+    "strict": true,
+    "esModuleInterop": true,
+  },
+  "include": [
+    "./dev/**/*"
+  ]
+}

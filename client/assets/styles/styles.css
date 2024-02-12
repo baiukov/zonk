@@ -1,0 +1,50 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background-color: #323232;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+
+main {
+	background: linear-gradient(253.38deg, rgba(199, 108, 63, 0.2) 0.94%, rgba(110, 35, 0, 0.2) 55.92%), #805D34;
+	border-radius: 80px;
+	width: 72%;
+	height: 70%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.window {
+	background-color: #B97D44;
+	border-radius: 40px;
+	width: 45%;
+	height: 48%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap: 10%;
+	overflow: hidden;
+}
+
+.field input {
+	background:none;
+	border: none;
+	border-bottom: 2px solid black;
+}
+
+.field input:focus {
+	outline: none;
+	border-color: white;
+	transition: 0.25s;
+}
+
+
+
