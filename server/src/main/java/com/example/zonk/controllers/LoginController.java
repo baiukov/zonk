@@ -1,14 +1,15 @@
 package com.example.zonk.controllers;
 
-import com.example.zonk.services.PlayerService;
+import com.example.zonk.services.AppService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import org.json.JSONObject;
 
 @RestController()
 @RequestMapping("/api")
+@CrossOrigin
 public class LoginController {
+
+    private final AppService appService = new AppService();
 
     @GetMapping("/test")
     public String test() {
@@ -16,18 +17,12 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Boolean> login(@RequestBody JSONObject data) {
-
+    public ResponseEntity<String> login(@RequestBody String dataStr) {
         try {
-            String name = data.getString("name");
-            String room = data.getString("room");
-
-            PlayerService playerService = new PlayerService();
-            playerService.addPlayer(name, room);
-
-            return ResponseEntity.ok(true);
+            this.appService.authorisePlayer(dataStr);
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 

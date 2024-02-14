@@ -2,16 +2,19 @@ import { languageConfig } from './language.config.js'
 
 export class LanguageService {
 
+	private language = "ENG"
+
 	constructor() {
-		const defaultLanguage = "ENG"
 		document.addEventListener("DOMContentLoaded", () => {
-			this.setLanguage(defaultLanguage)
+			this.update(this.language)
 		})
 	}
 
-	private setLanguage = (langName: string) => {
+	public getLanguage = () => { return this.language }
 
+	public setLanguage = (language: string) => { this.language = language }
 
+	private update = (langName: string) => {
 		const language: any = languageConfig[langName]
 
 		Object.keys(language).forEach((id: string) => {
@@ -29,7 +32,7 @@ export class LanguageService {
 					$(element).text(text)
 			}
 		})
-
 	}
+
 
 }

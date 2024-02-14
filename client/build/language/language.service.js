@@ -2,7 +2,10 @@ import { languageConfig } from './language.config.js';
 var LanguageService = /** @class */ (function () {
     function LanguageService() {
         var _this = this;
-        this.setLanguage = function (langName) {
+        this.language = "ENG";
+        this.getLanguage = function () { return _this.language; };
+        this.setLanguage = function (language) { _this.language = language; };
+        this.update = function (langName) {
             var language = languageConfig[langName];
             Object.keys(language).forEach(function (id) {
                 var element = $("#" + id);
@@ -19,9 +22,8 @@ var LanguageService = /** @class */ (function () {
                 }
             });
         };
-        var defaultLanguage = "ENG";
         document.addEventListener("DOMContentLoaded", function () {
-            _this.setLanguage(defaultLanguage);
+            _this.update(_this.language);
         });
     }
     return LanguageService;

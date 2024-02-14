@@ -2,8 +2,9 @@ var AppService = /** @class */ (function () {
     function AppService() {
     }
     AppService.events = {};
+    AppService.setIP = function (ip) { AppService.ip = ip; };
     AppService.on = function (eventName, event) {
-        Object.defineProperty(AppService.events, eventName, event);
+        AppService.events[eventName] = event;
     };
     AppService.emit = function (eventName, data) {
         Object.getOwnPropertyNames(AppService.events).forEach(function (currentEvent) {
@@ -13,15 +14,20 @@ var AppService = /** @class */ (function () {
         });
     };
     AppService.emitServer = function (eventName, data, successFunc, errorFunc) {
+        var str = JSON.stringify(data);
+        console.log(str);
         $.ajax({
-            url: "http://localhost:8080" + eventName,
-            data: data,
+            url: "http://" + AppService.ip + ":8080/" + eventName,
+            type: "POST",
+            data: str,
+            contentType: 'application/json',
             success: function (response) {
                 successFunc(response);
             },
             error: function (xhr, status, error) {
+                console.log(xhr.responseText, status, error);
                 errorFunc(xhr.responseText);
-            }
+            },
         });
     };
     return AppService;
