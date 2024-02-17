@@ -23,22 +23,31 @@ main {
 	width: 72%;
 	height: 70%;
 	display: flex;
+}
+
+.window-wrapper {
+	display: flex;
 	justify-content: center;
 	align-items: center;
   font-weight: 400;
   font-style: normal;
+	height: 100%;
+	width: 60%;
+	overflow: hidden;
 }
 
 .window {
 	background-color: #B97D44;
 	border-radius: 40px;
-	width: 45%;
-	height: 48%;
+	padding-right: 100px;
+	padding-left: 100px;
+	padding-top: 30px;
+	padding-bottom: 30px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	gap: 10%;
+	gap: 20px;
 	overflow: hidden;
 }
 
@@ -74,11 +83,11 @@ main {
 	transition: 0.3s ease-in-out;
 }
 
-#go {
+#go, #start {
 	background-color: #D9D9D9;
 }
 
-#go:hover {
+#go:hover, #start:hover {
 	background-color: #dbffde;
 }
 
@@ -111,5 +120,29 @@ main {
 	margin-left: 20px;
 }
 
+.leftside {
+	width: 20%;
+	overflow: hidden;
+	margin: 10% 0.5%;
+	color: white;
+	font-size: 20pt;
+}
 
+.player-list {
+	padding-left: 10px;
+}
 
+#goal {
+	width: 90%;
+}
+
+#pts { 
+	width: fit-content;
+}
+
+.field.flex {
+	display: flex;
+	flex-direction: row;
+	align-items:baseline;
+	gap: 10px;
+}

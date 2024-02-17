@@ -19,8 +19,18 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody String dataStr) {
         try {
-            this.appService.authorisePlayer(dataStr);
-            return ResponseEntity.ok(null);
+            String id = this.appService.authorisePlayer(dataStr);
+            return ResponseEntity.ok(id);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/check")
+    public ResponseEntity<String> checkPlayerStatus(@RequestBody String dataStr) {
+        try {
+            String status = this.appService.checkPlayer(dataStr);
+            return ResponseEntity.ok(status);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }

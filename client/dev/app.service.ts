@@ -4,7 +4,15 @@ export class AppService {
 
 	private static events: Record<string, Function> = {}
 
-	public static setIP = (ip: string) => { AppService.ip = ip }
+	constructor() {
+		if (!sessionStorage.getItem("ip")) return
+		AppService.ip = sessionStorage.getItem("ip") as string
+	}
+
+	public static setIP = (ip: string) => {
+		AppService.ip = ip
+		sessionStorage.setItem("ip", ip)
+	}
 
 	public static on = (eventName: string, event: Function) => {
 		AppService.events[eventName] = event
@@ -19,7 +27,6 @@ export class AppService {
 
 	public static emitServer = (eventName: string, data: any, successFunc: Function, errorFunc: Function) => {
 		const str = JSON.stringify(data)
-		console.log(str)
 		$.ajax({
 			url: `http://${AppService.ip}:8080/${eventName}`,
 			type: "POST",
@@ -29,7 +36,6 @@ export class AppService {
 				successFunc(response)
 			},
 			error: (xhr, status, error) => {
-				console.log(xhr.responseText, status, error)
 				errorFunc(xhr.responseText)
 			},
 		})

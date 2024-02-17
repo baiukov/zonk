@@ -27,4 +27,8 @@ public class Room {
         players.remove(player);
     }
 
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

@@ -5,8 +5,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel='stylesheet' href='assets/styles/styles.css'>
-	<link rel='stylesheet' href='assets/styles/style-mobile.css'>
-	<link rel='stylesheet' href='assets/styles/style-print.css'>
 	<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
 	<meta name="description" content="Zonk game">
 	<meta name="keywords" content="Game, Boardgame, Dices, Dice, Zonk">
@@ -18,28 +16,32 @@
 
 	<div class='error-pane'></div>
 
-
 	<main>
 
 		<div class='container'>
 
-			<form class='window' action='#'>
+			<div class='leftside'></div>
 
-				<div class='field'>
-					<input type='text' id='name' required>
-				</div>
+			<div class='window-wrapper'>
 
-				<div class='field'>
-					<input type='text' id='room' required>
-				</div>
+				<form class='window' action='#'>
 
-				<div class='field'>
-					<input type='text' id='ip' required value='26.230.10.134'>
-				</div>
+					<div class='field'>
+						<input type='text' id='name' required>
+					</div>
 
-				<button type='submit' class='submit' id='go'></button>
+					<div class='field'>
+						<input type='text' id='room' required>
+					</div>
 
-			</form>
+					<div class='field'>
+						<input type='text' id='ip' required value='26.230.10.134'>
+					</div>
+
+					<button type='submit' class='submit' id='go'></button>
+
+				</form>
+			</div>
 
 		</div>
 	</main>

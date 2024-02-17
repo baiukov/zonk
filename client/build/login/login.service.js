@@ -2,6 +2,7 @@ import { AppService } from '../app.service.js';
 import { Events } from '../enums/events.enum.js';
 import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { languageConfig } from '../language/language.config.js';
+import { save } from '../utils/save.js';
 var LoginService = /** @class */ (function () {
     function LoginService() {
         var _this = this;
@@ -19,8 +20,8 @@ var LoginService = /** @class */ (function () {
                     "name": name,
                     "room": room,
                 };
-                AppService.emitServer(ServerEvents.Login, data, function () {
-                    _this.login(data);
+                AppService.emitServer(ServerEvents.Login, data, function (response) {
+                    _this.login(response);
                 }, function (error) {
                     AppService.emit(Events.GetLanguage, null);
                     AppService.emit(Events.Notify, languageConfig[_this.currentLanguage][error]);
@@ -28,9 +29,16 @@ var LoginService = /** @class */ (function () {
                 return false;
             });
         };
-        this.login = function (data) {
-            sessionStorage.setItem("currentPlayer", JSON.stringify({ data: data }));
+        this.login = function (sessionID) {
+            var data = {
+                sessionID: sessionID
+            };
+            save(data);
             window.location.href = "./pages/lobby";
+        };
+        this.clearPlayer = function () {
+            window.location.pathname = "";
+            localStorage.removeItem("currentPlayer");
         };
         this.watch();
     }

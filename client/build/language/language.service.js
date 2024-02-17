@@ -9,7 +9,6 @@ var LanguageService = /** @class */ (function () {
             var language = languageConfig[langName];
             Object.keys(language).forEach(function (id) {
                 var element = $("#" + id);
-                console.log(element);
                 if (!element)
                     return;
                 var text = language[id];

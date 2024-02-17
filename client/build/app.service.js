@@ -1,8 +1,14 @@
 var AppService = /** @class */ (function () {
     function AppService() {
+        if (!sessionStorage.getItem("ip"))
+            return;
+        AppService.ip = sessionStorage.getItem("ip");
     }
     AppService.events = {};
-    AppService.setIP = function (ip) { AppService.ip = ip; };
+    AppService.setIP = function (ip) {
+        AppService.ip = ip;
+        sessionStorage.setItem("ip", ip);
+    };
     AppService.on = function (eventName, event) {
         AppService.events[eventName] = event;
     };
@@ -15,7 +21,6 @@ var AppService = /** @class */ (function () {
     };
     AppService.emitServer = function (eventName, data, successFunc, errorFunc) {
         var str = JSON.stringify(data);
-        console.log(str);
         $.ajax({
             url: "http://" + AppService.ip + ":8080/" + eventName,
             type: "POST",
@@ -25,7 +30,6 @@ var AppService = /** @class */ (function () {
                 successFunc(response);
             },
             error: function (xhr, status, error) {
-                console.log(xhr.responseText, status, error);
                 errorFunc(xhr.responseText);
             },
         });

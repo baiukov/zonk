@@ -7,6 +7,9 @@ var LoginController = /** @class */ (function () {
         AppService.on(Events.PostLanguage, function (language) {
             _this.loginService.setCurrentLanguage(language);
         });
+        AppService.on(Events.ClearPlayer, function () {
+            _this.loginService.clearPlayer();
+        });
     }
     return LoginController;
 }());

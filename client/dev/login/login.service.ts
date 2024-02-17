@@ -2,6 +2,7 @@ import { AppService } from '../app.service.js'
 import { Events } from '../enums/events.enum.js'
 import { ServerEvents } from '../enums/serverEvents.enum.js'
 import { languageConfig } from '../language/language.config.js'
+import { save } from '../utils/save.js'
 
 export class LoginService {
 
@@ -31,8 +32,8 @@ export class LoginService {
 			AppService.emitServer(
 				ServerEvents.Login,
 				data,
-				() => {
-					this.login(data)
+				(response: string) => {
+					this.login(response)
 				},
 				(error: string) => {
 					AppService.emit(Events.GetLanguage, null)
@@ -40,14 +41,20 @@ export class LoginService {
 				})
 			return false
 		})
+
 	}
 
-	private login = (data: Object) => {
-		sessionStorage.setItem("currentPlayer", JSON.stringify(
-			{ data: data }
-		))
+	private login = (sessionID: string) => {
+		const data = {
+			sessionID: sessionID
+		}
+		save(data)
 		window.location.href = "./pages/lobby"
 	}
 
+	public clearPlayer = () => {
+		window.location.pathname = ""
+		localStorage.removeItem("currentPlayer")
+	}
 
 }

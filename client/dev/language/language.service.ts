@@ -19,7 +19,6 @@ export class LanguageService {
 
 		Object.keys(language).forEach((id: string) => {
 			const element = $("#" + id)
-			console.log(element)
 			if (!element) return
 
 			const text = language[id]

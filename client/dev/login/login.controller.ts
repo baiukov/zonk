@@ -12,6 +12,10 @@ export class LoginController {
 		AppService.on(Events.PostLanguage, (language: string) => {
 			this.loginService.setCurrentLanguage(language)
 		})
+
+		AppService.on(Events.ClearPlayer, () => {
+			this.loginService.clearPlayer()
+		})
 	}
 
 }

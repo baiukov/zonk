@@ -1,9 +1,17 @@
 export var languageConfig = {
     "ENG": {
-        "name": "Nickname",
-        "room": "Room name",
-        "go": "Go",
-        "playerAlreadyExists": "Player already exists",
-        "ip": "Ip"
+        name: "Nickname",
+        room: "Room name",
+        go: "Go",
+        ip: "Ip",
+        players: "Players",
+        goal: "Goal",
+        start: "Start",
+        pts: "pts",
+        playerAlreadyExists: "Player already exists",
+        playerDoesntExist: "Player is not found",
+        roomDoesntExist: "Room is not found",
+        defaultError: "Some issue has happened",
+        roomIsFull: "Room is full"
     },
 };
