@@ -43,4 +43,11 @@ public class PlayerService {
                 .findFirst();
     }
 
+    public Optional<Player> getPlayerByID(String id) {
+        return players
+                .stream()
+                .filter(currentPlayer -> currentPlayer.getSessionId().equals(id))
+                .findFirst();
+    }
+
 }

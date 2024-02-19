@@ -1,5 +1,6 @@
 package com.example.zonk.controllers;
 
+import com.example.zonk.entities.Game;
 import com.example.zonk.services.AppService;
 import com.example.zonk.services.RoomService;
 import org.json.JSONString;
@@ -30,6 +31,16 @@ public class LobbyController {
         try {
             String result = this.appService.getPlayersByRoom(dataStr);
             return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/createGame")
+    public ResponseEntity<String> createGame(@RequestBody String dataStr) {
+        try {
+            this.appService.createGame(dataStr);
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }

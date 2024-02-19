@@ -2,12 +2,14 @@ package com.example.zonk.services;
 
 import com.example.zonk.entities.Player;
 import com.example.zonk.entities.Room;
+import com.example.zonk.exeptions.GameException;
 import com.example.zonk.exeptions.PlayerLoginException;
 import com.example.zonk.exeptions.RoomDoesntExist;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class AppService {
@@ -50,6 +52,16 @@ public class AppService {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id");
         return this.roomService.getRoomByPlayerID(id);
+    }
 
+    public void createGame(String dataStr) throws GameException {
+        JSONObject data = new JSONObject(dataStr);
+        String playerID = data.getString("id");
+        int points = data.getInt("points");
+        String room = this.roomService.getRoomByPlayerID(playerID);
+        if (room == null) {
+            throw new GameException("RoomDoesntExist");
+        }
+        this.gameService.create(room, points);
     }
 }
