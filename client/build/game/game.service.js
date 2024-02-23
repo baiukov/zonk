@@ -29,7 +29,6 @@ var GameService = /** @class */ (function () {
                 return;
             }
             $("#totalPoints").text(data.total);
-            console.log(data.goal, $("#goalPoints"));
             showPlayers(data);
             $("#goalPoints").text(data.goal);
             console.log(data.turn);
@@ -39,18 +38,26 @@ var GameService = /** @class */ (function () {
             else {
                 $("#roll").attr("disabled");
             }
+            if (data.isRolling) {
+                if (!data.turn) {
+                    _this.playDiceAnim(-1, []);
+                }
+            }
+            else {
+                _this.setDice(data.dices);
+            }
         };
         this.playDiceAnim = function (time, correctValues) {
             var intervalTime = 100;
             var timeSpent = 0;
-            var interval = setInterval(function () {
+            _this.diceAnimInterval = setInterval(function () {
                 if (timeSpent == time) {
                     _this.setDice(correctValues);
-                    clearInterval(interval);
+                    clearInterval(_this.diceAnimInterval);
                     return;
                 }
                 if (timeSpent >= intervalTime) {
-                    intervalTime *= 1.15;
+                    intervalTime *= time == -1 ? 1 : 1.15;
                     var values = [];
                     for (var i = 0; i < 5; i++) {
                         values[i] = Math.floor(Math.random() * (6 - 1) + 1);
@@ -65,6 +72,7 @@ var GameService = /** @class */ (function () {
         this.watchState();
     }
     GameService.prototype.setDice = function (values) {
+        clearInterval(this.diceAnimInterval);
         var diceField = $(".dices");
         var dices = diceField.children("div");
         dices.each(function (i) {

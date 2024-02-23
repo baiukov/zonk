@@ -31,20 +31,22 @@ public class RoomService {
     }
 
     public List<Player> getPlayersByRoom(String roomName) throws RoomDoesntExist {
-        Optional<Room> optionalRoom = this.getRoom(roomName);
+        Room room = this.getRoom(roomName);
 
-        if (optionalRoom.isEmpty()) {
+
+        if (room == null) {
             throw new RoomDoesntExist("RoomDoesntExist");
         }
 
-        return optionalRoom.get().getPlayers();
+        return room.getPlayers();
     }
 
-    public Optional<Room> getRoom(String name) {
-        return rooms
+    public Room getRoom(String name) {
+        Optional<Room> room =  rooms
                 .stream()
                 .filter(currentRoom -> currentRoom.getName().equals(name))
                 .findFirst();
+        return room.orElse(null);
     }
     public String getRoomByPlayerID(String id) {
         for (Room room : rooms) {

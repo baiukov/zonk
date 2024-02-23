@@ -1,5 +1,6 @@
 package com.example.zonk.entities;
 
+import com.example.zonk.enums.GameStatuses;
 import com.example.zonk.exeptions.GameException;
 import org.json.JSONObject;
 
@@ -15,6 +16,10 @@ public class Game implements Runnable {
 
     private List<Player> players;
 
+    private GameStatuses status;
+
+    private int[] dices = new int[]{1, 2, 3, 4, 5};
+
     public Game(Room room, int goal) {
         this.room = room;
         this.goal = goal;
@@ -26,6 +31,8 @@ public class Game implements Runnable {
 
     public int getGoal() { return this.goal; }
 
+    public GameStatuses getStatus() { return this.status; }
+
     public List<Player> getPlayers() { return this.players; }
 
     public void setGoal(int goal) { this.goal = goal; }
@@ -34,6 +41,8 @@ public class Game implements Runnable {
 
     public void setPlayers(List<Player> players) { this.players = players; }
 
+    public void setStatus(GameStatuses status) { this.status = status; }
+
     @Override
     public void run() {
         this.init();
@@ -41,7 +50,6 @@ public class Game implements Runnable {
 
     public void init() {
         this.players = new ArrayList<>(this.room.getPlayers());
-        System.out.println(this.players);
         Collections.shuffle(this.players);
         this.players.forEach(player -> {
             player.setPoints(0);
@@ -51,7 +59,6 @@ public class Game implements Runnable {
     }
 
     public JSONObject getPlayerState(String playerID) throws GameException {
-        System.out.println(this.players.get(0).getSessionId() + " " + playerID);
         Optional<Player> optionalPlayer = this.players
                 .stream()
                 .filter(player -> player.getSessionId().equals(playerID))
@@ -65,6 +72,24 @@ public class Game implements Runnable {
         state.put("total", player.getPoints());
         state.put("players", this.players);
         state.put("goal", this.goal);
+        state.put("isRolling", this.status == GameStatuses.ROLLING);
+        state.put("dices", this.dices);
         return state;
+    }
+
+    public void roll() throws InterruptedException {
+        this.status = GameStatuses.ROLLING;
+        Thread.sleep(5 * 1000);
+        Random random = new Random();
+        for (int i = 0; i < this.dices.length; i++) {
+            this.dices[0] = random.nextInt(4) + 1;
+        }
+        this.status = GameStatuses.WAITING;
+    }
+
+    public void addPlayer(Player player) { this.players.add(player); }
+    public Player removePlayer(Player player) {
+        this.players.remove(player);
+        return player;
     }
 }

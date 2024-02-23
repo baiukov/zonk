@@ -16,11 +16,11 @@ public class GameService {
 
     public void create(String roomName, int points) throws GameException {
         RoomService roomService = new RoomService();
-        Optional<Room> room = roomService.getRoom(roomName);
-        if (room.isEmpty()) {
+        Room room = roomService.getRoom(roomName);
+        if (room == null) {
             throw new GameException("RoomDoesntExist");
         }
-        Game game = new Game(room.get(), points);
+        Game game = new Game(room, points);
         new Thread(game).start();
         games.add(game);
     }
@@ -40,4 +40,16 @@ public class GameService {
         return game.orElse(null);
     }
 
+    public Game getGameByRoomName(String roomName) {
+        Optional<Game> game = games
+                .stream()
+                .filter(
+                        currentGame -> currentGame
+                                .getRoom()
+                                .getName()
+                                .equals(roomName)
+                )
+                .findFirst();
+        return game.orElse(null);
+    }
 }

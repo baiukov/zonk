@@ -29,6 +29,7 @@ var LobbyService = /** @class */ (function () {
         this.setUpdateInterval = function () {
             if (window.location.pathname != "/pages/lobby/")
                 return;
+            _this.updatePlayerList();
             _this.roomInterval = setInterval(function () {
                 _this.updatePlayerList();
             }, secToMs(0.5));
@@ -44,7 +45,7 @@ var LobbyService = /** @class */ (function () {
             if (!id)
                 return;
             AppService.emitServer(ServerEvents.GetRoom, { id: id }, function (roomName) {
-                _this.getPlayers(roomName);
+                _this.getPlayers(roomName, id);
                 _this.setRoom();
             }, function (error) {
                 AppService.emit(Events.Notify, error);
@@ -56,16 +57,30 @@ var LobbyService = /** @class */ (function () {
                 window.location.href = "./pages/lobby";
             }
         };
-        this.getPlayers = function (roomName) {
+        this.getPlayers = function (roomName, id) {
             var data = {
                 room: roomName
             };
             AppService.emitServer(ServerEvents.GetPlayers, data, function (response) {
-                showPlayers(JSON.parse(response));
+                _this.update(response, roomName, id);
             }, function (error) {
                 AppService.emit(Events.Notify, error);
                 window.location.href = "";
                 localStorage.removeItem("currentPlayer");
+            });
+        };
+        this.update = function (dataStr, room, id) {
+            var data = JSON.parse(dataStr);
+            showPlayers(data);
+            if (!data.isInGame)
+                return;
+            window.location.href = "../game";
+            var dataToSend = {
+                id: id,
+                room: room
+            };
+            AppService.emitServer(ServerEvents.AddPlayer, dataToSend, function (_) { }, function (error) {
+                AppService.emit(Events.Notify, error);
             });
         };
         this.watch();

@@ -5,5 +5,6 @@ export enum ServerEvents {
 	Check = "api/check",
 	GetRoom = "api/getRoom",
 	StartGame = "api/createGame",
-	UpdateState = "api/getState"
+	UpdateState = "api/getState",
+	AddPlayer = "api/addPlayer"
 }

@@ -18,6 +18,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody String dataStr) {
+        System.out.println(dataStr);
         try {
             String id = this.appService.authorisePlayer(dataStr);
             return ResponseEntity.ok(id);

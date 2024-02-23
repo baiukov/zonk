@@ -11,11 +11,11 @@ import java.util.Optional;
 
 public class PlayerService {
 
-    private final List<Player> players = new ArrayList<>();
+    private static final List<Player> players = new ArrayList<>();
 
     public Player addPlayer(String name) throws PlayerLoginException {
-        Optional<Player> player = this.getPlayer(name);
-        if (player.isPresent()) {
+        Player player = this.getPlayer(name);
+        if (player != null) {
             throw new PlayerLoginException("playerAlreadyExists");
         };
         Player newPlayer = new Player(name);
@@ -23,31 +23,33 @@ public class PlayerService {
         return newPlayer;
     }
 
-    public String checkPlayer(String name, String room) {
-        Optional<Player> playerOptional = this.getPlayer(name);
-        if (playerOptional.isEmpty()) {
+    public String checkPlayer(String name, String roomName) {
+        Player player = this.getPlayer(name);
+        if (player == null) {
             return PlayerStatuses.UNAUTHORISED;
         }
         RoomService roomService = new RoomService();
-        Optional<Room> roomOptional = roomService.getRoom(room);
-        if (roomOptional.isPresent()) {
+        Room room = roomService.getRoom(roomName);
+        if (room != null) {
             return PlayerStatuses.INLOBBY;
         }
         return PlayerStatuses.UNKNOWN;
     }
 
-    public Optional<Player> getPlayer(String name) {
-        return players
+    public Player getPlayer(String name) {
+        Optional<Player> player =  players
                 .stream()
                 .filter(currentPlayer -> currentPlayer.getName().equals(name))
                 .findFirst();
+        return player.orElse(null);
     }
 
-    public Optional<Player> getPlayerByID(String id) {
-        return players
+    public Player getPlayerByID(String id) {
+        Optional<Player> player = players
                 .stream()
                 .filter(currentPlayer -> currentPlayer.getSessionId().equals(id))
                 .findFirst();
+        return player.orElse(null);
     }
 
 }

@@ -87,6 +87,18 @@ main {
 	background-color: #D9D9D9;
 }
 
+#roll:disabled {
+	background-color: #dbffde;
+}
+
+#roll {
+	background-color: #3A6C42;
+}
+
+#roll:hover {
+	background-color: #325a38;
+}
+
 #go:hover, #start:hover {
 	background-color: #dbffde;
 }

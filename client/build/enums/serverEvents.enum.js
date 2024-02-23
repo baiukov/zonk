@@ -6,4 +6,5 @@ export var ServerEvents;
     ServerEvents["GetRoom"] = "api/getRoom";
     ServerEvents["StartGame"] = "api/createGame";
     ServerEvents["UpdateState"] = "api/getState";
+    ServerEvents["AddPlayer"] = "api/addPlayer";
 })(ServerEvents || (ServerEvents = {}));

@@ -7,6 +7,8 @@ import { showPlayers } from '../utils/showPlayers.js'
 
 export class GameService {
 
+	private diceAnimInterval: number | undefined
+
 	constructor() {
 
 		this.playDiceAnim(10000, [1, 2, 3, 4, 6])
@@ -49,7 +51,6 @@ export class GameService {
 		}
 
 		$("#totalPoints").text(data.total)
-		console.log(data.goal, $("#goalPoints"))
 		showPlayers(data)
 		$("#goalPoints").text(data.goal)
 		console.log(data.turn)
@@ -58,21 +59,29 @@ export class GameService {
 		} else {
 			$("#roll").attr("disabled")
 		}
+
+		if (data.isRolling) {
+			if (!data.turn) {
+				this.playDiceAnim(-1, [])
+			}
+		} else {
+			this.setDice(data.dices)
+		}
 	}
 
 	private playDiceAnim = (time: number, correctValues: Array<number>) => {
 
 		let intervalTime = 100
 		let timeSpent = 0
-		const interval = setInterval(() => {
+		this.diceAnimInterval = setInterval(() => {
 			if (timeSpent == time) {
 				this.setDice(correctValues)
-				clearInterval(interval)
+				clearInterval(this.diceAnimInterval)
 				return
 			}
 			if (timeSpent >= intervalTime) {
-				intervalTime *= 1.15
-				const values = []
+				intervalTime *= time == -1 ? 1 : 1.15
+				const values: Array<number> = []
 				for (let i = 0; i < 5; i++) {
 					values[i] = Math.floor(Math.random() * (6 - 1) + 1)
 				}
@@ -86,6 +95,7 @@ export class GameService {
 	}
 
 	private setDice(values: Array<number>) {
+		clearInterval(this.diceAnimInterval)
 		const diceField = $(".dices")
 		const dices = diceField.children("div")
 		dices.each((i: number) => {

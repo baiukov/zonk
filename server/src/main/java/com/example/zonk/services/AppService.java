@@ -36,9 +36,11 @@ public class AppService {
     public String getPlayersByRoom(String dataStr) throws RoomDoesntExist {
         JSONObject data = new JSONObject(dataStr);
         String roomName = data.getString("room");
+        Game game = this.gameService.getGameByRoomName(roomName);
         List<Player> playerList =  this.roomService.getPlayersByRoom(roomName);
         JSONObject json = new JSONObject();
         json.put("players", playerList);
+        json.put("isInGame", game != null);
         return json.toString();
     }
 
@@ -60,9 +62,13 @@ public class AppService {
         String playerID = data.getString("id");
         int points = data.getInt("points");
         String room = this.roomService.getRoomByPlayerID(playerID);
+        Game game = this.gameService.getGameByPlayerID(playerID);
+        game = game != null ? game : this.gameService.getGameByRoomName(room);
+        if (game != null) { return; }
         if (room == null) {
             throw new GameException("RoomDoesntExist");
         }
+        System.out.println("created");
         this.gameService.create(room, points);
     }
 
@@ -75,5 +81,30 @@ public class AppService {
         }
         JSONObject state = game.getPlayerState(playerID);
         return state.toString();
+    }
+
+    public void roll(String dataStr) throws GameException, InterruptedException {
+        JSONObject data = new JSONObject(dataStr);
+        String playerID = data.getString("id");
+        Game game = this.gameService.getGameByPlayerID(playerID);
+        if (game == null) {
+            throw new GameException("GameDoesntExist");
+        }
+        game.roll();
+    }
+
+    public void addPlayer(String dataStr) throws GameException, PlayerLoginException {
+        JSONObject data = new JSONObject(dataStr);
+        String roomName = data.getString("room");
+        String id = data.getString("id");
+        Game game = this.gameService.getGameByRoomName(roomName);
+        Player player = this.playerService.getPlayerByID(id);
+        if (game == null) {
+            throw new GameException("GameDoesntExist");
+        }
+        if (player == null) {
+            throw new PlayerLoginException("PlayerDoesntExist");
+        }
+        game.addPlayer(player);
     }
 }

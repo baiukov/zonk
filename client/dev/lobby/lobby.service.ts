@@ -43,6 +43,7 @@ export class LobbyService {
 
 	private setUpdateInterval = () => {
 		if (window.location.pathname != "/pages/lobby/") return
+		this.updatePlayerList()
 
 		this.roomInterval = setInterval(() => {
 			this.updatePlayerList()
@@ -63,7 +64,7 @@ export class LobbyService {
 			ServerEvents.GetRoom,
 			{ id: id },
 			(roomName: string) => {
-				this.getPlayers(roomName)
+				this.getPlayers(roomName, id)
 				this.setRoom()
 			},
 			(error: string) => {
@@ -79,7 +80,7 @@ export class LobbyService {
 		}
 	}
 
-	private getPlayers = (roomName: string) => {
+	private getPlayers = (roomName: string, id: string) => {
 		const data = {
 			room: roomName
 		}
@@ -87,7 +88,7 @@ export class LobbyService {
 			ServerEvents.GetPlayers,
 			data,
 			(response: string) => {
-				showPlayers(JSON.parse(response))
+				this.update(response, roomName, id)
 			},
 			(error: string) => {
 				AppService.emit(Events.Notify, error)
@@ -97,5 +98,26 @@ export class LobbyService {
 		)
 	}
 
+	private update = (dataStr: string, room: string, id: string) => {
+		const data = JSON.parse(dataStr)
+		showPlayers(data)
+		if (!data.isInGame) return
+		window.location.href = "../game"
+
+		const dataToSend = {
+			id: id,
+			room: room
+		}
+
+		AppService.emitServer(
+			ServerEvents.AddPlayer,
+			dataToSend,
+			(_: string) => { },
+			(error: string) => {
+				AppService.emit(Events.Notify, error)
+			}
+		)
+
+	}
 
 }

@@ -31,4 +31,24 @@ public class GameController {
 
     }
 
+    @PostMapping("/roll")
+    public ResponseEntity<String> roll(@RequestBody String dataStr) {
+        try {
+            this.appService.roll(dataStr);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/addPlayer")
+    public ResponseEntity<String> addPlayer(@RequestBody String dataStr) {
+        try {
+            this.appService.addPlayer(dataStr);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 }
