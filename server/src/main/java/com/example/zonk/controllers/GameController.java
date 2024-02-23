@@ -22,10 +22,8 @@ public class GameController {
 
         try {
             String result = this.appService.getState(dataStr);
-            System.out.println(result);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.status(500).body(e.getMessage());
         }
 

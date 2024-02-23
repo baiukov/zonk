@@ -1,3 +1,4 @@
+
 export class AppService {
 
 	private static ip: string | undefined
@@ -5,13 +6,14 @@ export class AppService {
 	private static events: Record<string, Function> = {}
 
 	constructor() {
-		if (!sessionStorage.getItem("ip")) return
-		AppService.ip = sessionStorage.getItem("ip") as string
+		if (!localStorage.getItem("ip")) return
+		// @ts-ignore
+		AppService.ip = localStorage.getItem("ip").replaceAll('"', '') as string
 	}
 
 	public static setIP = (ip: string) => {
 		AppService.ip = ip
-		sessionStorage.setItem("ip", ip)
+		localStorage.setItem("ip", ip)
 	}
 
 	public static on = (eventName: string, event: Function) => {
@@ -27,6 +29,9 @@ export class AppService {
 
 	public static emitServer = (eventName: string, data: any, successFunc: Function, errorFunc: Function) => {
 		const str = JSON.stringify(data)
+
+		if (!AppService.ip) { return }
+
 		$.ajax({
 			url: `http://${AppService.ip}:8080/${eventName}`,
 			type: "POST",

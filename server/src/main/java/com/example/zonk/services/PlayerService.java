@@ -13,27 +13,17 @@ public class PlayerService {
 
     private static final List<Player> players = new ArrayList<>();
 
-    public Player addPlayer(String name) throws PlayerLoginException {
-        Player player = this.getPlayer(name);
-        if (player != null) {
+    public Player authorisePlayer(String name, Room room) throws PlayerLoginException {
+        Optional<Player> optionalPlayer = room.getPlayers().stream()
+                .filter(currentPlayer -> currentPlayer.getName().equals(name))
+                .findFirst();
+        if (optionalPlayer.isPresent()) {
             throw new PlayerLoginException("playerAlreadyExists");
-        };
+        }
         Player newPlayer = new Player(name);
         players.add(newPlayer);
+        newPlayer.setStatus(PlayerStatuses.INLOBBY);
         return newPlayer;
-    }
-
-    public String checkPlayer(String name, String roomName) {
-        Player player = this.getPlayer(name);
-        if (player == null) {
-            return PlayerStatuses.UNAUTHORISED;
-        }
-        RoomService roomService = new RoomService();
-        Room room = roomService.getRoom(roomName);
-        if (room != null) {
-            return PlayerStatuses.INLOBBY;
-        }
-        return PlayerStatuses.UNKNOWN;
     }
 
     public Player getPlayer(String name) {

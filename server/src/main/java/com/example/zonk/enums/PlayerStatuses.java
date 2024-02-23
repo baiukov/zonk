@@ -2,12 +2,11 @@ package com.example.zonk.enums;
 
 public class PlayerStatuses {
 
-    public static String UNAUTHORISED = "unauthorised";
+    public static final String UNAUTHORIZED = "unauthorized";
 
-    public static String UNKNOWN = "unknown";
+    public static final String INLOBBY = "inlobby";
 
-    public static String INLOBBY = "inlobby";
+    public static final String INGAME = "ingame";
 
-    public static String INGAME = "ingame";
-
+    public static final String UNKNOWN = "unknown";
 }

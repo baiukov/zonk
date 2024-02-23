@@ -14,8 +14,6 @@ public class LobbyController {
 
     private final AppService appService = new AppService();
 
-    private final RoomService roomService = new RoomService();
-
     @PostMapping("/getRoom")
     public ResponseEntity<String> getRoom(@RequestBody String data) {
         try {

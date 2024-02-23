@@ -13,6 +13,8 @@ export var languageConfig = {
         roomDoesntExist: "Room is not found",
         defaultError: "Some issue has happened",
         roomIsFull: "Room is full",
-        smthWrong: "Something went wrong"
+        smthWrong: "Something went wrong",
+        serverUnreachable: "Server is unreachable",
+        ipIsIncorrect: "IP address is not correct"
     },
 };

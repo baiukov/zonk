@@ -10,9 +10,9 @@ public class Player {
 
     private final String sessionId = UUID.randomUUID().toString();
 
-    private String playerStatus = PlayerStatuses.INLOBBY;
-
     private int points = 0;
+
+    private String status = PlayerStatuses.UNAUTHORIZED;
 
     public Player(String name) {
         this.playerName = name;
@@ -24,13 +24,13 @@ public class Player {
 
     public int getPoints() { return this.points; }
 
-    public String getPlayerStatus() { return this.playerStatus; }
+    public String getStatus() { return this.status; }
 
     public void setName(String name) {this.playerName = name; }
 
-    public void setPlayerStatus(String status) { this.playerStatus = status; }
-
     public void setPoints(int pts) { this.points = pts; }
+
+    public void setStatus(String status) {this.status = status;}
 
     public void addPoints(int points) {
         this.points += points;

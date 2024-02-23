@@ -3,6 +3,7 @@ package com.example.zonk.services;
 import com.example.zonk.entities.Game;
 import com.example.zonk.entities.Player;
 import com.example.zonk.entities.Room;
+import com.example.zonk.enums.PlayerStatuses;
 import com.example.zonk.exeptions.GameException;
 import com.example.zonk.exeptions.PlayerLoginException;
 import com.example.zonk.exeptions.RoomDoesntExist;
@@ -28,7 +29,7 @@ public class AppService {
         if (room.getPlayers().size() >= 4) {
             throw new PlayerLoginException("roomIsFull");
         }
-        Player player = playerService.addPlayer(name);
+        Player player = this.playerService.authorisePlayer(name, room);
         room.addPlayer(player);
         return player.getSessionId();
     }
@@ -42,13 +43,6 @@ public class AppService {
         json.put("players", playerList);
         json.put("isInGame", game != null);
         return json.toString();
-    }
-
-    public String checkPlayer(String dataStr) {
-        JSONObject data = new JSONObject(dataStr);
-        String name = data.getString("name");
-        String room = data.getString("room");
-        return this.playerService.checkPlayer(name, room);
     }
 
     public String getRoomByPlayerID(String dataStr) {
@@ -68,7 +62,6 @@ public class AppService {
         if (room == null) {
             throw new GameException("RoomDoesntExist");
         }
-        System.out.println("created");
         this.gameService.create(room, points);
     }
 
@@ -106,5 +99,15 @@ public class AppService {
             throw new PlayerLoginException("PlayerDoesntExist");
         }
         game.addPlayer(player);
+    }
+
+    public String check(String dataStr) {
+        JSONObject data = new JSONObject(dataStr);
+        String id = data.getString("id");
+        Player player = this.playerService.getPlayerByID(id);
+        if (player == null) {
+            return PlayerStatuses.UNKNOWN;
+        }
+        return player.getStatus();
     }
 }
