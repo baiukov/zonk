@@ -146,3 +146,69 @@ main {
 	align-items:baseline;
 	gap: 10px;
 }
+
+.dices {
+	display: flex;
+	justify-content: center;
+	width: 60%;
+	flex-wrap: wrap;
+	gap: 30px;
+}
+
+.dice {
+	background-color: white;
+	width: 80px;
+	height: 80px;
+	border-radius: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.dots3, .dots4, .dots1, .dots2, .dots6 {
+	width: 80%;
+	height: 80%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 17px;
+}
+
+.dots5 {
+	display: flex;
+	height: 65%;
+	flex-direction: column;
+	gap: 30px;
+	padding: 5px;
+}
+
+.dots6 {
+	gap: 10px;
+}
+
+.dots5:nth-child(2n) {
+	justify-content: center;
+}
+
+.dots3 {
+	transform: rotate(45deg);
+}
+
+.dots4 {
+	justify-content: space-between;
+	height: 60%;
+	width: 50%;
+}
+
+.dot {
+	width: 10px;
+	height: 10px;
+	background-color: black;
+	border-radius: 99px;
+}
+
+.goal {
+	display: flex;
+	gap: 10px;
+}

@@ -10,8 +10,8 @@ export const languageConfig: LanguageConfig = {
 		room: "Room name",
 		go: "Go",
 		ip: "Ip",
-		players: "Players",
-		goal: "Goal",
+		players: "Players:",
+		goalTitle: "Goal:",
 		start: "Start",
 		pts: "pts",
 
@@ -19,7 +19,8 @@ export const languageConfig: LanguageConfig = {
 		playerDoesntExist: "Player is not found",
 		roomDoesntExist: "Room is not found",
 		defaultError: "Some issue has happened",
-		roomIsFull: "Room is full"
+		roomIsFull: "Room is full",
+		smthWrong: "Something went wrong"
 	},
 
 }

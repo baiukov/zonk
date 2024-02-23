@@ -1,17 +1,49 @@
 import { AppService } from '../app.service.js'
 import { Events } from '../enums/events.enum.js'
 import { ServerEvents } from '../enums/serverEvents.enum.js'
+import { getID } from '../utils/getID.js'
 import { secToMs } from '../utils/secToMs.js'
+import { showPlayers } from '../utils/showPlayers.js'
 
 export class LobbyService {
 
 	private roomInterval: number | undefined
 
 	constructor() {
+		this.watch()
 		this.setUpdateInterval()
 	}
 
+	private watch = () => {
+		$("#start").click(() => {
+			const id = getID()
+			const points = $("#goal").val()
+
+			if (!id || !points) return
+
+			const data = {
+				"id": id,
+				"points": points,
+			}
+
+			AppService.emitServer(
+				ServerEvents.StartGame,
+				data,
+				(response: string) => {
+
+					console.log(response)
+					window.location.href = "../game"
+				},
+				(error: string) => {
+					console.log(error)
+				})
+			return false
+		})
+	}
+
 	private setUpdateInterval = () => {
+		if (window.location.pathname != "/pages/lobby/") return
+
 		this.roomInterval = setInterval(() => {
 			this.updatePlayerList()
 		}, secToMs(0.5))
@@ -55,7 +87,7 @@ export class LobbyService {
 			ServerEvents.GetPlayers,
 			data,
 			(response: string) => {
-				this.showPlayers(JSON.parse(response))
+				showPlayers(JSON.parse(response))
 			},
 			(error: string) => {
 				AppService.emit(Events.Notify, error)
@@ -63,30 +95,6 @@ export class LobbyService {
 				localStorage.removeItem("currentPlayer")
 			}
 		)
-	}
-
-	public showPlayers = (response: Record<string, any>) => {
-		const playerList = response.players[0]
-		const playersView = document.getElementById("playerList") as HTMLElement
-
-		const isPlayerInList = (name: string) => {
-			let isIn: boolean = false
-			Array.from(playersView.children).forEach((element) => {
-				const listPlayerName = $(element).text().split("|")[0]
-				if (listPlayerName.trim() == name.trim()) {
-					isIn = true
-				}
-			})
-			return isIn
-		}
-
-		playerList.forEach((player: Record<string, string>) => {
-			if (!isPlayerInList(player.name.split("|")[0])) {
-				const listElement = document.createElement("li")
-				$(listElement).text(player.name + " | 0")
-				playersView?.appendChild(listElement)
-			}
-		})
 	}
 
 

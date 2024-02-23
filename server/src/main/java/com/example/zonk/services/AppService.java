@@ -1,5 +1,6 @@
 package com.example.zonk.services;
 
+import com.example.zonk.entities.Game;
 import com.example.zonk.entities.Player;
 import com.example.zonk.entities.Room;
 import com.example.zonk.exeptions.GameException;
@@ -37,7 +38,7 @@ public class AppService {
         String roomName = data.getString("room");
         List<Player> playerList =  this.roomService.getPlayersByRoom(roomName);
         JSONObject json = new JSONObject();
-        json.append("players", playerList);
+        json.put("players", playerList);
         return json.toString();
     }
 
@@ -63,5 +64,16 @@ public class AppService {
             throw new GameException("RoomDoesntExist");
         }
         this.gameService.create(room, points);
+    }
+
+    public String getState(String dataStr) throws GameException {
+        JSONObject data = new JSONObject(dataStr);
+        String playerID = data.getString("id");
+        Game game = this.gameService.getGameByPlayerID(playerID);
+        if (game == null) {
+            throw new GameException("GameDoesntExist");
+        }
+        JSONObject state = game.getPlayerState(playerID);
+        return state.toString();
     }
 }

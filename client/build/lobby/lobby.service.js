@@ -1,11 +1,34 @@
 import { AppService } from '../app.service.js';
 import { Events } from '../enums/events.enum.js';
 import { ServerEvents } from '../enums/serverEvents.enum.js';
+import { getID } from '../utils/getID.js';
 import { secToMs } from '../utils/secToMs.js';
+import { showPlayers } from '../utils/showPlayers.js';
 var LobbyService = /** @class */ (function () {
     function LobbyService() {
         var _this = this;
+        this.watch = function () {
+            $("#start").click(function () {
+                var id = getID();
+                var points = $("#goal").val();
+                if (!id || !points)
+                    return;
+                var data = {
+                    "id": id,
+                    "points": points,
+                };
+                AppService.emitServer(ServerEvents.StartGame, data, function (response) {
+                    console.log(response);
+                    window.location.href = "../game";
+                }, function (error) {
+                    console.log(error);
+                });
+                return false;
+            });
+        };
         this.setUpdateInterval = function () {
+            if (window.location.pathname != "/pages/lobby/")
+                return;
             _this.roomInterval = setInterval(function () {
                 _this.updatePlayerList();
             }, secToMs(0.5));
@@ -38,34 +61,14 @@ var LobbyService = /** @class */ (function () {
                 room: roomName
             };
             AppService.emitServer(ServerEvents.GetPlayers, data, function (response) {
-                _this.showPlayers(JSON.parse(response));
+                showPlayers(JSON.parse(response));
             }, function (error) {
                 AppService.emit(Events.Notify, error);
                 window.location.href = "";
                 localStorage.removeItem("currentPlayer");
             });
         };
-        this.showPlayers = function (response) {
-            var playerList = response.players[0];
-            var playersView = document.getElementById("playerList");
-            var isPlayerInList = function (name) {
-                var isIn = false;
-                Array.from(playersView.children).forEach(function (element) {
-                    var listPlayerName = $(element).text().split("|")[0];
-                    if (listPlayerName.trim() == name.trim()) {
-                        isIn = true;
-                    }
-                });
-                return isIn;
-            };
-            playerList.forEach(function (player) {
-                if (!isPlayerInList(player.name.split("|")[0])) {
-                    var listElement = document.createElement("li");
-                    $(listElement).text(player.name + " | 0");
-                    playersView === null || playersView === void 0 ? void 0 : playersView.appendChild(listElement);
-                }
-            });
-        };
+        this.watch();
         this.setUpdateInterval();
     }
     return LobbyService;

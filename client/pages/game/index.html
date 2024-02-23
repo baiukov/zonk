@@ -21,6 +21,11 @@
 		<div class='container'>
 
 			<div class='leftside'>
+				<div class='goal'>
+					<h2 id='goalTitle'></h2>
+					<h2 id='goalPoints'></h2>
+				</div>
+
 				<h2 id='players'></h2>
 				<ul class='player-list' id='playerList'></ul>
 			</div>
@@ -28,12 +33,15 @@
 			<div class='window-wrapper'>
 				<form class='window' action='#'>
 
-					<div class='field flex'>
-						<input type='number' id='goal' required>
-						<p id='pts'></p>
+					<div class='dices'>
+						<div class='dice'></div>
+						<div class='dice'></div>
+						<div class='dice'></div>
+						<div class='dice'></div>
+						<div class='dice'></div>
 					</div>
 
-					<button type='submit' class='submit' id='start'></button>
+					<button disabled type='submit' class='submit' id='roll'>Roll</button>
 
 				</form>
 			</div>
