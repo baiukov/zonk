@@ -17,6 +17,15 @@ public class Combination {
             return combinations;
         }
 
+        int pairs = 0;
+        for (int num : signature) {
+            if (num == 2) pairs++;
+        }
+        if (pairs == 3) {
+            combinations.add(Combinations.THREEPAIRS);
+            return combinations;
+        }
+
         if (this.isOneToFive(signature)) {
             combinations.add(Combinations.ONETOFIVE);
             signature[1]--; signature[5]--;
