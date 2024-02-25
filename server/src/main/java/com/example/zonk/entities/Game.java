@@ -54,8 +54,8 @@ public class Game implements Runnable {
         this.players.forEach(player -> {
             player.setPoints(0);
         });
-        Random random = new Random();
-        this.turn = this.players.get(random.nextInt(players.size()));
+        this.turn = this.players.get(0);
+        this.status = GameStatuses.WAITING;
     }
 
     public JSONObject getPlayerState(String playerID) throws GameException {
@@ -78,13 +78,21 @@ public class Game implements Runnable {
     }
 
     public void roll() throws InterruptedException {
-        this.status = GameStatuses.ROLLING;
+        System.out.println(status);
+        status = GameStatuses.ROLLING;
+        dices = null;
         Thread.sleep(5 * 1000);
+        dices = new int[5];
         Random random = new Random();
         for (int i = 0; i < this.dices.length; i++) {
-            this.dices[0] = random.nextInt(4) + 1;
+            dices[i] = random.nextInt(4) + 1;
         }
-        this.status = GameStatuses.WAITING;
+        status = GameStatuses.WAITING;
+        int previousTurnID = players.indexOf(turn);
+        int nextPlayerID = ++previousTurnID >= players.size() ? 0 : previousTurnID;
+        this.turn = players.get(nextPlayerID);
+        System.out.println(turn.getName());
+        System.out.println(Arrays.toString(dices));
     }
 
     public void addPlayer(Player player) { this.players.add(player); }
