@@ -11,8 +11,8 @@ var GameService = /** @class */ (function () {
         this.dataIsNotRollingTime = 0;
         this.watch = function () {
             $("#roll").click(function () {
-                var id = getID();
                 _this.playDiceAnim(secToMs(5), []);
+                var id = getID();
                 AppService.emitServer(ServerEvents.Roll, { id: id }, function (_) { }, function (_) { });
             });
         };
@@ -69,9 +69,8 @@ var GameService = /** @class */ (function () {
                 }
                 if (timeSpent >= intervalTime) {
                     intervalTime *= ((time == -1) ? 1 : 1.15);
-                    console.log(intervalTime);
                     var values = [];
-                    for (var i = 0; i < 5; i++) {
+                    for (var i = 0; i < 6; i++) {
                         values[i] = Math.floor(Math.random() * (6 - 1) + 1);
                     }
                     _this.setDice(values);

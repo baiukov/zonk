@@ -18,7 +18,7 @@ public class Game implements Runnable {
 
     private GameStatuses status;
 
-    private int[] dices = new int[]{1, 2, 3, 4, 5};
+    private int[] dices = new int[]{1, 2, 3, 4, 5, 6};
 
     public Game(Room room, int goal) {
         this.room = room;
@@ -78,26 +78,40 @@ public class Game implements Runnable {
     }
 
     public void roll() throws InterruptedException {
-        System.out.println(status);
         status = GameStatuses.ROLLING;
         dices = null;
         Thread.sleep(5 * 1000);
-        dices = new int[5];
+        dices = new int[6];
         Random random = new Random();
         for (int i = 0; i < this.dices.length; i++) {
             dices[i] = random.nextInt(4) + 1;
         }
+        Combination combination = new Combination();
+        System.out.println(combination.getCombinations(dices));
         status = GameStatuses.WAITING;
         int previousTurnID = players.indexOf(turn);
         int nextPlayerID = ++previousTurnID >= players.size() ? 0 : previousTurnID;
         this.turn = players.get(nextPlayerID);
-        System.out.println(turn.getName());
-        System.out.println(Arrays.toString(dices));
     }
 
     public void addPlayer(Player player) { this.players.add(player); }
+
     public Player removePlayer(Player player) {
         this.players.remove(player);
         return player;
+    }
+
+    public void countPoints() {
+        int[] amounts = new int[6];
+        for (int dice : dices) {
+            amounts[dice]++;
+        }
+        int sum = 0;
+        for (int i = 0; i < amounts.length; i++) {
+            int number = i + 1;
+            if (number == 1 && amounts[number] == 3) {
+                sum += 1000;
+            }
+        }
     }
 }

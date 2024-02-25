@@ -24,9 +24,10 @@ export class GameService {
 
 	private watch = () => {
 		$("#roll").click(() => {
+			this.playDiceAnim(secToMs(5), [])
+
 			const id = getID()
 
-			this.playDiceAnim(secToMs(5), [])
 			AppService.emitServer(
 				ServerEvents.Roll,
 				{ id: id },
@@ -106,9 +107,8 @@ export class GameService {
 			}
 			if (timeSpent >= intervalTime) {
 				intervalTime *= ((time == -1) ? 1 : 1.15)
-				console.log(intervalTime)
 				const values: Array<number> = []
-				for (let i = 0; i < 5; i++) {
+				for (let i = 0; i < 6; i++) {
 					values[i] = Math.floor(Math.random() * (6 - 1) + 1)
 				}
 
