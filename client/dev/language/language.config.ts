@@ -12,8 +12,10 @@ export const languageConfig: LanguageConfig = {
 		ip: "Ip",
 		players: "Players:",
 		goalTitle: "Goal:",
+		goal: "goal points",
 		start: "Start",
 		pts: "pts",
+		total: "total",
 
 		playerAlreadyExists: "Player already exists",
 		playerDoesntExist: "Player is not found",

@@ -3,44 +3,64 @@ import { Events } from '../enums/events.enum.js'
 import { ServerEvents } from '../enums/serverEvents.enum.js'
 import { languageConfig } from '../language/language.config.js'
 import { getID } from '../utils/getID.js'
+import { secToMs } from '../utils/secToMs.js'
 import { showPlayers } from '../utils/showPlayers.js'
 
 export class GameService {
 
 	private diceAnimInterval: number | undefined
 
+	private updateInterval: number | undefined
+
+	private dataIsNotRollingTime: number = 0
+
 	constructor() {
 
-		this.playDiceAnim(10000, [1, 2, 3, 4, 6])
+		//this.playDiceAnim(10000, [1, 2, 3, 4, 6])
 		this.watch()
 		this.watchState()
 
 	}
 
 	private watch = () => {
+		$("#roll").click(() => {
+			this.playDiceAnim(secToMs(5), [])
 
+			const id = getID()
+
+			AppService.emitServer(
+				ServerEvents.Roll,
+				{ id: id },
+				(_: string) => { },
+				(_: string) => { }
+			)
+
+		})
 	}
 
 	private watchState = () => {
 		if (window.location.pathname != "/pages/game/") return
 
-		const id = getID()
+		this.updateInterval = setInterval(() => {
 
-		const data = {
-			"id": id
-		}
-		console.log(data)
+			const id = getID()
 
-		AppService.emitServer(
-			ServerEvents.UpdateState,
-			data,
-			(response: string) => {
-				this.update(response)
-			},
-			(error: string) => {
-
+			const data = {
+				"id": id
 			}
-		)
+
+			AppService.emitServer(
+				ServerEvents.UpdateState,
+				data,
+				(response: string) => {
+					this.update(response)
+				},
+				(_: string) => {
+
+				}
+			)
+
+		}, 100)
 	}
 
 	private update = (dataStr: string) => {
@@ -53,36 +73,42 @@ export class GameService {
 		$("#totalPoints").text(data.total)
 		showPlayers(data)
 		$("#goalPoints").text(data.goal)
-		console.log(data.turn)
 		if (data.turn) {
 			$("#roll").removeAttr("disabled")
 		} else {
 			$("#roll").attr("disabled")
 		}
 
+
 		if (data.isRolling) {
-			if (!data.turn) {
-				this.playDiceAnim(-1, [])
+			$("#roll").attr("disabled", '')
+			if (!data.turn && !this.diceAnimInterval) {
+				this.playDiceAnim(secToMs(4.9), [])
 			}
-		} else {
+		}
+
+
+		if (data.dices) {
+			clearInterval(this.diceAnimInterval)
+			this.diceAnimInterval = undefined
 			this.setDice(data.dices)
 		}
 	}
 
 	private playDiceAnim = (time: number, correctValues: Array<number>) => {
-
 		let intervalTime = 100
 		let timeSpent = 0
 		this.diceAnimInterval = setInterval(() => {
-			if (timeSpent == time) {
+			console.log(timeSpent, time)
+			if (timeSpent >= time && time != -1) {
 				this.setDice(correctValues)
 				clearInterval(this.diceAnimInterval)
 				return
 			}
 			if (timeSpent >= intervalTime) {
-				intervalTime *= time == -1 ? 1 : 1.15
+				intervalTime *= ((time == -1) ? 1 : 1.15)
 				const values: Array<number> = []
-				for (let i = 0; i < 5; i++) {
+				for (let i = 0; i < 6; i++) {
 					values[i] = Math.floor(Math.random() * (6 - 1) + 1)
 				}
 
@@ -95,7 +121,6 @@ export class GameService {
 	}
 
 	private setDice(values: Array<number>) {
-		clearInterval(this.diceAnimInterval)
 		const diceField = $(".dices")
 		const dices = diceField.children("div")
 		dices.each((i: number) => {

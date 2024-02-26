@@ -18,7 +18,7 @@ public class Game implements Runnable {
 
     private GameStatuses status;
 
-    private int[] dices = new int[]{1, 2, 3, 4, 5};
+    private int[] dices = new int[]{1, 2, 3, 4, 5, 6};
 
     public Game(Room room, int goal) {
         this.room = room;
@@ -54,8 +54,8 @@ public class Game implements Runnable {
         this.players.forEach(player -> {
             player.setPoints(0);
         });
-        Random random = new Random();
-        this.turn = this.players.get(random.nextInt(players.size()));
+        this.turn = this.players.get(0);
+        this.status = GameStatuses.WAITING;
     }
 
     public JSONObject getPlayerState(String playerID) throws GameException {
@@ -78,18 +78,40 @@ public class Game implements Runnable {
     }
 
     public void roll() throws InterruptedException {
-        this.status = GameStatuses.ROLLING;
+        status = GameStatuses.ROLLING;
+        dices = null;
         Thread.sleep(5 * 1000);
+        dices = new int[6];
         Random random = new Random();
         for (int i = 0; i < this.dices.length; i++) {
-            this.dices[0] = random.nextInt(4) + 1;
+            dices[i] = random.nextInt(4) + 1;
         }
-        this.status = GameStatuses.WAITING;
+        Combination combination = new Combination();
+        System.out.println(combination.getCombinations(dices));
+        status = GameStatuses.WAITING;
+        int previousTurnID = players.indexOf(turn);
+        int nextPlayerID = ++previousTurnID >= players.size() ? 0 : previousTurnID;
+        this.turn = players.get(nextPlayerID);
     }
 
     public void addPlayer(Player player) { this.players.add(player); }
+
     public Player removePlayer(Player player) {
         this.players.remove(player);
         return player;
+    }
+
+    public void countPoints() {
+        int[] amounts = new int[6];
+        for (int dice : dices) {
+            amounts[dice]++;
+        }
+        int sum = 0;
+        for (int i = 0; i < amounts.length; i++) {
+            int number = i + 1;
+            if (number == 1 && amounts[number] == 3) {
+                sum += 1000;
+            }
+        }
     }
 }

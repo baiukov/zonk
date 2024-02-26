@@ -3,24 +3,32 @@ import { Events } from '../enums/events.enum.js';
 import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
+import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';
 var GameService = /** @class */ (function () {
     function GameService() {
         var _this = this;
+        this.dataIsNotRollingTime = 0;
         this.watch = function () {
+            $("#roll").click(function () {
+                _this.playDiceAnim(secToMs(5), []);
+                var id = getID();
+                AppService.emitServer(ServerEvents.Roll, { id: id }, function (_) { }, function (_) { });
+            });
         };
         this.watchState = function () {
             if (window.location.pathname != "/pages/game/")
                 return;
-            var id = getID();
-            var data = {
-                "id": id
-            };
-            console.log(data);
-            AppService.emitServer(ServerEvents.UpdateState, data, function (response) {
-                _this.update(response);
-            }, function (error) {
-            });
+            _this.updateInterval = setInterval(function () {
+                var id = getID();
+                var data = {
+                    "id": id
+                };
+                AppService.emitServer(ServerEvents.UpdateState, data, function (response) {
+                    _this.update(response);
+                }, function (_) {
+                });
+            }, 100);
         };
         this.update = function (dataStr) {
             var data = JSON.parse(dataStr);
@@ -31,7 +39,6 @@ var GameService = /** @class */ (function () {
             $("#totalPoints").text(data.total);
             showPlayers(data);
             $("#goalPoints").text(data.goal);
-            console.log(data.turn);
             if (data.turn) {
                 $("#roll").removeAttr("disabled");
             }
@@ -39,11 +46,14 @@ var GameService = /** @class */ (function () {
                 $("#roll").attr("disabled");
             }
             if (data.isRolling) {
-                if (!data.turn) {
-                    _this.playDiceAnim(-1, []);
+                $("#roll").attr("disabled", '');
+                if (!data.turn && !_this.diceAnimInterval) {
+                    _this.playDiceAnim(secToMs(4.9), []);
                 }
             }
-            else {
+            if (data.dices) {
+                clearInterval(_this.diceAnimInterval);
+                _this.diceAnimInterval = undefined;
                 _this.setDice(data.dices);
             }
         };
@@ -51,15 +61,16 @@ var GameService = /** @class */ (function () {
             var intervalTime = 100;
             var timeSpent = 0;
             _this.diceAnimInterval = setInterval(function () {
-                if (timeSpent == time) {
+                console.log(timeSpent, time);
+                if (timeSpent >= time && time != -1) {
                     _this.setDice(correctValues);
                     clearInterval(_this.diceAnimInterval);
                     return;
                 }
                 if (timeSpent >= intervalTime) {
-                    intervalTime *= time == -1 ? 1 : 1.15;
+                    intervalTime *= ((time == -1) ? 1 : 1.15);
                     var values = [];
-                    for (var i = 0; i < 5; i++) {
+                    for (var i = 0; i < 6; i++) {
                         values[i] = Math.floor(Math.random() * (6 - 1) + 1);
                     }
                     _this.setDice(values);
@@ -67,12 +78,11 @@ var GameService = /** @class */ (function () {
                 timeSpent += 100;
             }, 100);
         };
-        this.playDiceAnim(10000, [1, 2, 3, 4, 6]);
+        //this.playDiceAnim(10000, [1, 2, 3, 4, 6])
         this.watch();
         this.watchState();
     }
     GameService.prototype.setDice = function (values) {
-        clearInterval(this.diceAnimInterval);
         var diceField = $(".dices");
         var dices = diceField.children("div");
         dices.each(function (i) {

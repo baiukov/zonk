@@ -22,7 +22,7 @@ public class Combination {
             if (num == 2) pairs++;
         }
         if (pairs == 3) {
-            combinations.add(Combinations.THREEPAIRS1);
+            combinations.add(Combinations.THREEPAIRS);
             return combinations;
         }
 

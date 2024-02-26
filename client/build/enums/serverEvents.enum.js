@@ -7,4 +7,5 @@ export var ServerEvents;
     ServerEvents["StartGame"] = "api/createGame";
     ServerEvents["UpdateState"] = "api/getState";
     ServerEvents["AddPlayer"] = "api/addPlayer";
+    ServerEvents["Roll"] = "api/roll";
 })(ServerEvents || (ServerEvents = {}));

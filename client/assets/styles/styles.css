@@ -224,3 +224,10 @@ main {
 	display: flex;
 	gap: 10px;
 }
+
+.click-handler {
+	width: 90px;
+	height: 90px;
+	position: absolute;
+	z-index: 5;
+}
