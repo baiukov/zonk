@@ -20,7 +20,6 @@ export class LoginService {
 	private checkPlayer = () => {
 		if (window.location.pathname != "/") return
 
-		console.log("1")
 		AppService.emitServer(
 			ServerEvents.Check,
 			{ id: getID() },

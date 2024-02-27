@@ -10,6 +10,8 @@ export var languageConfig = {
         start: "Start",
         pts: "pts",
         total: "total",
+        enough: "enough",
+        reroll: "reroll",
         playerAlreadyExists: "Player already exists",
         playerDoesntExist: "Player is not found",
         roomDoesntExist: "Room is not found",

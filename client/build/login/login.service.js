@@ -13,7 +13,6 @@ var LoginService = /** @class */ (function () {
         this.checkPlayer = function () {
             if (window.location.pathname != "/")
                 return;
-            console.log("1");
             AppService.emitServer(ServerEvents.Check, { id: getID() }, function (status) {
                 console.log(status);
                 switch (status) {

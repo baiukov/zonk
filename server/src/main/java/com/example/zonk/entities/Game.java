@@ -18,7 +18,7 @@ public class Game implements Runnable {
 
     private GameStatuses status;
 
-    private int[] dices = new int[]{1, 2, 3, 4, 5, 6};
+    private int[] dices = null;
 
     public Game(Room room, int goal) {
         this.room = room;
@@ -52,7 +52,8 @@ public class Game implements Runnable {
         this.players = new ArrayList<>(this.room.getPlayers());
         Collections.shuffle(this.players);
         this.players.forEach(player -> {
-            player.setPoints(0);
+            player.setTotalPoints(0);
+            player.setCurrentPoints(0);
         });
         this.turn = this.players.get(0);
         this.status = GameStatuses.WAITING;
@@ -69,10 +70,12 @@ public class Game implements Runnable {
         JSONObject state = new JSONObject();
         Player player = optionalPlayer.get();
         state.put("turn", player.equals(this.turn));
-        state.put("total", player.getPoints());
+        state.put("total", player.getTotalPoints());
+        state.put("currentPoints", player.getCurrentPoints());
         state.put("players", this.players);
         state.put("goal", this.goal);
         state.put("isRolling", this.status == GameStatuses.ROLLING);
+        state.put("isPending", this.status == GameStatuses.PENDING);
         state.put("dices", this.dices);
         return state;
     }
@@ -84,11 +87,11 @@ public class Game implements Runnable {
         dices = new int[6];
         Random random = new Random();
         for (int i = 0; i < this.dices.length; i++) {
-            dices[i] = random.nextInt(4) + 1;
+            dices[i] = random.nextInt(5) + 1;
         }
         Combination combination = new Combination();
-        System.out.println(combination.getCombinations(dices));
-        status = GameStatuses.WAITING;
+        this.turn.setCurrentPoints(combination.countPoints(combination.getCombinations(dices)));
+        status = GameStatuses.PENDING;
         int previousTurnID = players.indexOf(turn);
         int nextPlayerID = ++previousTurnID >= players.size() ? 0 : previousTurnID;
         this.turn = players.get(nextPlayerID);
@@ -99,19 +102,5 @@ public class Game implements Runnable {
     public Player removePlayer(Player player) {
         this.players.remove(player);
         return player;
-    }
-
-    public void countPoints() {
-        int[] amounts = new int[6];
-        for (int dice : dices) {
-            amounts[dice]++;
-        }
-        int sum = 0;
-        for (int i = 0; i < amounts.length; i++) {
-            int number = i + 1;
-            if (number == 1 && amounts[number] == 3) {
-                sum += 1000;
-            }
-        }
     }
 }

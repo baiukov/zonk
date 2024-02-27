@@ -21,5 +21,6 @@ public enum Combinations {
     TRIPLE6,
     TRIPLE6DOUBLED,
     THREEPAIRS,
+    ALLISCOMBINATION,
 
 }

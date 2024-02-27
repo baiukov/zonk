@@ -10,7 +10,8 @@ public class Player {
 
     private final String sessionId = UUID.randomUUID().toString();
 
-    private int points = 0;
+    private int totalPoints = 0;
+    private int currentPoints = 0;
 
     private String status = PlayerStatuses.UNAUTHORIZED;
 
@@ -22,22 +23,26 @@ public class Player {
 
     public String getSessionId() { return sessionId; }
 
-    public int getPoints() { return this.points; }
+    public int getTotalPoints() { return this.totalPoints; }
+    public int getCurrentPoints() { return this.currentPoints; }
 
     public String getStatus() { return this.status; }
 
     public void setName(String name) {this.playerName = name; }
 
-    public void setPoints(int pts) { this.points = pts; }
+    public void setTotalPoints(int pts) { this.totalPoints = pts; }
+    public void setCurrentPoints(int pts) { this.currentPoints = pts; }
 
     public void setStatus(String status) {this.status = status;}
 
-    public void addPoints(int points) {
-        this.points += points;
+    public void addTotalPoints(int points) {
+        this.totalPoints += points;
     }
+    public void addCurrentPoints(int points) { this.currentPoints += points; }
 
-    public void withdrawPoints(int points) {
-        this.points -= points;
+    public void withdrawTotalPoints(int points) {
+        this.totalPoints -= points;
     }
+    public void withdrawCurrentPoints(int points) { this.currentPoints -= points; }
 
 }

@@ -16,6 +16,8 @@ export const languageConfig: LanguageConfig = {
 		start: "Start",
 		pts: "pts",
 		total: "total",
+		enough: "enough",
+		reroll: "reroll",
 
 		playerAlreadyExists: "Player already exists",
 		playerDoesntExist: "Player is not found",
