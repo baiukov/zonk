@@ -49,4 +49,34 @@ public class GameController {
         }
     }
 
+    @PostMapping("/submitRoll")
+    public ResponseEntity<String> submitRoll(@RequestBody String dataStr) {
+        try {
+            this.appService.submitRoll(dataStr);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reroll")
+    public ResponseEntity<String> reroll(@RequestBody String dataStr) {
+        try {
+            this.appService.reroll(dataStr);
+            return ResponseEntity.ok(null);
+        } catch ( Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/checkCombination")
+    public ResponseEntity<String> checkCombination(@RequestBody String dataStr) {
+        try {
+            String result = this.appService.checkCombination(dataStr);
+            return ResponseEntity.ok(result);
+        } catch(Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 }

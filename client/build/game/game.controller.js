@@ -5,7 +5,7 @@ var GameController = /** @class */ (function () {
         var _this = this;
         this.gameService = gameService;
         AppService.on(Events.PostLanguage, function (newLanguage) {
-            _this.gameService.currentLanguage = newLanguage;
+            _this.gameService.setCurrentLanguage(newLanguage);
         });
     }
     return GameController;

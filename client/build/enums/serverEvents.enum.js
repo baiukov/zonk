@@ -8,4 +8,7 @@ export var ServerEvents;
     ServerEvents["UpdateState"] = "api/getState";
     ServerEvents["AddPlayer"] = "api/addPlayer";
     ServerEvents["Roll"] = "api/roll";
+    ServerEvents["SubmitRoll"] = "api/submitRoll";
+    ServerEvents["Reroll"] = "api/reroll";
+    ServerEvents["CheckCombination"] = "api/checkCombination";
 })(ServerEvents || (ServerEvents = {}));

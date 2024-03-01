@@ -98,11 +98,11 @@ main {
 	background-color: #dbffde;
 }
 
-#roll {
+#roll, #submitRoll {
 	background-color: #3A6C42;
 }
 
-#roll:hover {
+#roll:hover, #submitRoll:hover {
 	background-color: #325a38;
 }
 
@@ -196,7 +196,7 @@ main {
 	gap: 17px;
 }
 
-.dots5 {
+.dots5, .dots51 {
 	display: flex;
 	height: 65%;
 	flex-direction: column;
@@ -208,7 +208,7 @@ main {
 	gap: 10px;
 }
 
-.dots5:nth-child(n) {
+.dots51 {
 	justify-content: center;
 }
 

@@ -1,5 +1,6 @@
 package com.example.zonk.entities;
 
+import com.example.zonk.enums.Combinations;
 import com.example.zonk.enums.GameStatuses;
 import com.example.zonk.exeptions.GameException;
 import org.json.JSONObject;
@@ -16,7 +17,7 @@ public class Game implements Runnable {
 
     private List<Player> players;
 
-    private GameStatuses status;
+    private String status;
 
     private int[] dices = null;
 
@@ -29,9 +30,11 @@ public class Game implements Runnable {
 
     public Player getTurn() { return this.turn; }
 
+    public int[] getDices() { return this.dices; }
+
     public int getGoal() { return this.goal; }
 
-    public GameStatuses getStatus() { return this.status; }
+    public String getStatus() { return this.status; }
 
     public List<Player> getPlayers() { return this.players; }
 
@@ -41,7 +44,9 @@ public class Game implements Runnable {
 
     public void setPlayers(List<Player> players) { this.players = players; }
 
-    public void setStatus(GameStatuses status) { this.status = status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public void setDices(int[] dices) {this.dices = dices;}
 
     @Override
     public void run() {
@@ -74,13 +79,14 @@ public class Game implements Runnable {
         state.put("currentPoints", player.getCurrentPoints());
         state.put("players", this.players);
         state.put("goal", this.goal);
-        state.put("isRolling", this.status == GameStatuses.ROLLING);
-        state.put("isPending", this.status == GameStatuses.PENDING);
+        state.put("status", this.status);
         state.put("dices", this.dices);
+        state.put("bannedDices", turn.getBannedDices());
         return state;
     }
 
     public void roll() throws InterruptedException {
+        turn.setStableCurrentPoints(0);
         status = GameStatuses.ROLLING;
         dices = null;
         Thread.sleep(5 * 1000);
@@ -89,12 +95,83 @@ public class Game implements Runnable {
         for (int i = 0; i < this.dices.length; i++) {
             dices[i] = random.nextInt(5) + 1;
         }
+        int[] bannedDices = turn.getBannedDices();
+        for (int i = 0; i < bannedDices.length; i++) {
+            if (bannedDices[i] == 0) continue;
+            dices[i] = 0;
+        }
         Combination combination = new Combination();
-        this.turn.setCurrentPoints(combination.countPoints(combination.getCombinations(dices)));
+        List<Combinations> combinations = combination.getCombinations(dices);
+        List<Combinations> bannedCombinations = combination.getCombinations(turn.getBannedDices());
+        for (Combinations currentCombination : bannedCombinations) {
+            combinations.remove(currentCombination);
+        }
+        turn.setCurrentPoints(combination.countPoints(combinations));
         status = GameStatuses.PENDING;
+    }
+
+    public void submitRoll() {
+        Player player = this.turn;
+        int points = player.getCurrentPoints();
+        player.addTotalPoints(points);
+        player.setCurrentPoints(0);
+        player.setBannedDices(new int[6]);
+        if (player.getTotalPoints() >= this.goal) {
+            System.out.println("win");
+        }
         int previousTurnID = players.indexOf(turn);
         int nextPlayerID = ++previousTurnID >= players.size() ? 0 : previousTurnID;
-        this.turn = players.get(nextPlayerID);
+        turn = players.get(nextPlayerID);
+        status = GameStatuses.WAITING;
+    }
+
+    public boolean isACombination(Map<Integer, Integer> dices, Player player) {
+        Combination combination = new Combination();
+        int[] diceValues = new int[6];
+
+        for (int id : dices.keySet()) {
+            diceValues[id] = dices.get(id);
+        }
+        List<Combinations> combinations = combination.getCombinations(diceValues);
+        List<Combinations> bannedCombinations = combination.getCombinations(player.getBannedDices());
+        for (Combinations currentCombination : bannedCombinations) {
+            combinations.remove(currentCombination);
+        }
+
+        return !combinations.isEmpty();
+
+    }
+
+    public void reroll(Map<Integer, Integer> chosenDices) throws GameException, InterruptedException {
+        Combination combination = new Combination();
+        Player player = this.turn;
+
+        int[] diceValues = new int[6];
+
+        for (int id : chosenDices.keySet()) {
+            diceValues[id] = chosenDices.get(id);
+        }
+
+        if (!this.isACombination(chosenDices, player)) {
+            throw new GameException("DicesIsNotCombination");
+        }
+
+        List<Combinations> combinations = combination.getCombinations(diceValues);
+        int price = combination.countPoints(combinations);
+        player.addStableCurrentPoints(price);
+        List<Combinations> bannedCombinations = combination.getCombinations(player.getBannedDices());
+        for (Combinations currentCombination : bannedCombinations) {
+            combinations.remove(currentCombination);
+        }
+
+        if (Arrays.equals(player.getBannedDices(), diceValues)) {
+            throw new GameException("PlayedCombination");
+        }
+
+        player.setBannedDices(diceValues);
+        this.status = GameStatuses.ROLLING;
+        Rolling rolling = new Rolling(this);
+        new Thread(rolling).start();
     }
 
     public void addPlayer(Player player) { this.players.add(player); }

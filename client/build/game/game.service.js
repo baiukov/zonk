@@ -1,35 +1,118 @@
 import { AppService } from '../app.service.js';
 import { Events } from '../enums/events.enum.js';
+import { GameStatuses } from '../enums/gameStatuses.enum.js';
 import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
 import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';
+import { GameView } from './game.view.js';
 var GameService = /** @class */ (function () {
     function GameService() {
         var _this = this;
-        this.dataIsNotRollingTime = 0;
-        this.selectedDices = [false, false, false, false, false, false];
         this.currentLanguage = "ENG";
+        this.view = new GameView();
+        this.intervals = {
+            numberAnimInterval: null
+        };
+        this.selectedDices = [];
+        this.bannedDices = [];
+        this.setCurrentLanguage = function (language) {
+            _this.currentLanguage = language;
+        };
         this.watch = function () {
-            $("#roll").click(function () {
-                _this.playDiceAnim(secToMs(5), []);
-                var id = getID();
-                AppService.emitServer(ServerEvents.Roll, { id: id }, function (_) { }, function (_) { });
+            $("#roll").click(_this.roll);
+            $("#reroll").click(_this.checkCombination);
+            $("#submitRoll").click(_this.submitRoll);
+        };
+        this.submitRoll = function () {
+            var id = getID();
+            AppService.emitServer(ServerEvents.SubmitRoll, { id: id }, function (_) {
+                _this.selectedDices = [];
+                _this.bannedDices = [];
+            }, function (_) { });
+            return false;
+        };
+        this.checkCombination = function () {
+            if (_this.selectedDices.length === 0) {
+                AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].pickOne);
+                return;
+            }
+            var id = getID();
+            var chosenDices = {};
+            for (var i = 0; i < _this.selectedDices.length; i++) {
+                var diceID = _this.selectedDices[i];
+                chosenDices[diceID] = _this.getDiceAmount(diceID);
+            }
+            var data = {
+                id: id,
+                chosenDices: chosenDices
+            };
+            AppService.emitServer(ServerEvents.CheckCombination, data, function (response) {
+                if (JSON.parse(response).result) {
+                    _this.reroll(data);
+                }
+                else {
+                    AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].wrongCombination);
+                }
+            }, function (message) {
+                AppService.emit(Events.Notify, message);
                 return false;
             });
+            return false;
         };
-        this.watchState = function () {
+        this.reroll = function (data) {
+            $(".click-handler").click(function () { return false; });
+            AppService.emitServer(ServerEvents.Reroll, data, function (_) {
+                for (var i = 0; i < 6; i++) {
+                    if (_this.selectedDices.includes(i))
+                        continue;
+                    _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
+                }
+            }, function (_) {
+            });
+            return false;
+        };
+        this.getDiceAmount = function (diceID) {
+            var allDices = $(".dice");
+            var amount = 0;
+            allDices.each(function (i) {
+                var dice = allDices[i];
+                var diceIDStr = $(dice).attr("id");
+                if (!diceIDStr)
+                    return undefined;
+                var currentDiceID = parseInt(diceIDStr[diceIDStr.length - 1]);
+                if (currentDiceID !== diceID)
+                    return undefined;
+                var diceChildren = $(dice).children("div");
+                var dots = diceChildren[0];
+                var dotsAmountStr = $(dots).attr("class");
+                if (!dotsAmountStr)
+                    return undefined;
+                var dotsAmount = parseInt(dotsAmountStr[dotsAmountStr.length - 1]);
+                amount = dotsAmount;
+            });
+            return amount;
+        };
+        this.roll = function () {
+            for (var i = 0; i < 6; i++) {
+                if (_this.selectedDices.includes(i))
+                    continue;
+                _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
+            }
+            var id = getID();
+            AppService.emitServer(ServerEvents.Roll, { id: id }, function (_) { }, function (_) { });
+            return false;
+        };
+        this.watchUpdate = function () {
             if (window.location.pathname != "/pages/game/")
                 return;
-            _this.updateInterval = setInterval(function () {
+            setInterval(function () {
                 var id = getID();
-                var data = {
-                    "id": id
-                };
-                AppService.emitServer(ServerEvents.UpdateState, data, function (response) {
+                AppService.emitServer(ServerEvents.UpdateState, { id: id }, function (response) {
                     _this.update(response);
-                }, function (_) {
+                }, function (error) {
+                    AppService.emit(Events.Notify, error);
                 });
             }, 100);
         };
@@ -39,134 +122,160 @@ var GameService = /** @class */ (function () {
                 AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].smthWrong);
                 return;
             }
-            $("#totalPoints").text(data.total);
+            var status = data.status;
+            var isTurn = data.turn;
+            _this.checkTurn(isTurn);
+            _this.setPoints($("#totalPoints"), data.total);
+            _this.setPoints($("#goalPoints"), data.goal);
             showPlayers(data);
-            $("#goalPoints").text(data.goal);
-            if (data.turn) {
+            _this.setDicesForNotTurn(status, isTurn, data.bannedDices);
+            _this.updateDices(data.dices, status, data.bannedDices);
+            _this.setCurrentPoints(data.currentPoints);
+            _this.checkButtonsVisibilty(status, isTurn);
+            _this.selectedUpdate();
+        };
+        this.selectedUpdate = function () {
+            for (var i = 0; i < 6; i++) {
+                var element = $("#dice" + i);
+                if (_this.selectedDices.includes(i)) {
+                    if ($(element).hasClass('selected'))
+                        return;
+                    $(element).addClass('selected');
+                    return;
+                }
+                $(element).removeClass('selected');
+            }
+        };
+        this.checkButtonsVisibilty = function (status, turn) {
+            if (turn && status != GameStatuses.PENDING) {
+                $("#roll").show();
                 $("#roll").removeAttr("disabled");
             }
             else {
                 $("#roll").attr("disabled");
             }
-            if (data.isRolling) {
+            if (status != GameStatuses.PENDING || !turn) {
+                $("#reroll").hide();
+                $("#submitRoll").hide();
+                $("#roll").show();
+            }
+            if (status === GameStatuses.PENDING && turn && !$("#reroll").is(":visible")) {
+                $("#roll").hide();
+                $("#submitRoll").show();
+                $("#reroll").show();
+            }
+            if (status === GameStatuses.ROLLING) {
                 $("#roll").attr("disabled", '');
-                if (!data.turn && !_this.diceAnimInterval) {
-                    _this.playDiceAnim(secToMs(4.9), []);
-                }
             }
-            if (data.dices) {
-                clearInterval(_this.diceAnimInterval);
-                _this.diceAnimInterval = undefined;
-                _this.setDice(data.dices);
-            }
+        };
+        this.setCurrentPoints = function (currentPoints) {
             var element = $("#currentPoints");
-            if (parseInt($(element).text()) != data.currentPoints && !_this.numberInterval) {
-                _this.playNumbersAnim(element, parseInt($(element).text()) || 0, data.currentPoints);
+            if (parseInt($(element).text()) === currentPoints || _this.intervals.numberAnimInterval)
+                return;
+            _this.playNumbersAnim(element, parseInt($(element).text()) || 0, currentPoints);
+        };
+        this.updateDices = function (dices, status, dataBannedDices) {
+            var bannedDices = [];
+            for (var i = 0; i < dataBannedDices.length; i++) {
+                if (dataBannedDices[i] == 0)
+                    continue;
+                bannedDices.push(i);
             }
-            if (!data.isPending || !data.turn) {
-                $("#roll").text(languageConfig[_this.currentLanguage].roll);
-                $("#reroll").remove();
+            if (!dices || status == GameStatuses.ROLLING)
+                return;
+            for (var i = 0; i < dices.length; i++) {
+                _this.setDice(i, dices[i], !bannedDices.includes(i));
             }
-            if (data.isPending && data.turn && $("#reroll").length <= 0) {
-                $("#roll").text(languageConfig[_this.currentLanguage].enough);
-                var reroll = document.createElement("button");
-                $(reroll).attr("type", "submit")
-                    .addClass("reroll")
-                    .attr("id", "reroll")
-                    .text(languageConfig[_this.currentLanguage].reroll);
-                $(".submits").append(reroll);
+            bannedDices.forEach(function (dice) {
+                if (_this.selectedDices.includes(dice))
+                    return;
+                _this.selectedDices.push(dice);
+            });
+        };
+        this.setPoints = function (element, points) {
+            var currentPoints = parseInt(element.text());
+            if (currentPoints === points)
+                return;
+            element.text(points);
+        };
+        this.checkTurn = function (turn) {
+        };
+        this.setDicesForNotTurn = function (status, turn, bannedDices) {
+            if (status != GameStatuses.ROLLING)
+                return;
+            if (turn)
+                return;
+            $("#roll").attr("disabled", '');
+            var dicesToRoll = [0, 1, 2, 3, 4, 5];
+            if (bannedDices) {
+                for (var i = 0; i < bannedDices.length; i++) {
+                    dicesToRoll.splice(dicesToRoll.indexOf(bannedDices[i]), 1);
+                }
+            }
+            dicesToRoll.forEach(function (dice) {
+                _this.playDiceAnim(dice, 5, 1);
+            });
+        };
+        this.init = function () {
+            $("#roll").hide();
+            $("#reroll").hide();
+            $("#submitRoll").hide();
+            for (var i = 0; i < 6; i++) {
+                _this.setDice(i, i + 1, true);
             }
         };
-        this.playDiceAnim = function (time, correctValues) {
-            var intervalTime = 100;
-            var timeSpent = 0;
-            _this.diceAnimInterval = setInterval(function () {
-                if (timeSpent >= time && time != -1) {
-                    _this.setDice(correctValues);
-                    clearInterval(_this.diceAnimInterval);
+        this.playDiceAnim = function (diceID, time, correctValue) {
+            var nextTimeToSwitch = time * 0.01;
+            var currentTime = 0;
+            var interval = setInterval(function () {
+                if (currentTime >= nextTimeToSwitch) {
+                    var randomDice = Math.round(Math.random() * 5 + 1);
+                    _this.setDice(diceID, randomDice, false);
+                    nextTimeToSwitch *= 1.15;
+                }
+                if (currentTime >= time) {
+                    _this.setDice(diceID, correctValue, true);
+                    clearInterval(interval);
                     return;
                 }
-                if (timeSpent >= intervalTime) {
-                    intervalTime *= ((time == -1) ? 1 : 1.15);
-                    var values = [];
-                    for (var i = 0; i < 6; i++) {
-                        values[i] = Math.floor(Math.random() * (6 - 1) + 1);
-                    }
-                    _this.setDice(values);
-                }
-                timeSpent += 100;
-            }, 100);
+                currentTime += 50;
+            }, 50);
         };
-        //this.playDiceAnim(10000, [1, 2, 3, 4, 6])
-        this.setDice([1, 2, 3, 4, 5, 6]);
+        this.setDice = function (diceID, amount, isClickable) {
+            var diceField = $(".dices");
+            var dices = diceField.children("div");
+            var setDiceToChild = function (i) {
+                var currentDice = dices[i];
+                var currentDiceStr = $(currentDice).attr("id");
+                if (!currentDiceStr) {
+                    return;
+                }
+                var currentDiceID = currentDiceStr[currentDiceStr.length - 1];
+                if (parseInt(currentDiceID) != diceID)
+                    return;
+                var diceChildren = $(currentDice).children("div");
+                if (!diceChildren)
+                    return;
+                var diceFirstChild = diceChildren[0];
+                var diceFirstChildIDStr = $(diceFirstChild).attr("class");
+                if (diceFirstChildIDStr) {
+                    var diceFirstChildAmount = diceFirstChildIDStr[diceFirstChildIDStr.length - 1];
+                    if (parseInt(diceFirstChildAmount) === amount)
+                        return;
+                }
+                $(currentDice).empty();
+                _this.view.setDiceAmount(currentDice, amount);
+                _this.view.setClickHandler(parseInt(currentDiceID), _this.selectedDices, isClickable, _this.bannedDices);
+            };
+            dices.each(function (i) {
+                setDiceToChild(i);
+            });
+        };
+        // this.playDiceAnim(1, 5000, 5)
+        this.init();
         this.watch();
-        this.watchState();
+        this.watchUpdate();
     }
-    GameService.prototype.setDice = function (values) {
-        var _this = this;
-        var diceField = $(".dices");
-        var dices = diceField.children("div");
-        var j = 1;
-        dices.each(function (i) {
-            var dice = dices[i];
-            var doesExist = false;
-            var diceChildren = $(dice).children("div");
-            var dots = values[i];
-            diceChildren.each(function (index) {
-                var _a;
-                var element = diceChildren[index];
-                if (!((_a = $(element).attr("class")) === null || _a === void 0 ? void 0 : _a.startsWith("dots")))
-                    return;
-                var dotsIndexStr = $(element).attr("class");
-                var dotsIndex = parseInt(dotsIndexStr.charAt(dotsIndexStr.length - 1));
-                if (dotsIndex == dots) {
-                    doesExist = true;
-                }
-            });
-            if (doesExist)
-                return;
-            $(dice).empty();
-            if (dots === 5) {
-                var dotsFirst = $("<div class='dots5'></div>");
-                var dotsSecond = $("<div class='dots5'></div>");
-                var dotsThird = $("<div class='dots5'></div>");
-                $(dotsFirst).append($("<div class='dot'></div>"));
-                $(dotsFirst).append($("<div class='dot'></div>"));
-                $(dotsSecond).append($("<div class='dot'></div>"));
-                $(dotsThird).append($("<div class='dot'></div>"));
-                $(dotsThird).append($("<div class='dot'></div>"));
-                $(dice).append(dotsFirst, dotsSecond, dotsThird);
-                return;
-            }
-            var newDots = document.createElement("div");
-            $(newDots).addClass("dots" + values[i]);
-            for (var j_1 = 0; j_1 < values[i]; j_1++) {
-                var dot = document.createElement("div");
-                $(dot).addClass("dot");
-                $(newDots).append(dot);
-            }
-            $(dice).append(newDots);
-        });
-        for (var i = 1; i <= 6; i++) {
-            if ($("#clickHandler" + i).length > 0)
-                return;
-            var clickHandler = document.createElement("div");
-            $(clickHandler).addClass("click-handler");
-            $(clickHandler).attr("id", "clickHandler" + i);
-            $(clickHandler).click(function (event) {
-                var idStr = $(event.target).attr("id");
-                var id = parseInt(idStr === null || idStr === void 0 ? void 0 : idStr.charAt(idStr.length - 1));
-                if (!_this.selectedDices[id]) {
-                    $("#dice" + id).addClass("selected");
-                }
-                else {
-                    $("#dice" + id).removeClass("selected");
-                }
-                _this.selectedDices[id] = !_this.selectedDices[id];
-            });
-            $("#dice" + i).append(clickHandler);
-        }
-    };
     GameService.prototype.playNumbersAnim = function (element, start, stop) {
         var _this = this;
         if (start === 0 && stop === 0) {
@@ -176,10 +285,10 @@ var GameService = /** @class */ (function () {
         var interval = 10;
         var difference = Math.abs(start - stop);
         var temp = start > stop ? stop : start;
-        this.numberInterval = setInterval(function () {
+        this.intervals.numberAnimInterval = setInterval(function () {
             if ((temp >= stop && start <= stop) || (temp <= stop && start >= stop)) {
-                clearInterval(_this.numberInterval);
-                _this.numberInterval = undefined;
+                clearInterval(_this.intervals.numberAnimInterval || undefined);
+                _this.intervals.numberAnimInterval = null;
                 $(element).text(stop.toFixed(0));
                 return;
             }

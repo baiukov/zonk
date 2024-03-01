@@ -1,72 +1,164 @@
 import { AppService } from '../app.service.js'
 import { Events } from '../enums/events.enum.js'
+import { GameStatuses } from '../enums/gameStatuses.enum.js'
 import { ServerEvents } from '../enums/serverEvents.enum.js'
 import { languageConfig } from '../language/language.config.js'
 import { getID } from '../utils/getID.js'
 import { secToMs } from '../utils/secToMs.js'
 import { showPlayers } from '../utils/showPlayers.js'
+import { GameView } from './game.view.js'
 
 export class GameService {
 
-	private diceAnimInterval: number | undefined
+	private currentLanguage = "ENG"
+	private view = new GameView()
+	private intervals: Record<string, number | null> = {
+		numberAnimInterval: null
+	}
+	private selectedDices: Array<number> = []
+	private bannedDices: Array<number> = []
 
-	private updateInterval: number | undefined
-
-	private dataIsNotRollingTime: number = 0
-
-	private selectedDices: Array<boolean> = [false, false, false, false, false, false]
-
-	private numberInterval: number | undefined
-
-	public currentLanguage = "ENG"
+	public setCurrentLanguage = (language: string) => {
+		this.currentLanguage = language
+	}
 
 	constructor() {
-
-		//this.playDiceAnim(10000, [1, 2, 3, 4, 6])
-		this.setDice([1, 2, 3, 4, 5, 6])
+		// this.playDiceAnim(1, 5000, 5)
+		this.init()
 		this.watch()
-		this.watchState()
-
+		this.watchUpdate()
 	}
 
 	private watch = () => {
-		$("#roll").click(() => {
-			this.playDiceAnim(secToMs(5), [])
-
-			const id = getID()
-
-			AppService.emitServer(
-				ServerEvents.Roll,
-				{ id: id },
-				(_: string) => { },
-				(_: string) => { }
-			)
-			return false
-		})
+		$("#roll").click(this.roll)
+		$("#reroll").click(this.checkCombination)
+		$("#submitRoll").click(this.submitRoll)
 	}
 
-	private watchState = () => {
+	private submitRoll = () => {
+		const id = getID()
+
+		AppService.emitServer(
+			ServerEvents.SubmitRoll,
+			{ id: id },
+			(_: string) => {
+				this.selectedDices = []
+				this.bannedDices = []
+			},
+			(_: string) => { }
+		)
+		return false
+	}
+
+	private checkCombination = () => {
+		if (this.selectedDices.length === 0) {
+			AppService.emit(Events.Notify, languageConfig[this.currentLanguage].pickOne)
+			return
+		}
+
+		const id = getID()
+
+		const chosenDices: Record<number, number> = {}
+		for (let i = 0; i < this.selectedDices.length; i++) {
+			const diceID = this.selectedDices[i]
+			chosenDices[diceID] = this.getDiceAmount(diceID)
+		}
+
+		const data = {
+			id: id,
+			chosenDices: chosenDices
+		}
+
+		AppService.emitServer(
+			ServerEvents.CheckCombination,
+			data,
+			(response: string) => {
+				if (JSON.parse(response).result) {
+					this.reroll(data)
+				} else {
+					AppService.emit(
+						Events.Notify,
+						languageConfig[this.currentLanguage].wrongCombination
+					)
+				}
+			},
+			(message: string) => {
+				AppService.emit(Events.Notify, message)
+				return false
+			}
+		)
+		return false
+	}
+
+	private reroll = (data: Record<string, string | Object>) => {
+		$(".click-handler").click(() => { return false })
+		AppService.emitServer(
+			ServerEvents.Reroll,
+			data,
+			(_: string) => {
+				for (let i = 0; i < 6; i++) {
+					if (this.selectedDices.includes(i)) continue
+					this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1))
+				}
+			},
+			(_: string) => {
+			}
+		)
+		return false
+	}
+
+	private getDiceAmount = (diceID: number) => {
+		const allDices = $(".dice")
+		let amount: number = 0
+		allDices.each((i: number) => {
+			const dice = allDices[i]
+			const diceIDStr = $(dice).attr("id")
+			if (!diceIDStr) return undefined
+			const currentDiceID = parseInt(diceIDStr[diceIDStr.length - 1])
+			if (currentDiceID !== diceID) return undefined
+			const diceChildren = $(dice).children("div")
+			const dots = diceChildren[0]
+			const dotsAmountStr = $(dots).attr("class")
+			if (!dotsAmountStr) return undefined
+			const dotsAmount = parseInt(dotsAmountStr[dotsAmountStr.length - 1])
+			amount = dotsAmount
+		})
+		return amount
+	}
+
+	private roll = () => {
+		for (let i = 0; i < 6; i++) {
+			if (this.selectedDices.includes(i)) continue
+			this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1))
+		}
+
+		const id = getID()
+
+		AppService.emitServer(
+			ServerEvents.Roll,
+			{ id: id },
+			(_: string) => { },
+			(_: string) => { }
+		)
+		return false
+	}
+
+	private watchUpdate = () => {
 		if (window.location.pathname != "/pages/game/") return
 
-		this.updateInterval = setInterval(() => {
-
+		setInterval(() => {
 			const id = getID()
-
-			const data = {
-				"id": id
-			}
 
 			AppService.emitServer(
 				ServerEvents.UpdateState,
-				data,
+				{ id: id },
 				(response: string) => {
 					this.update(response)
 				},
-				(_: string) => {
-
+				(error: string) => {
+					AppService.emit(Events.Notify, error)
 				}
 			)
-
 		}, 100)
 	}
 
@@ -77,142 +169,162 @@ export class GameService {
 			return
 		}
 
-		$("#totalPoints").text(data.total)
+		const status = data.status
+		const isTurn = data.turn
+		this.checkTurn(isTurn)
+		this.setPoints($("#totalPoints"), data.total)
+		this.setPoints($("#goalPoints"), data.goal)
 		showPlayers(data)
-		$("#goalPoints").text(data.goal)
-		if (data.turn) {
+		this.setDicesForNotTurn(status, isTurn, data.bannedDices)
+		this.updateDices(data.dices, status, data.bannedDices)
+		this.setCurrentPoints(data.currentPoints)
+		this.checkButtonsVisibilty(status, isTurn)
+		this.selectedUpdate()
+	}
+
+	private selectedUpdate = () => {
+		for (let i = 0; i < 6; i++) {
+			const element = $(`#dice${i}`)
+			if (this.selectedDices.includes(i)) {
+				if ($(element).hasClass('selected')) return
+				$(element).addClass('selected')
+				return
+			}
+			$(element).removeClass('selected')
+		}
+	}
+
+	private checkButtonsVisibilty = (status: string, turn: boolean) => {
+		if (turn && status != GameStatuses.PENDING) {
+			$("#roll").show()
 			$("#roll").removeAttr("disabled")
 		} else {
 			$("#roll").attr("disabled")
 		}
-
-
-		if (data.isRolling) {
+		if (status != GameStatuses.PENDING || !turn) {
+			$("#reroll").hide()
+			$("#submitRoll").hide()
+			$("#roll").show()
+		}
+		if (status === GameStatuses.PENDING && turn && !$("#reroll").is(":visible")) {
+			$("#roll").hide()
+			$("#submitRoll").show()
+			$("#reroll").show()
+		}
+		if (status === GameStatuses.ROLLING) {
 			$("#roll").attr("disabled", '')
-			if (!data.turn && !this.diceAnimInterval) {
-				this.playDiceAnim(secToMs(4.9), [])
-			}
-		}
-
-
-		if (data.dices) {
-			clearInterval(this.diceAnimInterval)
-			this.diceAnimInterval = undefined
-			this.setDice(data.dices)
-		}
-
-		const element = $("#currentPoints") as unknown as HTMLElement
-		if (parseInt($(element).text()) != data.currentPoints && !this.numberInterval) {
-			this.playNumbersAnim(
-				element,
-				parseInt($(element).text()) || 0,
-				data.currentPoints,
-			)
-		}
-
-		if (!data.isPending || !data.turn) {
-			$("#roll").text(languageConfig[this.currentLanguage].roll)
-			$("#reroll").remove()
-		}
-
-
-		if (data.isPending && data.turn && $("#reroll").length <= 0) {
-			$("#roll").text(languageConfig[this.currentLanguage].enough)
-			const reroll = document.createElement("button")
-			$(reroll).attr("type", "submit")
-				.addClass("reroll")
-				.attr("id", "reroll")
-				.text(languageConfig[this.currentLanguage].reroll)
-			$(".submits").append(reroll)
 		}
 	}
 
-	private playDiceAnim = (time: number, correctValues: Array<number>) => {
-		let intervalTime = 100
-		let timeSpent = 0
-		this.diceAnimInterval = setInterval(() => {
-			if (timeSpent >= time && time != -1) {
-				this.setDice(correctValues)
-				clearInterval(this.diceAnimInterval)
+	private setCurrentPoints = (currentPoints: number) => {
+		const element = $("#currentPoints") as unknown as HTMLElement
+		if (parseInt($(element).text()) === currentPoints || this.intervals.numberAnimInterval) return
+		this.playNumbersAnim(
+			element,
+			parseInt($(element).text()) || 0,
+			currentPoints,
+		)
+	}
+
+	private updateDices = (dices: Array<number> | undefined, status: string, dataBannedDices: Array<number>) => {
+		const bannedDices = []
+		for (let i = 0; i < dataBannedDices.length; i++) {
+			if (dataBannedDices[i] == 0) continue
+			bannedDices.push(i)
+		}
+		if (!dices || status == GameStatuses.ROLLING) return
+		for (let i = 0; i < dices.length; i++) {
+			this.setDice(i, dices[i], !bannedDices.includes(i))
+		}
+		bannedDices.forEach((dice) => {
+			if (this.selectedDices.includes(dice)) return
+			this.selectedDices.push(dice)
+		})
+	}
+
+	private setPoints = (element: JQuery<HTMLElement>, points: number) => {
+		const currentPoints = parseInt(element.text())
+		if (currentPoints === points) return
+		element.text(points)
+	}
+
+	private checkTurn = (turn: boolean) => {
+	}
+
+	private setDicesForNotTurn = (status: string, turn: boolean, bannedDices: Array<number>) => {
+		if (status != GameStatuses.ROLLING) return
+		if (turn) return
+		$("#roll").attr("disabled", '')
+		const dicesToRoll = [0, 1, 2, 3, 4, 5]
+		if (bannedDices) {
+			for (let i = 0; i < bannedDices.length; i++) {
+				dicesToRoll.splice(dicesToRoll.indexOf(bannedDices[i]), 1)
+			}
+		}
+		dicesToRoll.forEach((dice) => {
+			this.playDiceAnim(dice, 5, 1)
+		})
+	}
+
+	private init = () => {
+		$("#roll").hide()
+		$("#reroll").hide()
+		$("#submitRoll").hide()
+		for (let i = 0; i < 6; i++) {
+			this.setDice(i, i + 1, true)
+		}
+	}
+
+	private playDiceAnim = (diceID: number, time: number, correctValue: number) => {
+		let nextTimeToSwitch = time * 0.01
+		let currentTime = 0
+		const interval = setInterval(() => {
+			if (currentTime >= nextTimeToSwitch) {
+				const randomDice = Math.round(Math.random() * 5 + 1)
+				this.setDice(diceID, randomDice, false)
+				nextTimeToSwitch *= 1.15
+			}
+			if (currentTime >= time) {
+				this.setDice(diceID, correctValue, true)
+				clearInterval(interval)
 				return
 			}
-			if (timeSpent >= intervalTime) {
-				intervalTime *= ((time == -1) ? 1 : 1.15)
-				const values: Array<number> = []
-				for (let i = 0; i < 6; i++) {
-					values[i] = Math.floor(Math.random() * (6 - 1) + 1)
-				}
-
-				this.setDice(values)
-			}
-
-			timeSpent += 100
-		}, 100)
+			currentTime += 50
+		}, 50)
 
 	}
 
-	private setDice(values: Array<number>) {
+	private setDice = (diceID: number, amount: number, isClickable: boolean) => {
 		const diceField = $(".dices")
 		const dices = diceField.children("div")
-		let j = 1
-		dices.each((i: number) => {
-			const dice = dices[i]
-			let doesExist = false
-			const diceChildren = $(dice).children("div")
-			const dots = values[i]
-			diceChildren.each((index: number) => {
-				const element = diceChildren[index]
-				if (!$(element).attr("class")?.startsWith("dots")) return
-				const dotsIndexStr = $(element).attr("class") as string
-				const dotsIndex = parseInt(dotsIndexStr.charAt(dotsIndexStr.length - 1))
-				if (dotsIndex == dots) {
-					doesExist = true
-				}
-			})
-			if (doesExist) return
 
-			$(dice).empty()
+		const setDiceToChild = (i: number) => {
+			const currentDice = dices[i]
+			const currentDiceStr = $(currentDice).attr("id")
+			if (!currentDiceStr) {
 
-			if (dots === 5) {
-				const dotsFirst = $("<div class='dots5'></div>")
-				const dotsSecond = $("<div class='dots5'></div>")
-				const dotsThird = $("<div class='dots5'></div>")
-				$(dotsFirst).append($("<div class='dot'></div>"))
-				$(dotsFirst).append($("<div class='dot'></div>"))
-				$(dotsSecond).append($("<div class='dot'></div>"))
-				$(dotsThird).append($("<div class='dot'></div>"))
-				$(dotsThird).append($("<div class='dot'></div>"))
-				$(dice).append(dotsFirst, dotsSecond, dotsThird)
 				return
 			}
-			const newDots = document.createElement("div")
-			$(newDots).addClass("dots" + values[i])
-			for (let j = 0; j < values[i]; j++) {
-				const dot = document.createElement("div")
-				$(dot).addClass("dot")
-				$(newDots).append(dot)
+			const currentDiceID = currentDiceStr[currentDiceStr.length - 1]
+			if (parseInt(currentDiceID) != diceID) return
+			const diceChildren = $(currentDice).children("div")
+			if (!diceChildren) return
+
+			const diceFirstChild = diceChildren[0]
+			const diceFirstChildIDStr = $(diceFirstChild).attr("class")
+			if (diceFirstChildIDStr) {
+				const diceFirstChildAmount = diceFirstChildIDStr[diceFirstChildIDStr.length - 1]
+				if (parseInt(diceFirstChildAmount) === amount) return
 			}
-			$(dice).append(newDots)
+			$(currentDice).empty()
 
-		})
-
-		for (let i = 1; i <= 6; i++) {
-			if ($(`#clickHandler${i}`).length > 0) return
-			const clickHandler = document.createElement("div")
-			$(clickHandler).addClass("click-handler")
-			$(clickHandler).attr("id", "clickHandler" + i)
-			$(clickHandler).click((event) => {
-				const idStr = $(event.target).attr("id") as string
-				const id = parseInt(idStr?.charAt(idStr.length - 1))
-				if (!this.selectedDices[id]) {
-					$(`#dice${id}`).addClass("selected")
-				} else {
-					$(`#dice${id}`).removeClass("selected")
-				}
-				this.selectedDices[id] = !this.selectedDices[id]
-			})
-			$(`#dice${i}`).append(clickHandler)
+			this.view.setDiceAmount(currentDice, amount)
+			this.view.setClickHandler(parseInt(currentDiceID), this.selectedDices, isClickable, this.bannedDices)
 		}
+
+		dices.each((i: number) => {
+			setDiceToChild(i)
+		})
 
 	}
 
@@ -224,14 +336,13 @@ export class GameService {
 		const interval = 10
 		const difference = Math.abs(start - stop)
 		let temp = start > stop ? stop : start
-		this.numberInterval = setInterval(() => {
+		this.intervals.numberAnimInterval = setInterval(() => {
 			if ((temp >= stop && start <= stop) || (temp <= stop && start >= stop)) {
-				clearInterval(this.numberInterval)
-				this.numberInterval = undefined
+				clearInterval(this.intervals.numberAnimInterval || undefined)
+				this.intervals.numberAnimInterval = null
 				$(element).text(stop.toFixed(0))
 				return
 			}
-
 			if (start < stop) {
 				temp += difference * 0.01
 			} else {
@@ -240,6 +351,4 @@ export class GameService {
 			$(element).text(temp.toFixed(0))
 		}, interval)
 	}
-
-
 }

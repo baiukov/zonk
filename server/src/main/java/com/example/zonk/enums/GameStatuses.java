@@ -1,9 +1,8 @@
 package com.example.zonk.enums;
 
-public enum GameStatuses {
-    ROLLING,
-    WAITING,
-
-    PENDING,
+public class GameStatuses {
+    public static String ROLLING = "Rolling";
+    public static String WAITING = "Waiting";
+    public static String PENDING = "Pending";
 
 }
