@@ -32,12 +32,9 @@ public class RoomService {
 
     public List<Player> getPlayersByRoom(String roomName) throws RoomDoesntExist {
         Room room = this.getRoom(roomName);
-
-
         if (room == null) {
             throw new RoomDoesntExist("RoomDoesntExist");
         }
-
         return room.getPlayers();
     }
 

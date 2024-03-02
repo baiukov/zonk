@@ -3,6 +3,7 @@ package com.example.zonk.entities;
 import com.example.zonk.enums.Combinations;
 import com.example.zonk.enums.GameStatuses;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -36,14 +37,22 @@ public class Rolling implements Runnable {
                 dicesCopy[i] = 0;
             }
             Combination combination = new Combination();
+            System.out.println(Arrays.toString(dicesCopy));
             List<Combinations> combinations = combination.getCombinations(dicesCopy);
+            System.out.println(combinations);
             List<Combinations> bannedCombinations = combination.getCombinations(turn.getBannedDices());
             for (Combinations currentCombination : bannedCombinations) {
                 combinations.remove(currentCombination);
             }
-            turn.setCurrentPoints(combination.countPoints(combinations));
+
+            turn.addCurrentPoints(combination.countPoints(combinations));
             game.setDices(dices);
             game.setStatus(GameStatuses.PENDING);
+            System.out.println(combinations);
+            if (combinations.isEmpty()) {
+                turn.setCurrentPoints(0);
+            }
+
             Thread.currentThread().interrupt();
         } catch (InterruptedException e) {
 

@@ -23,7 +23,6 @@ export class GameService {
 	}
 
 	constructor() {
-		// this.playDiceAnim(1, 5000, 5)
 		this.init()
 		this.watch()
 		this.watchUpdate()
@@ -180,6 +179,26 @@ export class GameService {
 		this.setCurrentPoints(data.currentPoints)
 		this.checkButtonsVisibilty(status, isTurn)
 		this.selectedUpdate()
+		this.checkWin(data.winner)
+	}
+
+	private checkWin = (winner: string) => {
+		if (!winner) return
+		$(".win").show()
+		$("#winner").text(winner)
+		setTimeout(() => {
+			AppService.emitServer(
+				ServerEvents.CloseGame,
+				{ id: getID() },
+				(_: string) => {
+					window.location.href = "../lobby"
+				},
+				(error: string) => {
+					AppService.emit(Events.Notify, error)
+				}
+			)
+
+		}, secToMs(10))
 	}
 
 	private selectedUpdate = () => {

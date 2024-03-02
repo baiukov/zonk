@@ -21,6 +21,8 @@ public class Game implements Runnable {
 
     private int[] dices = null;
 
+    private boolean hasFinished = false;
+
     public Game(Room room, int goal) {
         this.room = room;
         this.goal = goal;
@@ -82,11 +84,11 @@ public class Game implements Runnable {
         state.put("status", this.status);
         state.put("dices", this.dices);
         state.put("bannedDices", turn.getBannedDices());
+        state.put("winner", this.hasFinished ? this.turn.getName() : null);
         return state;
     }
 
     public void roll() throws InterruptedException {
-        turn.setStableCurrentPoints(0);
         status = GameStatuses.ROLLING;
         dices = null;
         Thread.sleep(5 * 1000);
@@ -117,7 +119,7 @@ public class Game implements Runnable {
         player.setCurrentPoints(0);
         player.setBannedDices(new int[6]);
         if (player.getTotalPoints() >= this.goal) {
-            System.out.println("win");
+            this.hasFinished = true;
         }
         int previousTurnID = players.indexOf(turn);
         int nextPlayerID = ++previousTurnID >= players.size() ? 0 : previousTurnID;
@@ -157,8 +159,6 @@ public class Game implements Runnable {
         }
 
         List<Combinations> combinations = combination.getCombinations(diceValues);
-        int price = combination.countPoints(combinations);
-        player.addStableCurrentPoints(price);
         List<Combinations> bannedCombinations = combination.getCombinations(player.getBannedDices());
         for (Combinations currentCombination : bannedCombinations) {
             combinations.remove(currentCombination);
@@ -179,5 +179,13 @@ public class Game implements Runnable {
     public Player removePlayer(Player player) {
         this.players.remove(player);
         return player;
+    }
+
+    public boolean isHasFinished() {
+        return hasFinished;
+    }
+
+    public void setHasFinished(boolean hasFinished) {
+        this.hasFinished = hasFinished;
     }
 }

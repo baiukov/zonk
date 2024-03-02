@@ -10,5 +10,6 @@ export enum ServerEvents {
 	Roll = "api/roll",
 	SubmitRoll = "api/submitRoll",
 	Reroll = "api/reroll",
-	CheckCombination = "api/checkCombination"
+	CheckCombination = "api/checkCombination",
+	CloseGame = "api/closeGame",
 }

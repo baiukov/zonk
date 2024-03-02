@@ -74,14 +74,19 @@ var LobbyService = /** @class */ (function () {
             showPlayers(data);
             if (!data.isInGame)
                 return;
-            window.location.href = "../game";
+            //window.location.href = "../game"
             var dataToSend = {
                 id: id,
                 room: room
             };
-            AppService.emitServer(ServerEvents.AddPlayer, dataToSend, function (_) { }, function (error) {
-                AppService.emit(Events.Notify, error);
-            });
+            // AppService.emitServer(
+            // 	ServerEvents.AddPlayer,
+            // 	dataToSend,
+            // 	(_: string) => { },
+            // 	(error: string) => {
+            // 		AppService.emit(Events.Notify, error)
+            // 	}
+            // )
         };
         this.watch();
         this.setUpdateInterval();

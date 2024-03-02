@@ -165,4 +165,11 @@ public class AppService {
         }
         return dices;
     }
+
+    public void closeGame(String dataStr) throws GameException {
+        JSONObject data = new JSONObject(dataStr);
+        String id = data.getString("id");
+        Game game = this.gameService.getGameByPlayerID(id);
+        this.gameService.closeGame(game);
+    }
 }

@@ -12,6 +12,8 @@ export var languageConfig = {
         total: "total",
         submitRoll: "enough",
         reroll: "reroll",
+        won: "has won!",
+        congratulation: "CONGRATULATIONS!",
         playerAlreadyExists: "Player already exists",
         playerDoesntExist: "Player is not found",
         roomDoesntExist: "Room is not found",

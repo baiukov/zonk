@@ -102,21 +102,21 @@ export class LobbyService {
 		const data = JSON.parse(dataStr)
 		showPlayers(data)
 		if (!data.isInGame) return
-		window.location.href = "../game"
+		//window.location.href = "../game"
 
 		const dataToSend = {
 			id: id,
 			room: room
 		}
 
-		AppService.emitServer(
-			ServerEvents.AddPlayer,
-			dataToSend,
-			(_: string) => { },
-			(error: string) => {
-				AppService.emit(Events.Notify, error)
-			}
-		)
+		// AppService.emitServer(
+		// 	ServerEvents.AddPlayer,
+		// 	dataToSend,
+		// 	(_: string) => { },
+		// 	(error: string) => {
+		// 		AppService.emit(Events.Notify, error)
+		// 	}
+		// )
 
 	}
 

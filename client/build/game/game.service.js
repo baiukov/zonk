@@ -133,6 +133,20 @@ var GameService = /** @class */ (function () {
             _this.setCurrentPoints(data.currentPoints);
             _this.checkButtonsVisibilty(status, isTurn);
             _this.selectedUpdate();
+            _this.checkWin(data.winner);
+        };
+        this.checkWin = function (winner) {
+            if (!winner)
+                return;
+            $(".win").show();
+            $("#winner").text(winner);
+            setTimeout(function () {
+                AppService.emitServer(ServerEvents.CloseGame, { id: getID() }, function (_) {
+                    window.location.href = "../lobby";
+                }, function (error) {
+                    AppService.emit(Events.Notify, error);
+                });
+            }, secToMs(10));
         };
         this.selectedUpdate = function () {
             for (var i = 0; i < 6; i++) {
@@ -271,7 +285,6 @@ var GameService = /** @class */ (function () {
                 setDiceToChild(i);
             });
         };
-        // this.playDiceAnim(1, 5000, 5)
         this.init();
         this.watch();
         this.watchUpdate();

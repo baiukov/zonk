@@ -79,4 +79,14 @@ public class GameController {
         }
     }
 
+    @PostMapping("/closeGame")
+    public ResponseEntity<String> closeGame(@RequestBody String dataStr) {
+        try {
+            this.appService.closeGame(dataStr);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 }

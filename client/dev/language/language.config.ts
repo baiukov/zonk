@@ -18,6 +18,8 @@ export const languageConfig: LanguageConfig = {
 		total: "total",
 		submitRoll: "enough",
 		reroll: "reroll",
+		won: "has won!",
+		congratulation: "CONGRATULATIONS!",
 
 		playerAlreadyExists: "Player already exists",
 		playerDoesntExist: "Player is not found",
