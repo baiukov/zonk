@@ -13,19 +13,23 @@ var LoginService = /** @class */ (function () {
         this.checkPlayer = function () {
             if (window.location.pathname != "/")
                 return;
-            AppService.emitServer(ServerEvents.Check, { id: getID() }, function (status) {
-                console.log(status);
-                switch (status) {
-                    case PlayerStatus.INGAME:
-                        window.location.href = "../pages/game";
-                        break;
-                    case PlayerStatus.INLOBBY:
-                        window.location.href = "/pages/lobby";
-                        break;
+            AppService.emit(Events.EmitServer, {
+                eventName: ServerEvents.Check,
+                data: { id: getID() },
+                onSuccess: function (status) {
+                    switch (status) {
+                        case PlayerStatus.INGAME:
+                            window.location.href = "../pages/game";
+                            break;
+                        case PlayerStatus.INLOBBY:
+                            window.location.href = "/pages/lobby";
+                            break;
+                    }
+                },
+                onError: function (error) {
+                    console.log("1");
+                    AppService.emit(Events.Notify, error);
                 }
-            }, function (error) {
-                console.log("1");
-                AppService.emit(Events.Notify, error);
             });
         };
         this.watch = function () {
@@ -33,18 +37,25 @@ var LoginService = /** @class */ (function () {
                 var name = $("#name").val();
                 var room = $("#room").val();
                 var ip = $("#ip").val();
-                if (!name || !room || !ip)
+                var connection = $("#connection").val();
+                if (!name || !room || !ip || !connection)
                     return;
-                AppService.setIP(ip);
+                AppService.emit(Events.SetIP, ip);
+                AppService.emit(Events.SetConnectionType, connection);
                 var data = {
                     "name": name,
                     "room": room,
                 };
-                AppService.emitServer(ServerEvents.Login, data, function (response) {
-                    _this.login(response);
-                }, function (error) {
-                    AppService.emit(Events.GetLanguage, null);
-                    AppService.emit(Events.Notify, languageConfig[_this.currentLanguage][error]);
+                AppService.emit(Events.EmitServer, {
+                    eventName: ServerEvents.Login,
+                    data: data,
+                    onSuccess: function (response) {
+                        _this.login(response);
+                    },
+                    onError: function (error) {
+                        AppService.emit(Events.GetLanguage, null);
+                        AppService.emit(Events.Notify, languageConfig[_this.currentLanguage][error]);
+                    }
                 });
                 return false;
             });

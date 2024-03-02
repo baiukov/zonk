@@ -13,6 +13,7 @@ var GameService = /** @class */ (function () {
         this.currentLanguage = "ENG";
         this.view = new GameView();
         this.intervals = {
+            diceAnimInterval: null,
             numberAnimInterval: null
         };
         this.selectedDices = [];
@@ -27,10 +28,15 @@ var GameService = /** @class */ (function () {
         };
         this.submitRoll = function () {
             var id = getID();
-            AppService.emitServer(ServerEvents.SubmitRoll, { id: id }, function (_) {
-                _this.selectedDices = [];
-                _this.bannedDices = [];
-            }, function (_) { });
+            AppService.emit(Events.EmitServer, {
+                eventName: ServerEvents.SubmitRoll,
+                data: { id: id },
+                onSuccess: function (_) {
+                    _this.selectedDices = [];
+                    _this.bannedDices = [];
+                },
+                onError: function (_) { }
+            });
             return false;
         };
         this.checkCombination = function () {
@@ -48,28 +54,38 @@ var GameService = /** @class */ (function () {
                 id: id,
                 chosenDices: chosenDices
             };
-            AppService.emitServer(ServerEvents.CheckCombination, data, function (response) {
-                if (JSON.parse(response).result) {
-                    _this.reroll(data);
+            AppService.emit(Events.EmitServer, {
+                eventName: ServerEvents.CheckCombination,
+                data: data,
+                onSuccess: function (response) {
+                    if (JSON.parse(response).result) {
+                        _this.reroll(data);
+                    }
+                    else {
+                        AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].wrongCombination);
+                    }
+                },
+                onError: function (message) {
+                    AppService.emit(Events.Notify, message);
+                    return false;
                 }
-                else {
-                    AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].wrongCombination);
-                }
-            }, function (message) {
-                AppService.emit(Events.Notify, message);
-                return false;
             });
             return false;
         };
         this.reroll = function (data) {
             $(".click-handler").click(function () { return false; });
-            AppService.emitServer(ServerEvents.Reroll, data, function (_) {
-                for (var i = 0; i < 6; i++) {
-                    if (_this.selectedDices.includes(i))
-                        continue;
-                    _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
+            AppService.emit(Events.EmitServer, {
+                eventName: ServerEvents.Reroll,
+                data: data,
+                onSuccess: function (_) {
+                    for (var i = 0; i < 6; i++) {
+                        if (_this.selectedDices.includes(i))
+                            continue;
+                        _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
+                    }
+                },
+                onError: function (_) {
                 }
-            }, function (_) {
             });
             return false;
         };
@@ -101,7 +117,12 @@ var GameService = /** @class */ (function () {
                 _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
             }
             var id = getID();
-            AppService.emitServer(ServerEvents.Roll, { id: id }, function (_) { }, function (_) { });
+            AppService.emit(Events.EmitServer, {
+                eventName: ServerEvents.Roll,
+                data: { id: id },
+                onSuccess: function (_) { },
+                onError: function (_) { }
+            });
             return false;
         };
         this.watchUpdate = function () {
@@ -109,10 +130,16 @@ var GameService = /** @class */ (function () {
                 return;
             setInterval(function () {
                 var id = getID();
-                AppService.emitServer(ServerEvents.UpdateState, { id: id }, function (response) {
-                    _this.update(response);
-                }, function (error) {
-                    AppService.emit(Events.Notify, error);
+                AppService.emit(Events.EmitServer, {
+                    eventName: ServerEvents.UpdateState,
+                    data: { id: id },
+                    onSuccess: function (response) {
+                        _this.update(response);
+                    },
+                    onError: function (error) {
+                        AppService.emit(Events.Notify, error);
+                        window.location.href = "../lobby";
+                    }
                 });
             }, 100);
         };
@@ -124,7 +151,7 @@ var GameService = /** @class */ (function () {
             }
             var status = data.status;
             var isTurn = data.turn;
-            _this.checkTurn(isTurn);
+            _this.checkTurn(isTurn, status);
             _this.setPoints($("#totalPoints"), data.total);
             _this.setPoints($("#goalPoints"), data.goal);
             showPlayers(data);
@@ -133,18 +160,27 @@ var GameService = /** @class */ (function () {
             _this.setCurrentPoints(data.currentPoints);
             _this.checkButtonsVisibilty(status, isTurn);
             _this.selectedUpdate();
-            _this.checkWin(data.winner);
+            _this.checkWin(data.winner, data.turn);
         };
-        this.checkWin = function (winner) {
+        this.checkWin = function (winner, turn) {
             if (!winner)
                 return;
             $(".win").show();
             $("#winner").text(winner);
             setTimeout(function () {
-                AppService.emitServer(ServerEvents.CloseGame, { id: getID() }, function (_) {
+                if (!turn) {
                     window.location.href = "../lobby";
-                }, function (error) {
-                    AppService.emit(Events.Notify, error);
+                    return;
+                }
+                AppService.emit(Events.EmitServer, {
+                    eventName: ServerEvents.CloseGame,
+                    data: { id: getID() },
+                    onSuccess: function (_) {
+                        window.location.href = "../lobby";
+                    },
+                    onError: function (error) {
+                        AppService.emit(Events.Notify, error);
+                    }
                 });
             }, secToMs(10));
         };
@@ -212,7 +248,12 @@ var GameService = /** @class */ (function () {
                 return;
             element.text(points);
         };
-        this.checkTurn = function (turn) {
+        this.checkTurn = function (turn, status) {
+            if (turn || status != GameStatuses.ROLLING || _this.intervals.diceAnimInterval)
+                return;
+            for (var i = 0; i < 6; i++) {
+                _this.playDiceAnim(i, secToMs(5.2), 1);
+            }
         };
         this.setDicesForNotTurn = function (status, turn, bannedDices) {
             if (status != GameStatuses.ROLLING)
@@ -242,6 +283,7 @@ var GameService = /** @class */ (function () {
             var nextTimeToSwitch = time * 0.01;
             var currentTime = 0;
             var interval = setInterval(function () {
+                _this.intervals.diceAnimInterval = interval;
                 if (currentTime >= nextTimeToSwitch) {
                     var randomDice = Math.round(Math.random() * 5 + 1);
                     _this.setDice(diceID, randomDice, false);
@@ -249,6 +291,7 @@ var GameService = /** @class */ (function () {
                 }
                 if (currentTime >= time) {
                     _this.setDice(diceID, correctValue, true);
+                    _this.intervals.diceAnimInterval = null;
                     clearInterval(interval);
                     return;
                 }

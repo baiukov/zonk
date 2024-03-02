@@ -5,7 +5,6 @@ export var showPlayers = function (response) {
         var playerElement = null;
         Array.from(playersView.children).forEach(function (element) {
             var listPlayerName = $(element).text().split("|")[0];
-            var playerPoints = $(element).text().split("|")[1];
             if (listPlayerName.trim() == name.trim()) {
                 playerElement = element;
             }

@@ -3,5 +3,8 @@ export enum Events {
 	GetLanguage = "GetLanguage",
 	PostLanguage = "PostLanguage",
 	UpdatePlayerList = "UpdatePlayerList",
-	ClearPlayer = "ClearPlayer"
+	ClearPlayer = "ClearPlayer",
+	SetConnectionType = "SetConnectionType",
+	SetIP = "SetIP",
+	EmitServer = "EmitServer",
 }

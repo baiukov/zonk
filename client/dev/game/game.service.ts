@@ -12,7 +12,8 @@ export class GameService {
 
 	private currentLanguage = "ENG"
 	private view = new GameView()
-	private intervals: Record<string, number | null> = {
+	private intervals: Record<string, NodeJS.Timeout | null> = {
+		diceAnimInterval: null,
 		numberAnimInterval: null
 	}
 	private selectedDices: Array<number> = []
@@ -37,14 +38,17 @@ export class GameService {
 	private submitRoll = () => {
 		const id = getID()
 
-		AppService.emitServer(
-			ServerEvents.SubmitRoll,
-			{ id: id },
-			(_: string) => {
-				this.selectedDices = []
-				this.bannedDices = []
-			},
-			(_: string) => { }
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.SubmitRoll,
+				data: { id: id },
+				onSuccess: (_: string) => {
+					this.selectedDices = []
+					this.bannedDices = []
+				},
+				onError: (_: string) => { }
+			}
 		)
 		return false
 	}
@@ -68,22 +72,25 @@ export class GameService {
 			chosenDices: chosenDices
 		}
 
-		AppService.emitServer(
-			ServerEvents.CheckCombination,
-			data,
-			(response: string) => {
-				if (JSON.parse(response).result) {
-					this.reroll(data)
-				} else {
-					AppService.emit(
-						Events.Notify,
-						languageConfig[this.currentLanguage].wrongCombination
-					)
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.CheckCombination,
+				data: data,
+				onSuccess: (response: string) => {
+					if (JSON.parse(response).result) {
+						this.reroll(data)
+					} else {
+						AppService.emit(
+							Events.Notify,
+							languageConfig[this.currentLanguage].wrongCombination
+						)
+					}
+				},
+				onError: (message: string) => {
+					AppService.emit(Events.Notify, message)
+					return false
 				}
-			},
-			(message: string) => {
-				AppService.emit(Events.Notify, message)
-				return false
 			}
 		)
 		return false
@@ -91,16 +98,19 @@ export class GameService {
 
 	private reroll = (data: Record<string, string | Object>) => {
 		$(".click-handler").click(() => { return false })
-		AppService.emitServer(
-			ServerEvents.Reroll,
-			data,
-			(_: string) => {
-				for (let i = 0; i < 6; i++) {
-					if (this.selectedDices.includes(i)) continue
-					this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1))
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.Reroll,
+				data: data,
+				onSuccess: (_: string) => {
+					for (let i = 0; i < 6; i++) {
+						if (this.selectedDices.includes(i)) continue
+						this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1))
+					}
+				},
+				onError: (_: string) => {
 				}
-			},
-			(_: string) => {
 			}
 		)
 		return false
@@ -133,11 +143,14 @@ export class GameService {
 
 		const id = getID()
 
-		AppService.emitServer(
-			ServerEvents.Roll,
-			{ id: id },
-			(_: string) => { },
-			(_: string) => { }
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.Roll,
+				data: { id: id },
+				onSuccess: (_: string) => { },
+				onError: (_: string) => { }
+			}
 		)
 		return false
 	}
@@ -148,14 +161,18 @@ export class GameService {
 		setInterval(() => {
 			const id = getID()
 
-			AppService.emitServer(
-				ServerEvents.UpdateState,
-				{ id: id },
-				(response: string) => {
-					this.update(response)
-				},
-				(error: string) => {
-					AppService.emit(Events.Notify, error)
+			AppService.emit(
+				Events.EmitServer,
+				{
+					eventName: ServerEvents.UpdateState,
+					data: { id: id },
+					onSuccess: (response: string) => {
+						this.update(response)
+					},
+					onError: (error: string) => {
+						AppService.emit(Events.Notify, error)
+						window.location.href = "../lobby"
+					}
 				}
 			)
 		}, 100)
@@ -170,7 +187,7 @@ export class GameService {
 
 		const status = data.status
 		const isTurn = data.turn
-		this.checkTurn(isTurn)
+		this.checkTurn(isTurn, status)
 		this.setPoints($("#totalPoints"), data.total)
 		this.setPoints($("#goalPoints"), data.goal)
 		showPlayers(data)
@@ -179,22 +196,29 @@ export class GameService {
 		this.setCurrentPoints(data.currentPoints)
 		this.checkButtonsVisibilty(status, isTurn)
 		this.selectedUpdate()
-		this.checkWin(data.winner)
+		this.checkWin(data.winner, data.turn)
 	}
 
-	private checkWin = (winner: string) => {
+	private checkWin = (winner: string, turn: boolean) => {
 		if (!winner) return
 		$(".win").show()
 		$("#winner").text(winner)
 		setTimeout(() => {
-			AppService.emitServer(
-				ServerEvents.CloseGame,
-				{ id: getID() },
-				(_: string) => {
-					window.location.href = "../lobby"
-				},
-				(error: string) => {
-					AppService.emit(Events.Notify, error)
+			if (!turn) {
+				window.location.href = "../lobby"
+				return
+			}
+			AppService.emit(
+				Events.EmitServer,
+				{
+					eventName: ServerEvents.CloseGame,
+					data: { id: getID() },
+					onSuccess: (_: string) => {
+						window.location.href = "../lobby"
+					},
+					onError: (error: string) => {
+						AppService.emit(Events.Notify, error)
+					}
 				}
 			)
 
@@ -267,7 +291,11 @@ export class GameService {
 		element.text(points)
 	}
 
-	private checkTurn = (turn: boolean) => {
+	private checkTurn = (turn: boolean, status: string) => {
+		if (turn || status != GameStatuses.ROLLING || this.intervals.diceAnimInterval) return
+		for (let i = 0; i < 6; i++) {
+			this.playDiceAnim(i, secToMs(5.2), 1)
+		}
 	}
 
 	private setDicesForNotTurn = (status: string, turn: boolean, bannedDices: Array<number>) => {
@@ -298,6 +326,7 @@ export class GameService {
 		let nextTimeToSwitch = time * 0.01
 		let currentTime = 0
 		const interval = setInterval(() => {
+			this.intervals.diceAnimInterval = interval
 			if (currentTime >= nextTimeToSwitch) {
 				const randomDice = Math.round(Math.random() * 5 + 1)
 				this.setDice(diceID, randomDice, false)
@@ -305,6 +334,7 @@ export class GameService {
 			}
 			if (currentTime >= time) {
 				this.setDice(diceID, correctValue, true)
+				this.intervals.diceAnimInterval = null
 				clearInterval(interval)
 				return
 			}

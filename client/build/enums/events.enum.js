@@ -5,4 +5,7 @@ export var Events;
     Events["PostLanguage"] = "PostLanguage";
     Events["UpdatePlayerList"] = "UpdatePlayerList";
     Events["ClearPlayer"] = "ClearPlayer";
+    Events["SetConnectionType"] = "SetConnectionType";
+    Events["SetIP"] = "SetIP";
+    Events["EmitServer"] = "EmitServer";
 })(Events || (Events = {}));

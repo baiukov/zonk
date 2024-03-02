@@ -83,7 +83,7 @@ public class Game implements Runnable {
         state.put("goal", this.goal);
         state.put("status", this.status);
         state.put("dices", this.dices);
-        state.put("bannedDices", turn.getBannedDices());
+        state.put("bannedDices", player.getBannedDices());
         state.put("winner", this.hasFinished ? this.turn.getName() : null);
         return state;
     }
@@ -120,9 +120,10 @@ public class Game implements Runnable {
         player.setBannedDices(new int[6]);
         if (player.getTotalPoints() >= this.goal) {
             this.hasFinished = true;
+            return;
         }
-        int previousTurnID = players.indexOf(turn);
-        int nextPlayerID = ++previousTurnID >= players.size() ? 0 : previousTurnID;
+        int currentTurnID = players.indexOf(turn);
+        int nextPlayerID = (currentTurnID + 1) >= players.size() ? 0 : currentTurnID + 1;
         turn = players.get(nextPlayerID);
         status = GameStatuses.WAITING;
     }

@@ -5,7 +5,7 @@
 	padding: 0;
 }
 
-body, input, button {
+body, input, button, select {
   font-family: 'Luckiest Guy', cursive, 'Oswald', sans-serif;
 }
 
@@ -58,7 +58,7 @@ main {
 	overflow: hidden;
 }
 
-.field input {
+.field input, .field select {
 	background:none;
 	border: none;
 	border-bottom: 2px solid black;
@@ -71,6 +71,10 @@ main {
 	outline: none;
 	border-color: white;
 	transition: 0.25s;
+}
+
+.field select {
+	width: 340px;
 }
 
 .submit, .reroll {
@@ -280,23 +284,28 @@ main {
 	position: absolute;
 	margin-left: auto;
 	margin-right: auto;
-	width: 50%;
-	height: 20%;
+	width: 70%;
+	height: 45%;
 	background-color: green;
 	border-radius: 20px;
 	color: white;
 	font-size: 27pt;
 	text-align: center;
-	padding-top: 30px;
 	z-index: 10;
 }
 
 .winner {
 	display: flex;
 	justify-content: center;
+	padding-top: 100px;
 	gap: 20px;
 }
 
 #winner {
 	color: red;
+}
+
+.turn {
+	font-size: 26pt;
+	transition: 0.25s ease;
 }

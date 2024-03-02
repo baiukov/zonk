@@ -20,23 +20,25 @@ export class LoginService {
 	private checkPlayer = () => {
 		if (window.location.pathname != "/") return
 
-		AppService.emitServer(
-			ServerEvents.Check,
-			{ id: getID() },
-			(status: string) => {
-				console.log(status)
-				switch (status) {
-					case PlayerStatus.INGAME:
-						window.location.href = "../pages/game"
-						break
-					case PlayerStatus.INLOBBY:
-						window.location.href = "/pages/lobby"
-						break
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.Check,
+				data: { id: getID() },
+				onSuccess: (status: string) => {
+					switch (status) {
+						case PlayerStatus.INGAME:
+							window.location.href = "../pages/game"
+							break
+						case PlayerStatus.INLOBBY:
+							window.location.href = "/pages/lobby"
+							break
+					}
+				},
+				onError: (error: string) => {
+					console.log("1")
+					AppService.emit(Events.Notify, error)
 				}
-			},
-			(error: string) => {
-				console.log("1")
-				AppService.emit(Events.Notify, error)
 			}
 		)
 	}
@@ -46,26 +48,33 @@ export class LoginService {
 			const name = $("#name").val()
 			const room = $("#room").val()
 			const ip = $("#ip").val()
+			const connection = $("#connection").val()
 
-			if (!name || !room || !ip) return
+			if (!name || !room || !ip || !connection) return
 
-			AppService.setIP(ip as string)
+			AppService.emit(Events.SetIP, ip as string)
+
+			AppService.emit(Events.SetConnectionType, connection)
 
 			const data = {
 				"name": name,
 				"room": room,
 			}
 
-			AppService.emitServer(
-				ServerEvents.Login,
-				data,
-				(response: string) => {
-					this.login(response)
-				},
-				(error: string) => {
-					AppService.emit(Events.GetLanguage, null)
-					AppService.emit(Events.Notify, languageConfig[this.currentLanguage][error])
-				})
+			AppService.emit(
+				Events.EmitServer,
+				{
+					eventName: ServerEvents.Login,
+					data: data,
+					onSuccess: (response: string) => {
+						this.login(response)
+					},
+					onError: (error: string) => {
+						AppService.emit(Events.GetLanguage, null)
+						AppService.emit(Events.Notify, languageConfig[this.currentLanguage][error])
+					}
+				}
+			)
 			return false
 		})
 

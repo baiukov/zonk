@@ -7,7 +7,6 @@ export const showPlayers = (response: Record<string, any>) => {
 		let playerElement: Element | null = null
 		Array.from(playersView.children).forEach((element) => {
 			const listPlayerName = $(element).text().split("|")[0]
-			const playerPoints = $(element).text().split("|")[1]
 			if (listPlayerName.trim() == name.trim()) {
 				playerElement = element
 			}

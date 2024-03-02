@@ -55,6 +55,18 @@
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<version>1.1</version> <!-- Or the version compatible with your project -->
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.tyrus</groupId>
+			<artifactId>tyrus-container-grizzly-server</artifactId>
+			<version>1.17</version>
+		</dependency>
     </dependencies>
 
 
