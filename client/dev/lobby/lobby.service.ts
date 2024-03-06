@@ -1,6 +1,6 @@
 import { AppService } from '../app.service.js'
-import { Events } from '../enums/events.enum.js'
-import { ServerEvents } from '../enums/serverEvents.enum.js'
+import { Events } from '../enums/Events.enum.js'
+import { ServerEvents } from '../enums/ServerEvents.enum.js'
 import { getID } from '../utils/getID.js'
 import { secToMs } from '../utils/secToMs.js'
 import { showPlayers } from '../utils/showPlayers.js'
@@ -54,6 +54,7 @@ export class LobbyService {
 
 	private updatePlayerList = () => {
 		const dataStr = localStorage.getItem("currentPlayer")
+		console.log(dataStr)
 		if (!dataStr) return
 
 		const data = JSON.parse(dataStr)

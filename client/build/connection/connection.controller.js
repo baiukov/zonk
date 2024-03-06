@@ -1,5 +1,5 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/events.enum.js';
+import { Events } from '../enums/Events.enum.js';
 import { ConnectionService } from './connection.service.js';
 var ConnectionController = /** @class */ (function () {
     function ConnectionController(connectionService) {

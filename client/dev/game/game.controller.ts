@@ -1,5 +1,5 @@
 import { AppService } from '../app.service.js'
-import { Events } from '../enums/events.enum.js'
+import { Events } from '../enums/Events.enum.js'
 import { GameService } from './game.service.js'
 
 export class GameController {

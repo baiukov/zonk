@@ -1,5 +1,5 @@
 import { AppService } from '../app.service.js'
-import { Events } from '../enums/events.enum.js'
+import { Events } from '../enums/Events.enum.js'
 import { NotificationsService } from './notifications.service.js'
 
 export class NotificationsController {

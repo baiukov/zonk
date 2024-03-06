@@ -1,7 +1,7 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/events.enum.js';
-import { PlayerStatus } from '../enums/playerStatus.enum.js';
-import { ServerEvents } from '../enums/serverEvents.enum.js';
+import { Events } from '../enums/Events.enum.js';
+import { PlayerStatus } from '../enums/PlayerStatus.enum.js';
+import { ServerEvents } from '../enums/ServerEvents.enum.js';
 import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
 import { save } from '../utils/save.js';
@@ -27,7 +27,6 @@ var LoginService = /** @class */ (function () {
                     }
                 },
                 onError: function (error) {
-                    console.log("1");
                     AppService.emit(Events.Notify, error);
                 }
             });
@@ -50,6 +49,7 @@ var LoginService = /** @class */ (function () {
                     eventName: ServerEvents.Login,
                     data: data,
                     onSuccess: function (response) {
+                        console.log(response);
                         _this.login(response);
                     },
                     onError: function (error) {

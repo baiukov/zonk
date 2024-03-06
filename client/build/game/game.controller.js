@@ -1,5 +1,5 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/events.enum.js';
+import { Events } from '../enums/Events.enum.js';
 var GameController = /** @class */ (function () {
     function GameController(gameService) {
         var _this = this;

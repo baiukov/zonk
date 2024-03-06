@@ -1,6 +1,6 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/events.enum.js';
-import { ServerEvents } from '../enums/serverEvents.enum.js';
+import { Events } from '../enums/Events.enum.js';
+import { ServerEvents } from '../enums/ServerEvents.enum.js';
 import { getID } from '../utils/getID.js';
 import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';
@@ -40,6 +40,7 @@ var LobbyService = /** @class */ (function () {
         };
         this.updatePlayerList = function () {
             var dataStr = localStorage.getItem("currentPlayer");
+            console.log(dataStr);
             if (!dataStr)
                 return;
             var data = JSON.parse(dataStr);

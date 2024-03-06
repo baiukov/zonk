@@ -17,23 +17,4 @@ export class AppService {
 		})
 	}
 
-	// public static emitServer = (eventName: string, data: any, successFunc: Function, errorFunc: Function) => {
-	// 	const str = JSON.stringify(data)
-
-	// 	if (!AppService.ip) { return }
-
-	// 	$.ajax({
-	// 		url: `http://${AppService.ip}:8080/${eventName}`,
-	// 		type: "POST",
-	// 		data: str,
-	// 		contentType: 'application/json',
-	// 		success: (response) => {
-	// 			successFunc(response)
-	// 		},
-	// 		error: (xhr, status, error) => {
-	// 			errorFunc(xhr.responseText)
-	// 		},
-	// 	})
-	// }
-
 }

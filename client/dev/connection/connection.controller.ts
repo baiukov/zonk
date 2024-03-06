@@ -1,6 +1,6 @@
 import { AppService } from '../app.service.js'
-import { ConnectionTypes } from '../enums/connectionTypes.enum.js'
-import { Events } from '../enums/events.enum.js'
+import { ConnectionTypes } from '../enums/ConnectionTypes.enum.js'
+import { Events } from '../enums/Events.enum.js'
 import { ConnectionService } from './connection.service.js'
 
 export class ConnectionController {

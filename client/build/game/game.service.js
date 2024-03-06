@@ -1,7 +1,7 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/events.enum.js';
-import { GameStatuses } from '../enums/gameStatuses.enum.js';
-import { ServerEvents } from '../enums/serverEvents.enum.js';
+import { Events } from '../enums/Events.enum.js';
+import { GameStatuses } from '../enums/GameStatuses.enum.js';
+import { ServerEvents } from '../enums/ServerEvents.enum.js';
 import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
 import { secToMs } from '../utils/secToMs.js';
@@ -186,7 +186,7 @@ var GameService = /** @class */ (function () {
         };
         this.selectedUpdate = function () {
             for (var i = 0; i < 6; i++) {
-                var element = $("#dice" + i);
+                var element = $("#dice".concat(i));
                 if (_this.selectedDices.includes(i)) {
                     if ($(element).hasClass('selected'))
                         return;

@@ -1,38 +1,62 @@
 package com.example.zonk.controllers.websocket;
 
 
-import com.example.zonk.controllers.websocket.commands.Login;
+import com.example.zonk.controllers.websocket.commands.*;
+import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.interfaces.ICommand;
 import com.example.zonk.services.AppService;
 import org.glassfish.tyrus.server.Server;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 
 @ServerEndpoint(value = "/websockets")
 public class WebSocketServer {
 
-    private final List<ICommand> registeredCommands = new ArrayList<>();
+    private HashSet<ICommand> registeredCommands = new HashSet<>();
 
     @OnMessage
-    public void onMessage(String message, Session session) {
+    public void onMessage(String message, Session session) throws IOException {
         String[] separatedMessage = message.split(" ");
         String commandName = separatedMessage[0];
         String dataStr = separatedMessage[1];
         ICommand command = this.getCommand(commandName);
         String result = command.execute(dataStr);
-        System.out.println(result);
-
-        session.getAsyncRemote().sendText("Received message: " + message);
+        String status = command.getStatus();
+        if (status.equals(TaskStatuses.UNEXECUTED)) return;
+        session.getAsyncRemote().sendText(status + " " + result);
     }
 
     public void initCommands() {
         AppService appService = new AppService();
-        Login loginCommand = new Login(appService);
-        registeredCommands.add(loginCommand);
+
+        ICommand loginCommand = new Login(appService);
+        ICommand checkCommand = new Check(appService);
+        ICommand checkCombinationCommand = new CheckCombination(appService);
+        ICommand closeGameCommand = new CloseGame(appService);
+        ICommand createGameCommand = new CreateGame(appService);
+        ICommand getPlayersCommand = new GetPlayers(appService);
+        ICommand getRoomCommand = new GetRoom(appService);
+        ICommand getStateCommand = new GetState(appService);
+        ICommand rerollCommand = new Reroll(appService);
+        ICommand rollCommand = new Roll(appService);
+        ICommand submitRollCommand = new SubmitRoll(appService);
+
+        registeredCommands = new HashSet<>(Set.of(
+                loginCommand,
+                checkCommand,
+                checkCombinationCommand,
+                closeGameCommand,
+                createGameCommand,
+                getPlayersCommand,
+                getRoomCommand,
+                getStateCommand,
+                rerollCommand,
+                rollCommand,
+                submitRollCommand
+        ));
     }
 
     private ICommand getCommand(String commandName) {
@@ -58,10 +82,8 @@ public class WebSocketServer {
         try {
             server.start();
             System.out.println("WebSocket server started" + server.getPort());
-            // You can add additional logic here if needed
-            // For example, you can keep the main thread running or perform other initialization tasks
             while (true) {
-                Thread.sleep(10); // Sleep to avoid consuming CPU
+                Thread.sleep(1);
             }
         } catch (Exception e) {
             System.err.println("Error starting WebSocket server: " + e.getMessage());

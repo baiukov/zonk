@@ -40,16 +40,6 @@ public class Gateway {
         }
     }
 
-//    @PostMapping("/addPlayer")
-//    public ResponseEntity<String> addPlayer(@RequestBody String dataStr) {
-//        try {
-//            this.appService.addPlayer(dataStr);
-//            return ResponseEntity.ok(null);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(e.getMessage());
-//        }
-//    }
-
     @PostMapping("/submitRoll")
     public ResponseEntity<String> submitRoll(@RequestBody String dataStr) {
         try {

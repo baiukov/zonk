@@ -4,15 +4,14 @@ package com.example.zonk.controllers.websocket.commands;
 import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.interfaces.ICommand;
 import com.example.zonk.services.AppService;
-import org.springframework.http.ResponseEntity;
 
-public class Login implements ICommand {
+public class CloseGame implements ICommand {
     private final AppService appService;
-    private String name = "api/login";
+    private String name = "api/closeGame";
 
     private String status = TaskStatuses.UNEXECUTED;
 
-    public Login(AppService appService) {
+    public CloseGame(AppService appService) {
         this.appService = appService;
     }
 
@@ -33,7 +32,8 @@ public class Login implements ICommand {
     public String execute(String dataStr) {
         try {
             this.status = TaskStatuses.SUCCESS;
-            return this.appService.authorisePlayer(dataStr);
+            this.appService.closeGame(dataStr);
+            return null;
         } catch (Exception e) {
             this.status = TaskStatuses.ERROR;
             return e.getMessage();
