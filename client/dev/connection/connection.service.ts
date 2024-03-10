@@ -51,7 +51,14 @@ export class ConnectionService {
 			case ConnectionTypes.WebSockets:
 				this.emitWebSocket(config)
 				break
+			case ConnectionTypes.Sockets:
+				this.emitClient(config)
 		}
+	}
+
+	private emitClient(config: Record<string, any>) {
+		// @ts-ignore
+		console.log(window.java)
 	}
 
 	private emitWebSocket = (config: Record<string, any>) => {

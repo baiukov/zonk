@@ -31,6 +31,8 @@ var ConnectionService = /** @class */ (function () {
                 case ConnectionTypes.WebSockets:
                     _this.emitWebSocket(config);
                     break;
+                case ConnectionTypes.Sockets:
+                    _this.emitClient(config);
             }
         };
         this.emitWebSocket = function (config) {
@@ -90,6 +92,10 @@ var ConnectionService = /** @class */ (function () {
         this.checkConnectionType();
         this.checkIP();
     }
+    ConnectionService.prototype.emitClient = function (config) {
+        // @ts-ignore
+        console.log(window.java);
+    };
     ConnectionService.setIP = function (ip) {
         ConnectionService.ip = ip;
         localStorage.setItem("ip", ip);

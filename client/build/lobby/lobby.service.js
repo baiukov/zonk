@@ -40,7 +40,6 @@ var LobbyService = /** @class */ (function () {
         };
         this.updatePlayerList = function () {
             var dataStr = localStorage.getItem("currentPlayer");
-            console.log(dataStr);
             if (!dataStr)
                 return;
             var data = JSON.parse(dataStr);

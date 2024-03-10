@@ -23,7 +23,7 @@ var GameView = /** @class */ (function () {
             $(element).append(newDots);
         };
         this.setClickHandler = function (id, selectedDices, isClickable, bannedDices) {
-            if ($("clickHandler".concat(id)).length > 0)
+            if ($("clickHandler" + id).length > 0)
                 return;
             var clickHandler = document.createElement("div");
             $(clickHandler).addClass("click-handler");
@@ -33,11 +33,11 @@ var GameView = /** @class */ (function () {
                     var idStr = $(event.target).attr("id");
                     var id = parseInt(idStr === null || idStr === void 0 ? void 0 : idStr.charAt(idStr.length - 1));
                     if (!selectedDices.includes(id)) {
-                        $("#dice".concat(id)).addClass("selected");
+                        $("#dice" + id).addClass("selected");
                         selectedDices.push(id);
                     }
                     else {
-                        $("#dice".concat(id)).removeClass("selected");
+                        $("#dice" + id).removeClass("selected");
                         selectedDices.splice(selectedDices.indexOf(id), 1);
                     }
                 });
@@ -45,7 +45,7 @@ var GameView = /** @class */ (function () {
             else {
                 $(clickHandler).click(function () { });
             }
-            $("#dice".concat(id)).append(clickHandler);
+            $("#dice" + id).append(clickHandler);
         };
     }
     return GameView;

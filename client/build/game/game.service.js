@@ -186,7 +186,7 @@ var GameService = /** @class */ (function () {
         };
         this.selectedUpdate = function () {
             for (var i = 0; i < 6; i++) {
-                var element = $("#dice".concat(i));
+                var element = $("#dice" + i);
                 if (_this.selectedDices.includes(i)) {
                     if ($(element).hasClass('selected'))
                         return;
