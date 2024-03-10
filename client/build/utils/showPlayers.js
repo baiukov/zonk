@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.showPlayers = void 0;
-var showPlayers = function (response) {
+export var showPlayers = function (response) {
     var playerList = response.players;
     var playersView = document.getElementById("playerList");
     var getPlayerInList = function (name) {
@@ -30,4 +27,3 @@ var showPlayers = function (response) {
         }
     });
 };
-exports.showPlayers = showPlayers;

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.languageConfig = void 0;
-exports.languageConfig = {
+export var languageConfig = {
     "ENG": {
         name: "Nickname",
         room: "Room name",

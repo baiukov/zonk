@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ConnectionService = void 0;
-var ConnectionTypes_enum_js_1 = require("../enums/ConnectionTypes.enum.js");
-var TaskStatuses_enum_js_1 = require("../enums/TaskStatuses.enum.js");
+import { ConnectionTypes } from '../enums/ConnectionTypes.enum.js';
+import { TaskStatuses } from '../enums/TaskStatuses.enum.js';
 var ConnectionService = /** @class */ (function () {
     function ConnectionService() {
         var _this = this;
@@ -14,7 +11,7 @@ var ConnectionService = /** @class */ (function () {
         this.checkConnectionType = function () {
             var savedType = localStorage.getItem("connectionType");
             if (!savedType) {
-                _this.connectionType = ConnectionTypes_enum_js_1.ConnectionTypes.Rest;
+                _this.connectionType = ConnectionTypes.Rest;
                 return;
             }
             _this.connectionType = savedType;
@@ -28,13 +25,13 @@ var ConnectionService = /** @class */ (function () {
         this.emitServer = function (config) {
             console.log(_this.connectionType, config);
             switch (_this.connectionType) {
-                case ConnectionTypes_enum_js_1.ConnectionTypes.Rest:
+                case ConnectionTypes.Rest:
                     _this.emitRestServer(config);
                     break;
-                case ConnectionTypes_enum_js_1.ConnectionTypes.WebSockets:
+                case ConnectionTypes.WebSockets:
                     _this.emitWebSocket(config);
                     break;
-                case ConnectionTypes_enum_js_1.ConnectionTypes.Sockets:
+                case ConnectionTypes.Sockets:
                     _this.emitClient(config);
             }
         };
@@ -50,9 +47,9 @@ var ConnectionService = /** @class */ (function () {
                 var messages = data.split(" ");
                 var status = messages[0];
                 var response = messages[1];
-                if (status === TaskStatuses_enum_js_1.TaskStatuses.Unexecuted)
+                if (status === TaskStatuses.Unexecuted)
                     return;
-                if (status === TaskStatuses_enum_js_1.TaskStatuses.Successfull) {
+                if (status === TaskStatuses.Successfull) {
                     config.onSuccess(response);
                 }
                 else {
@@ -105,4 +102,4 @@ var ConnectionService = /** @class */ (function () {
     };
     return ConnectionService;
 }());
-exports.ConnectionService = ConnectionService;
+export { ConnectionService };

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getID = void 0;
-var getID = function () {
+export var getID = function () {
     var playerStr = localStorage.getItem("currentPlayer");
     if (!playerStr)
         return null;
@@ -9,4 +6,3 @@ var getID = function () {
     var id = player.sessionID;
     return id || null;
 };
-exports.getID = getID;

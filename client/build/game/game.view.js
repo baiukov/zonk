@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.GameView = void 0;
 var GameView = /** @class */ (function () {
     function GameView() {
         this.setDiceAmount = function (element, amount) {
@@ -53,4 +50,4 @@ var GameView = /** @class */ (function () {
     }
     return GameView;
 }());
-exports.GameView = GameView;
+export { GameView };

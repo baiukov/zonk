@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServerEvents = void 0;
-var ServerEvents;
+export var ServerEvents;
 (function (ServerEvents) {
     ServerEvents["Login"] = "api/login";
     ServerEvents["GetPlayers"] = "api/getPlayers";
@@ -15,4 +12,4 @@ var ServerEvents;
     ServerEvents["Reroll"] = "api/reroll";
     ServerEvents["CheckCombination"] = "api/checkCombination";
     ServerEvents["CloseGame"] = "api/closeGame";
-})(ServerEvents || (exports.ServerEvents = ServerEvents = {}));
+})(ServerEvents || (ServerEvents = {}));
