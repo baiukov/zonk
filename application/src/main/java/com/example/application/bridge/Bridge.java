@@ -17,7 +17,7 @@ public class Bridge implements IBridge {
 
     @Override
     public void sendDataToWebPage(Object data) {
-        webEngine.executeScript("receiveDataFromJava(" + convertToJSObject(data) + ")");
+        webEngine.executeScript("window.receiveDataFromJava(" + convertToJSObject(data) + ")");
     }
 
     @Override

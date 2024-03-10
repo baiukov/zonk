@@ -13,6 +13,7 @@ export class ConnectionService {
 	constructor() {
 		this.checkConnectionType()
 		this.checkIP()
+		Object.defineProperty(window, "receiveDataFromJava", this.receiveDataFromJava)
 	}
 
 	public getConnectionType = () => { return this.connectionType }
@@ -56,9 +57,14 @@ export class ConnectionService {
 		}
 	}
 
-	private emitClient(config: Record<string, any>) {
+	private receiveDataFromJava = (data: string) => {
+		$("#main").text("data")
+		this.emitClient("Hello, app!")
+	}
+
+	private emitClient(a: any) {
 		// @ts-ignore
-		alert("here", window.java)
+		window.java.receiveDataFromWebPage(a)
 	}
 
 	private emitWebSocket = (config: Record<string, any>) => {
