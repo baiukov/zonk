@@ -95,7 +95,8 @@ var ConnectionService = /** @class */ (function () {
         };
         this.checkConnectionType();
         this.checkIP();
-        Object.defineProperty(window, "receiveDataFromJava", this.receiveDataFromJava);
+        // @ts-ignore
+        window.receiveDataFromJava = this.receiveDataFromJava;
     }
     ConnectionService.prototype.emitClient = function (a) {
         // @ts-ignore

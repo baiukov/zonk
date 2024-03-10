@@ -19,11 +19,13 @@ public class ZonkApplication extends Application {
         });
         webView.getEngine().load("https://baiukov.github.io/zonk/client/");
 
+        stage.setScene(new Scene(webView, 1280, 896));
+
+
+        stage.show();
+
         Bridge bridge = new Bridge(webView.getEngine());
         bridge.sendDataToWebPage("Hello, world!");
-
-        stage.setScene(new Scene(webView, 1280, 896));
-        stage.show();
     }
 
     public static void main(String[] args) {

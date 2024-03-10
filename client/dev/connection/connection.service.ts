@@ -13,7 +13,8 @@ export class ConnectionService {
 	constructor() {
 		this.checkConnectionType()
 		this.checkIP()
-		Object.defineProperty(window, "receiveDataFromJava", this.receiveDataFromJava)
+		// @ts-ignore
+		window.receiveDataFromJava = this.receiveDataFromJava
 	}
 
 	public getConnectionType = () => { return this.connectionType }
