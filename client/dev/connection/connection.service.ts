@@ -58,7 +58,7 @@ export class ConnectionService {
 
 	private emitClient(config: Record<string, any>) {
 		// @ts-ignore
-		console.log(window.java)
+		alert("here", window.java)
 	}
 
 	private emitWebSocket = (config: Record<string, any>) => {

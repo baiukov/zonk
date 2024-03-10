@@ -18,7 +18,7 @@ public class ZonkApplication extends Application {
         });
         webView.getEngine().load("https://baiukov.github.io/zonk/client/");
 
-        stage.setScene(new Scene(webView, 800, 600));
+        stage.setScene(new Scene(webView, 1280, 896));
         stage.show();
     }
 

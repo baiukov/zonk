@@ -94,7 +94,7 @@ var ConnectionService = /** @class */ (function () {
     }
     ConnectionService.prototype.emitClient = function (config) {
         // @ts-ignore
-        console.log(window.java);
+        alert("here", window.java);
     };
     ConnectionService.setIP = function (ip) {
         ConnectionService.ip = ip;
