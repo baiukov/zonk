@@ -1,18 +1,18 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "NodeNext",
+    "module": "commonjs",
     "lib": ["esnext", "dom"],
     "outDir": "./build",
     "rootDir": "./dev",
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "node"
   },
   "include": [
     "./dev/**/*"
   ],
   "exclude": [
-    "./node_modules/*"
+    "node_modules/@types/*"
   ]
 }

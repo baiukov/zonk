@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "tsc --project . --watch"
+    "watch": "tsc --project . --watch --skipLibCheck"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +14,8 @@
     "net": "^1.0.2",
     "ts": "^0.0.0",
     "ts-node": "^10.9.2",
-    "undici-types": "^6.7.1"
+    "undici-types": "^6.7.1",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.29",
