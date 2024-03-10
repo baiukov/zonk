@@ -1,4 +1,7 @@
-import { languageConfig } from './language.config.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LanguageService = void 0;
+var language_config_js_1 = require("./language.config.js");
 var LanguageService = /** @class */ (function () {
     function LanguageService() {
         var _this = this;
@@ -6,7 +9,7 @@ var LanguageService = /** @class */ (function () {
         this.getLanguage = function () { return _this.language; };
         this.setLanguage = function (language) { _this.language = language; };
         this.update = function (langName) {
-            var language = languageConfig[langName];
+            var language = language_config_js_1.languageConfig[langName];
             Object.keys(language).forEach(function (id) {
                 var element = $("#" + id);
                 if (!element)
@@ -27,4 +30,4 @@ var LanguageService = /** @class */ (function () {
     }
     return LanguageService;
 }());
-export { LanguageService };
+exports.LanguageService = LanguageService;

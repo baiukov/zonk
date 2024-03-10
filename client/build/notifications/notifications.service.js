@@ -1,4 +1,7 @@
-import { secToMs } from '../utils/secToMs.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NotificationsService = void 0;
+var secToMs_js_1 = require("../utils/secToMs.js");
 var NotificationsService = /** @class */ (function () {
     function NotificationsService() {
     }
@@ -14,17 +17,17 @@ var NotificationsService = /** @class */ (function () {
         $(error).click(function () { $(error).remove(); });
         $(".error-pane").append(error);
         var unshow = function (elem) {
-            $(elem).fadeOut(secToMs(1), function () {
+            $(elem).fadeOut((0, secToMs_js_1.secToMs)(1), function () {
                 $(elem).remove();
             });
         };
         var show = function (elem) {
-            $(error).fadeIn(secToMs(1), function () {
-                setTimeout(function () { unshow(elem); }, secToMs(10));
+            $(error).fadeIn((0, secToMs_js_1.secToMs)(1), function () {
+                setTimeout(function () { unshow(elem); }, (0, secToMs_js_1.secToMs)(10));
             });
         };
         show(error);
     };
     return NotificationsService;
 }());
-export { NotificationsService };
+exports.NotificationsService = NotificationsService;

@@ -1,4 +1,7 @@
-export var Events;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Events = void 0;
+var Events;
 (function (Events) {
     Events["Notify"] = "ShowNotification";
     Events["GetLanguage"] = "GetLanguage";
@@ -8,4 +11,4 @@ export var Events;
     Events["SetConnectionType"] = "SetConnectionType";
     Events["SetIP"] = "SetIP";
     Events["EmitServer"] = "EmitServer";
-})(Events || (Events = {}));
+})(Events || (exports.Events = Events = {}));

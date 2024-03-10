@@ -14,8 +14,7 @@
     "net": "^1.0.2",
     "ts": "^0.0.0",
     "ts-node": "^10.9.2",
-    "undici-types": "^6.6.2",
-    "uuid": "^9.0.1"
+    "undici-types": "^6.7.1"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.29",

@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GameView = void 0;
 var GameView = /** @class */ (function () {
     function GameView() {
         this.setDiceAmount = function (element, amount) {
@@ -23,7 +26,7 @@ var GameView = /** @class */ (function () {
             $(element).append(newDots);
         };
         this.setClickHandler = function (id, selectedDices, isClickable, bannedDices) {
-            if ($("clickHandler" + id).length > 0)
+            if ($("clickHandler".concat(id)).length > 0)
                 return;
             var clickHandler = document.createElement("div");
             $(clickHandler).addClass("click-handler");
@@ -33,11 +36,11 @@ var GameView = /** @class */ (function () {
                     var idStr = $(event.target).attr("id");
                     var id = parseInt(idStr === null || idStr === void 0 ? void 0 : idStr.charAt(idStr.length - 1));
                     if (!selectedDices.includes(id)) {
-                        $("#dice" + id).addClass("selected");
+                        $("#dice".concat(id)).addClass("selected");
                         selectedDices.push(id);
                     }
                     else {
-                        $("#dice" + id).removeClass("selected");
+                        $("#dice".concat(id)).removeClass("selected");
                         selectedDices.splice(selectedDices.indexOf(id), 1);
                     }
                 });
@@ -45,9 +48,9 @@ var GameView = /** @class */ (function () {
             else {
                 $(clickHandler).click(function () { });
             }
-            $("#dice" + id).append(clickHandler);
+            $("#dice".concat(id)).append(clickHandler);
         };
     }
     return GameView;
 }());
-export { GameView };
+exports.GameView = GameView;

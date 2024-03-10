@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "ES2015",
+    "module": "NodeNext",
     "lib": ["esnext", "dom"],
     "outDir": "./build",
     "rootDir": "./dev",
     "strict": true,
     "esModuleInterop": true,
+    "moduleResolution": "NodeNext"
   },
   "include": [
     "./dev/**/*"
+  ],
+  "exclude": [
+    "./node_modules/*"
   ]
 }

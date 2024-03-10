@@ -1,17 +1,20 @@
-import { AppService } from '../app.service.js';
-import { Events } from '../enums/Events.enum.js';
-import { GameStatuses } from '../enums/GameStatuses.enum.js';
-import { ServerEvents } from '../enums/ServerEvents.enum.js';
-import { languageConfig } from '../language/language.config.js';
-import { getID } from '../utils/getID.js';
-import { secToMs } from '../utils/secToMs.js';
-import { showPlayers } from '../utils/showPlayers.js';
-import { GameView } from './game.view.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GameService = void 0;
+var app_service_js_1 = require("../app.service.js");
+var Events_enum_js_1 = require("../enums/Events.enum.js");
+var GameStatuses_enum_js_1 = require("../enums/GameStatuses.enum.js");
+var ServerEvents_enum_js_1 = require("../enums/ServerEvents.enum.js");
+var language_config_js_1 = require("../language/language.config.js");
+var getID_js_1 = require("../utils/getID.js");
+var secToMs_js_1 = require("../utils/secToMs.js");
+var showPlayers_js_1 = require("../utils/showPlayers.js");
+var game_view_js_1 = require("./game.view.js");
 var GameService = /** @class */ (function () {
     function GameService() {
         var _this = this;
         this.currentLanguage = "ENG";
-        this.view = new GameView();
+        this.view = new game_view_js_1.GameView();
         this.intervals = {
             diceAnimInterval: null,
             numberAnimInterval: null
@@ -27,9 +30,9 @@ var GameService = /** @class */ (function () {
             $("#submitRoll").click(_this.submitRoll);
         };
         this.submitRoll = function () {
-            var id = getID();
-            AppService.emit(Events.EmitServer, {
-                eventName: ServerEvents.SubmitRoll,
+            var id = (0, getID_js_1.getID)();
+            app_service_js_1.AppService.emit(Events_enum_js_1.Events.EmitServer, {
+                eventName: ServerEvents_enum_js_1.ServerEvents.SubmitRoll,
                 data: { id: id },
                 onSuccess: function (_) {
                     _this.selectedDices = [];
@@ -41,10 +44,10 @@ var GameService = /** @class */ (function () {
         };
         this.checkCombination = function () {
             if (_this.selectedDices.length === 0) {
-                AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].pickOne);
+                app_service_js_1.AppService.emit(Events_enum_js_1.Events.Notify, language_config_js_1.languageConfig[_this.currentLanguage].pickOne);
                 return;
             }
-            var id = getID();
+            var id = (0, getID_js_1.getID)();
             var chosenDices = {};
             for (var i = 0; i < _this.selectedDices.length; i++) {
                 var diceID = _this.selectedDices[i];
@@ -54,19 +57,19 @@ var GameService = /** @class */ (function () {
                 id: id,
                 chosenDices: chosenDices
             };
-            AppService.emit(Events.EmitServer, {
-                eventName: ServerEvents.CheckCombination,
+            app_service_js_1.AppService.emit(Events_enum_js_1.Events.EmitServer, {
+                eventName: ServerEvents_enum_js_1.ServerEvents.CheckCombination,
                 data: data,
                 onSuccess: function (response) {
                     if (JSON.parse(response).result) {
                         _this.reroll(data);
                     }
                     else {
-                        AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].wrongCombination);
+                        app_service_js_1.AppService.emit(Events_enum_js_1.Events.Notify, language_config_js_1.languageConfig[_this.currentLanguage].wrongCombination);
                     }
                 },
                 onError: function (message) {
-                    AppService.emit(Events.Notify, message);
+                    app_service_js_1.AppService.emit(Events_enum_js_1.Events.Notify, message);
                     return false;
                 }
             });
@@ -74,14 +77,14 @@ var GameService = /** @class */ (function () {
         };
         this.reroll = function (data) {
             $(".click-handler").click(function () { return false; });
-            AppService.emit(Events.EmitServer, {
-                eventName: ServerEvents.Reroll,
+            app_service_js_1.AppService.emit(Events_enum_js_1.Events.EmitServer, {
+                eventName: ServerEvents_enum_js_1.ServerEvents.Reroll,
                 data: data,
                 onSuccess: function (_) {
                     for (var i = 0; i < 6; i++) {
                         if (_this.selectedDices.includes(i))
                             continue;
-                        _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
+                        _this.playDiceAnim(i, (0, secToMs_js_1.secToMs)(5), Math.round(Math.random() * 5 + 1));
                     }
                 },
                 onError: function (_) {
@@ -114,11 +117,11 @@ var GameService = /** @class */ (function () {
             for (var i = 0; i < 6; i++) {
                 if (_this.selectedDices.includes(i))
                     continue;
-                _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
+                _this.playDiceAnim(i, (0, secToMs_js_1.secToMs)(5), Math.round(Math.random() * 5 + 1));
             }
-            var id = getID();
-            AppService.emit(Events.EmitServer, {
-                eventName: ServerEvents.Roll,
+            var id = (0, getID_js_1.getID)();
+            app_service_js_1.AppService.emit(Events_enum_js_1.Events.EmitServer, {
+                eventName: ServerEvents_enum_js_1.ServerEvents.Roll,
                 data: { id: id },
                 onSuccess: function (_) { },
                 onError: function (_) { }
@@ -129,15 +132,15 @@ var GameService = /** @class */ (function () {
             if (window.location.pathname != "/pages/game/")
                 return;
             setInterval(function () {
-                var id = getID();
-                AppService.emit(Events.EmitServer, {
-                    eventName: ServerEvents.UpdateState,
+                var id = (0, getID_js_1.getID)();
+                app_service_js_1.AppService.emit(Events_enum_js_1.Events.EmitServer, {
+                    eventName: ServerEvents_enum_js_1.ServerEvents.UpdateState,
                     data: { id: id },
                     onSuccess: function (response) {
                         _this.update(response);
                     },
                     onError: function (error) {
-                        AppService.emit(Events.Notify, error);
+                        app_service_js_1.AppService.emit(Events_enum_js_1.Events.Notify, error);
                         window.location.href = "../lobby";
                     }
                 });
@@ -146,7 +149,7 @@ var GameService = /** @class */ (function () {
         this.update = function (dataStr) {
             var data = JSON.parse(dataStr);
             if (!data) {
-                AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].smthWrong);
+                app_service_js_1.AppService.emit(Events_enum_js_1.Events.Notify, language_config_js_1.languageConfig[_this.currentLanguage].smthWrong);
                 return;
             }
             var status = data.status;
@@ -154,7 +157,7 @@ var GameService = /** @class */ (function () {
             _this.checkTurn(isTurn, status);
             _this.setPoints($("#totalPoints"), data.total);
             _this.setPoints($("#goalPoints"), data.goal);
-            showPlayers(data);
+            (0, showPlayers_js_1.showPlayers)(data);
             _this.setDicesForNotTurn(status, isTurn, data.bannedDices);
             _this.updateDices(data.dices, status, data.bannedDices);
             _this.setCurrentPoints(data.currentPoints);
@@ -172,21 +175,21 @@ var GameService = /** @class */ (function () {
                     window.location.href = "../lobby";
                     return;
                 }
-                AppService.emit(Events.EmitServer, {
-                    eventName: ServerEvents.CloseGame,
-                    data: { id: getID() },
+                app_service_js_1.AppService.emit(Events_enum_js_1.Events.EmitServer, {
+                    eventName: ServerEvents_enum_js_1.ServerEvents.CloseGame,
+                    data: { id: (0, getID_js_1.getID)() },
                     onSuccess: function (_) {
                         window.location.href = "../lobby";
                     },
                     onError: function (error) {
-                        AppService.emit(Events.Notify, error);
+                        app_service_js_1.AppService.emit(Events_enum_js_1.Events.Notify, error);
                     }
                 });
-            }, secToMs(10));
+            }, (0, secToMs_js_1.secToMs)(10));
         };
         this.selectedUpdate = function () {
             for (var i = 0; i < 6; i++) {
-                var element = $("#dice" + i);
+                var element = $("#dice".concat(i));
                 if (_this.selectedDices.includes(i)) {
                     if ($(element).hasClass('selected'))
                         return;
@@ -197,24 +200,24 @@ var GameService = /** @class */ (function () {
             }
         };
         this.checkButtonsVisibilty = function (status, turn) {
-            if (turn && status != GameStatuses.PENDING) {
+            if (turn && status != GameStatuses_enum_js_1.GameStatuses.PENDING) {
                 $("#roll").show();
                 $("#roll").removeAttr("disabled");
             }
             else {
                 $("#roll").attr("disabled");
             }
-            if (status != GameStatuses.PENDING || !turn) {
+            if (status != GameStatuses_enum_js_1.GameStatuses.PENDING || !turn) {
                 $("#reroll").hide();
                 $("#submitRoll").hide();
                 $("#roll").show();
             }
-            if (status === GameStatuses.PENDING && turn && !$("#reroll").is(":visible")) {
+            if (status === GameStatuses_enum_js_1.GameStatuses.PENDING && turn && !$("#reroll").is(":visible")) {
                 $("#roll").hide();
                 $("#submitRoll").show();
                 $("#reroll").show();
             }
-            if (status === GameStatuses.ROLLING) {
+            if (status === GameStatuses_enum_js_1.GameStatuses.ROLLING) {
                 $("#roll").attr("disabled", '');
             }
         };
@@ -231,7 +234,7 @@ var GameService = /** @class */ (function () {
                     continue;
                 bannedDices.push(i);
             }
-            if (!dices || status == GameStatuses.ROLLING)
+            if (!dices || status == GameStatuses_enum_js_1.GameStatuses.ROLLING)
                 return;
             for (var i = 0; i < dices.length; i++) {
                 _this.setDice(i, dices[i], !bannedDices.includes(i));
@@ -249,14 +252,14 @@ var GameService = /** @class */ (function () {
             element.text(points);
         };
         this.checkTurn = function (turn, status) {
-            if (turn || status != GameStatuses.ROLLING || _this.intervals.diceAnimInterval)
+            if (turn || status != GameStatuses_enum_js_1.GameStatuses.ROLLING || _this.intervals.diceAnimInterval)
                 return;
             for (var i = 0; i < 6; i++) {
-                _this.playDiceAnim(i, secToMs(5.2), 1);
+                _this.playDiceAnim(i, (0, secToMs_js_1.secToMs)(5.2), 1);
             }
         };
         this.setDicesForNotTurn = function (status, turn, bannedDices) {
-            if (status != GameStatuses.ROLLING)
+            if (status != GameStatuses_enum_js_1.GameStatuses.ROLLING)
                 return;
             if (turn)
                 return;
@@ -359,4 +362,4 @@ var GameService = /** @class */ (function () {
     };
     return GameService;
 }());
-export { GameService };
+exports.GameService = GameService;

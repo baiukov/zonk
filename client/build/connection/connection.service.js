@@ -1,5 +1,8 @@
-import { ConnectionTypes } from '../enums/ConnectionTypes.enum.js';
-import { TaskStatuses } from '../enums/TaskStatuses.enum.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConnectionService = void 0;
+var ConnectionTypes_enum_js_1 = require("../enums/ConnectionTypes.enum.js");
+var TaskStatuses_enum_js_1 = require("../enums/TaskStatuses.enum.js");
 var ConnectionService = /** @class */ (function () {
     function ConnectionService() {
         var _this = this;
@@ -11,7 +14,7 @@ var ConnectionService = /** @class */ (function () {
         this.checkConnectionType = function () {
             var savedType = localStorage.getItem("connectionType");
             if (!savedType) {
-                _this.connectionType = ConnectionTypes.Rest;
+                _this.connectionType = ConnectionTypes_enum_js_1.ConnectionTypes.Rest;
                 return;
             }
             _this.connectionType = savedType;
@@ -25,13 +28,13 @@ var ConnectionService = /** @class */ (function () {
         this.emitServer = function (config) {
             console.log(_this.connectionType, config);
             switch (_this.connectionType) {
-                case ConnectionTypes.Rest:
+                case ConnectionTypes_enum_js_1.ConnectionTypes.Rest:
                     _this.emitRestServer(config);
                     break;
-                case ConnectionTypes.WebSockets:
+                case ConnectionTypes_enum_js_1.ConnectionTypes.WebSockets:
                     _this.emitWebSocket(config);
                     break;
-                case ConnectionTypes.Sockets:
+                case ConnectionTypes_enum_js_1.ConnectionTypes.Sockets:
                     _this.emitClient(config);
             }
         };
@@ -47,9 +50,9 @@ var ConnectionService = /** @class */ (function () {
                 var messages = data.split(" ");
                 var status = messages[0];
                 var response = messages[1];
-                if (status === TaskStatuses.Unexecuted)
+                if (status === TaskStatuses_enum_js_1.TaskStatuses.Unexecuted)
                     return;
-                if (status === TaskStatuses.Successfull) {
+                if (status === TaskStatuses_enum_js_1.TaskStatuses.Successfull) {
                     config.onSuccess(response);
                 }
                 else {
@@ -63,13 +66,13 @@ var ConnectionService = /** @class */ (function () {
                     return;
                 if (_this.webSocket.CONNECTING || !_this.webSocket.OPEN)
                     return;
-                _this.webSocket.send(config.eventName + " " + dataToSend);
+                _this.webSocket.send("".concat(config.eventName, " ").concat(dataToSend));
                 _this.webSocket.onmessage = messageHandler;
                 clearInterval(interval);
             }, 10);
         };
         this.connectToWebSocket = function () {
-            _this.webSocket = new WebSocket("ws://" + ConnectionService.ip + ":8585/api/websockets");
+            _this.webSocket = new WebSocket("ws://".concat(ConnectionService.ip, ":8585/api/websockets"));
         };
         this.emitRestServer = function (config) {
             var str = JSON.stringify(config.data);
@@ -77,7 +80,7 @@ var ConnectionService = /** @class */ (function () {
                 return;
             }
             $.ajax({
-                url: "http://" + ConnectionService.ip + ":8080/" + config.eventName,
+                url: "http://".concat(ConnectionService.ip, ":8080/").concat(config.eventName),
                 type: "POST",
                 data: str,
                 contentType: 'application/json',
@@ -102,4 +105,4 @@ var ConnectionService = /** @class */ (function () {
     };
     return ConnectionService;
 }());
-export { ConnectionService };
+exports.ConnectionService = ConnectionService;

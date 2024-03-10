@@ -1,20 +1,23 @@
-import { AppService } from '../app.service.js';
-import { Events } from '../enums/Events.enum.js';
-import { ConnectionService } from './connection.service.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConnectionController = void 0;
+var app_service_js_1 = require("../app.service.js");
+var Events_enum_js_1 = require("../enums/Events.enum.js");
+var connection_service_js_1 = require("./connection.service.js");
 var ConnectionController = /** @class */ (function () {
     function ConnectionController(connectionService) {
         var _this = this;
         this.connectionService = connectionService;
-        AppService.on(Events.SetConnectionType, function (type) {
+        app_service_js_1.AppService.on(Events_enum_js_1.Events.SetConnectionType, function (type) {
             _this.connectionService.setConnectionType(type);
         });
-        AppService.on(Events.EmitServer, function (config) {
+        app_service_js_1.AppService.on(Events_enum_js_1.Events.EmitServer, function (config) {
             _this.connectionService.emitServer(config);
         });
-        AppService.on(Events.SetIP, function (ip) {
-            ConnectionService.setIP(ip);
+        app_service_js_1.AppService.on(Events_enum_js_1.Events.SetIP, function (ip) {
+            connection_service_js_1.ConnectionService.setIP(ip);
         });
     }
     return ConnectionController;
 }());
-export { ConnectionController };
+exports.ConnectionController = ConnectionController;
