@@ -1,4 +1,4 @@
-import { ConnectionTypes } from '../enums/ConnectionTypes.enum.js';
+import { ConnectionTypes } from '../enums/connectionTypes.enum.js';
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js';
 var ConnectionService = /** @class */ (function () {
     function ConnectionService() {

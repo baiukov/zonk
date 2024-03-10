@@ -1,5 +1,5 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/Events.enum.js';
+import { Events } from '../enums/events.enum.js';
 var LanguageController = /** @class */ (function () {
     function LanguageController(languageService) {
         var _this = this;

@@ -1,6 +1,6 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/Events.enum.js';
-import { ServerEvents } from '../enums/ServerEvents.enum.js';
+import { Events } from '../enums/events.enum.js';
+import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { getID } from '../utils/getID.js';
 import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';

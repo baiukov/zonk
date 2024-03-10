@@ -1,7 +1,7 @@
 import { AppService } from '../app.service.js';
-import { Events } from '../enums/Events.enum.js';
+import { Events } from '../enums/events.enum.js';
 import { PlayerStatus } from '../enums/PlayerStatus.enum.js';
-import { ServerEvents } from '../enums/ServerEvents.enum.js';
+import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
 import { save } from '../utils/save.js';
