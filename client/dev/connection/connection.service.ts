@@ -59,13 +59,15 @@ export class ConnectionService {
 	}
 
 	private receiveDataFromJava = (data: string) => {
-		$("#main").text("data")
-		this.emitClient("Hello, app!")
+
+		const a = $(document.createElement("h1")).text(data)
+		$("body").text(data)
+		//this.emitClient("Hello, app!")
 	}
 
 	private emitClient(a: any) {
 		// @ts-ignore
-		window.java.receiveDataFromWebPage(a)
+		//window.java.receiveDataFromWebPage(a)
 	}
 
 	private emitWebSocket = (config: Record<string, any>) => {

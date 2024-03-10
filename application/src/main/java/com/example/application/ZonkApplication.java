@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ZonkApplication extends Application {
     @Override
@@ -19,16 +21,29 @@ public class ZonkApplication extends Application {
         });
         webView.getEngine().load("https://baiukov.github.io/zonk/client/");
 
-        stage.setScene(new Scene(webView, 1280, 896));
+        webView.getEngine().setOnError(event -> {
+            System.out.println("WebView Error: " + event.getMessage());
+        });
 
+        webView.getEngine().setOnAlert(event -> {
+            System.out.println("WebView Alert: " + event.getData());
+        });
+
+        stage.setScene(new Scene(webView, 1280, 896));
 
         stage.show();
 
         Bridge bridge = new Bridge(webView.getEngine());
-        bridge.sendDataToWebPage("Hello, world!");
+        try {
+            bridge.sendDataToWebPage("Hello, world!");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
+        System.setProperty("com.sun.javafx.web.enableRemoteDebugging", "true");
         launch();
     }
 

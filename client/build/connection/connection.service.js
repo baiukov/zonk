@@ -36,8 +36,9 @@ var ConnectionService = /** @class */ (function () {
             }
         };
         this.receiveDataFromJava = function (data) {
-            $("#main").text("data");
-            _this.emitClient("Hello, app!");
+            var a = $(document.createElement("h1")).text(data);
+            $("body").text(data);
+            //this.emitClient("Hello, app!")
         };
         this.emitWebSocket = function (config) {
             if (!_this.webSocket || _this.webSocket.CLOSED || _this.webSocket.CLOSING) {
@@ -100,7 +101,7 @@ var ConnectionService = /** @class */ (function () {
     }
     ConnectionService.prototype.emitClient = function (a) {
         // @ts-ignore
-        window.java.receiveDataFromWebPage(a);
+        //window.java.receiveDataFromWebPage(a)
     };
     ConnectionService.setIP = function (ip) {
         ConnectionService.ip = ip;
