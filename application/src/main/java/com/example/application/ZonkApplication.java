@@ -21,14 +21,6 @@ public class ZonkApplication extends Application {
         });
         webView.getEngine().load("https://baiukov.github.io/zonk/client/");
 
-        webView.getEngine().setOnError(event -> {
-            System.out.println("WebView Error: " + event.getMessage());
-        });
-
-        webView.getEngine().setOnAlert(event -> {
-            System.out.println("WebView Alert: " + event.getData());
-        });
-
         stage.setScene(new Scene(webView, 1280, 896));
 
         stage.show();

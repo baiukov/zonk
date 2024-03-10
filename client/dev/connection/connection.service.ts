@@ -15,6 +15,7 @@ export class ConnectionService {
 		this.checkIP()
 		// @ts-ignore
 		window.receiveDataFromJava = this.receiveDataFromJava
+		this.emitClient("123")
 	}
 
 	public getConnectionType = () => { return this.connectionType }
@@ -54,7 +55,7 @@ export class ConnectionService {
 				this.emitWebSocket(config)
 				break
 			case ConnectionTypes.Sockets:
-				this.receiveDataFromJava("123")
+				this.emitClient(config)
 		}
 	}
 
@@ -67,7 +68,7 @@ export class ConnectionService {
 
 	private emitClient(a: any) {
 		// @ts-ignore
-		//window.java.receiveDataFromWebPage(a)
+		window.java.receiveDataFromWebPage(a)
 	}
 
 	private emitWebSocket = (config: Record<string, any>) => {

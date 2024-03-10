@@ -32,7 +32,7 @@ var ConnectionService = /** @class */ (function () {
                     _this.emitWebSocket(config);
                     break;
                 case ConnectionTypes.Sockets:
-                    _this.receiveDataFromJava("123");
+                    _this.emitClient(config);
             }
         };
         this.receiveDataFromJava = function (data) {
@@ -98,10 +98,11 @@ var ConnectionService = /** @class */ (function () {
         this.checkIP();
         // @ts-ignore
         window.receiveDataFromJava = this.receiveDataFromJava;
+        this.emitClient("123");
     }
     ConnectionService.prototype.emitClient = function (a) {
         // @ts-ignore
-        //window.java.receiveDataFromWebPage(a)
+        window.java.receiveDataFromWebPage(a);
     };
     ConnectionService.setIP = function (ip) {
         ConnectionService.ip = ip;
