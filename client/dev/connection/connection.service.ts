@@ -15,7 +15,6 @@ export class ConnectionService {
 		this.checkIP()
 		// @ts-ignore
 		window.receiveDataFromJava = this.receiveDataFromJava
-		this.emitClient("123")
 	}
 
 	public getConnectionType = () => { return this.connectionType }

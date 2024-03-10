@@ -98,7 +98,6 @@ var ConnectionService = /** @class */ (function () {
         this.checkIP();
         // @ts-ignore
         window.receiveDataFromJava = this.receiveDataFromJava;
-        this.emitClient("123");
     }
     ConnectionService.prototype.emitClient = function (a) {
         // @ts-ignore
