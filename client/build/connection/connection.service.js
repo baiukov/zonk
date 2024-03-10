@@ -32,7 +32,7 @@ var ConnectionService = /** @class */ (function () {
                     _this.emitWebSocket(config);
                     break;
                 case ConnectionTypes.Sockets:
-                    _this.emitClient(config);
+                    _this.receiveDataFromJava("123");
             }
         };
         this.receiveDataFromJava = function (data) {

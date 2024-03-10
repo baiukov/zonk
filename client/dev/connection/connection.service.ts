@@ -54,7 +54,7 @@ export class ConnectionService {
 				this.emitWebSocket(config)
 				break
 			case ConnectionTypes.Sockets:
-				this.emitClient(config)
+				this.receiveDataFromJava("123")
 		}
 	}
 
