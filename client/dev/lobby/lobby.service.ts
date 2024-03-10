@@ -54,7 +54,6 @@ export class LobbyService {
 
 	private updatePlayerList = () => {
 		const dataStr = localStorage.getItem("currentPlayer")
-		console.log(dataStr)
 		if (!dataStr) return
 
 		const data = JSON.parse(dataStr)
