@@ -7,14 +7,16 @@ var TasksService = /** @class */ (function () {
         var _this = this;
         this.taskPool = [];
         this.getTask = function (config) {
+            console.log("cfg", config);
             var task = _this.createTask(config);
             AppService.emit(Events.PostTask, task);
         };
         this.fetchTask = function (data) {
-            var taskID = data.taskID;
+            var taskID = parseInt(data.taskID);
             var response = data.data;
             var statusStr = data.status;
             var status = Object.values(TaskStatuses).find(function (status) { return status === statusStr; });
+            console.log(taskID);
             var task = _this.getTaskByID(taskID);
             if (task) {
                 task.setStatus(status);

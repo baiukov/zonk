@@ -18,12 +18,12 @@ var Task = /** @class */ (function () {
         this.setOnSucces = function (onSucces) { _this.onSuccess = onSucces; };
         this.toJSONString = function () {
             var json = {
-                taskID: _this.id,
+                taskID: _this.id.toString(),
                 commandName: _this.eventName,
                 status: _this.status,
-                data: _this.originData,
+                data: JSON.stringify(_this.originData),
             };
-            return json;
+            return JSON.stringify(json);
         };
         this.id = id;
         this.originData = config.data;

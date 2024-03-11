@@ -10,7 +10,7 @@ export class TasksController {
 		this.tasksService = tasksService
 
 		AppService.on(Events.GetTask, (config: Record<string, any>) => {
-			this.tasksService.createTask(config)
+			this.tasksService.getTask(config)
 		})
 
 		AppService.on(Events.FetchTask, (data: Object) => {

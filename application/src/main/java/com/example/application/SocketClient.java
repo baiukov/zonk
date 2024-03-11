@@ -11,6 +11,7 @@ public class SocketClient {
     private static final int SERVER_PORT = 8686; // Change to server's port
     private PrintWriter out;
     private BufferedReader in;
+    private MessageRouter messageRouter;
 
     public void start() {
         try {
@@ -23,6 +24,9 @@ public class SocketClient {
                     String serverResponse;
                     while ((serverResponse = in.readLine()) != null) {
                         System.out.println("Server: " + serverResponse + "\n");
+                        if (messageRouter != null) {
+                            messageRouter.sendMessage(serverResponse);
+                        }
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -34,10 +38,15 @@ public class SocketClient {
         }
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(Object message) {
+        System.out.println("here");
         if (out != null) {
             out.println(message);
         }
+    }
+
+    public void setMessageRouter(MessageRouter messageRouter) {
+        this.messageRouter = messageRouter;
     }
 
 }

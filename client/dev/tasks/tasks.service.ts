@@ -8,15 +8,17 @@ export class TasksService {
 	private taskPool: Array<Task> = []
 
 	public getTask = (config: Record<string, any>) => {
+		console.log("cfg", config)
 		const task = this.createTask(config)
 		AppService.emit(Events.PostTask, task)
 	}
 
 	public fetchTask = (data: Record<string, any>) => {
-		const taskID = data.taskID
+		const taskID = parseInt(data.taskID)
 		const response = data.data
 		const statusStr = data.status
 		const status = Object.values(TaskStatuses).find(status => status === statusStr) as TaskStatuses;
+		console.log(taskID)
 		const task: Task | null = this.getTaskByID(taskID)
 		if (task) {
 			(task as Task).setStatus(status);

@@ -5,7 +5,7 @@ var TasksController = /** @class */ (function () {
         var _this = this;
         this.tasksService = tasksService;
         AppService.on(Events.GetTask, function (config) {
-            _this.tasksService.createTask(config);
+            _this.tasksService.getTask(config);
         });
         AppService.on(Events.FetchTask, function (data) {
             _this.tasksService.fetchTask(data);

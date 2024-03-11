@@ -17,7 +17,7 @@ export class ConnectionService {
 		this.checkConnectionType()
 		this.checkIP()
 		// @ts-ignore
-		window.receiveDataFromJava = this.receiveDataFromJava
+		window.receiveMessageFromJava = this.receiveDataFromJava
 	}
 
 	public getConnectionType = () => { return this.connectionType }
@@ -66,6 +66,7 @@ export class ConnectionService {
 	}
 
 	public onPostTask = (task: Task) => {
+		console.log(task.getStatus())
 		if (task.getStatus() === TaskStatuses.Unexecuted) {
 			this.emitSocketServer(task)
 		} else {
@@ -76,16 +77,18 @@ export class ConnectionService {
 	private emitSocketServer = (task: Task) => {
 		console.log(task.getEventName(), task.getID(), task.getOriginData())
 		// @ts-ignore
-		window.java.receiveDataFromWebPage(task.toJSONString())
+		window.cefQuery({ request: task.toJSONString(), onSuccess: (_) => {}});
 	}
 
 	private receiveDataFromJava = (dataStr: string) => {
 		const data = JSON.parse(dataStr)
+		console.log("toresolve", data)
 		AppService.emit(Events.FetchTask, data)
 	}
 
 	private resolveTask = (task: Task) => {
 		const status = task.getStatus()
+		console.log(status)
 		if (!task || status === TaskStatuses.Unexecuted) {
 			return
 		}

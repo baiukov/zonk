@@ -38,12 +38,12 @@ export class Task {
 
 	public toJSONString = () => {
 		const json = {
-			taskID: this.id,
+			taskID: this.id.toString(),
 			commandName: this.eventName,
 			status: this.status,
-			data: this.originData,
+			data: JSON.stringify(this.originData),
 		}
-		return json
+		return JSON.stringify(json)
 	}
 
 }
