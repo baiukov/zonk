@@ -74,6 +74,7 @@ export class ConnectionService {
 	}
 
 	private emitSocketServer = (task: Task) => {
+		console.log(task.getEventName(), task.getID(), task.getOriginData())
 		// @ts-ignore
 		window.java.receiveDataFromWebPage(task.toJSONString())
 	}

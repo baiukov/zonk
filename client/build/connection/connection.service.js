@@ -49,6 +49,7 @@ var ConnectionService = /** @class */ (function () {
             }
         };
         this.emitSocketServer = function (task) {
+            console.log(task.getEventName(), task.getID(), task.getOriginData());
             // @ts-ignore
             window.java.receiveDataFromWebPage(task.toJSONString());
         };
