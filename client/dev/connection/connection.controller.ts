@@ -1,6 +1,7 @@
 import { AppService } from '../app.service.js'
 import { ConnectionTypes } from '../enums/connectionTypes.enum.js'
 import { Events } from '../enums/events.enum.js'
+import { Task } from '../tasks/Task.js'
 import { ConnectionService } from './connection.service.js'
 
 export class ConnectionController {
@@ -20,6 +21,10 @@ export class ConnectionController {
 
 		AppService.on(Events.SetIP, (ip: string) => {
 			ConnectionService.setIP(ip)
+		})
+
+		AppService.on(Events.PostTask, (task: Task) => {
+			this.connectionService.onPostTask(task)
 		})
 
 	}

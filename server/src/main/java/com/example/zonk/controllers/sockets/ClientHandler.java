@@ -1,32 +1,45 @@
-package com.example.zonk.controllers.websocket;
-
+package com.example.zonk.controllers.sockets;
 
 import com.example.zonk.controllers.commands.*;
 import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.interfaces.ICommand;
 import com.example.zonk.services.AppService;
-import org.glassfish.tyrus.server.Server;
+import org.json.JSONObject;
 
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
+import javax.websocket.OnMessage;
+import javax.websocket.Session;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
-@ServerEndpoint(value = "/websockets")
-public class WebSocketServer {
-
+public class ClientHandler extends Thread {
+    private Socket clientSocket;
     private HashSet<ICommand> registeredCommands = new HashSet<>();
 
-    @OnMessage
-    public void onMessage(String message, Session session) throws IOException {
-        String[] separatedMessage = message.split(" ");
-        String commandName = separatedMessage[0];
-        String dataStr = separatedMessage[1];
-        ICommand command = this.getCommand(commandName);
-        String result = command.execute(dataStr);
-        String status = command.getStatus();
-        if (status.equals(TaskStatuses.UNEXECUTED)) return;
-        session.getAsyncRemote().sendText(status + " " + result);
+    public ClientHandler(Socket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
+
+    @Override
+    public void run() {
+        try (
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+        ) {
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+//                System.out.println("Received from client: " + inputLine);
+//                out.println("Server received: " + inputLine);
+                this.onMessage(inputLine);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initCommands() {
@@ -59,6 +72,19 @@ public class WebSocketServer {
         ));
     }
 
+    @OnMessage
+    public void onMessage(String message) throws IOException {
+        JSONObject data = new JSONObject(message);
+        String commandName = data.getString("commandName");
+        String dataStr = data.getString("data");
+        System.out.println(data);
+        ICommand command = this.getCommand(commandName);
+        String result = command.execute(dataStr);
+        String status = command.getStatus();
+        if (status.equals(TaskStatuses.UNEXECUTED)) return;
+        //session.getAsyncRemote().sendText(status + " " + result);
+    }
+
     private ICommand getCommand(String commandName) {
         if (registeredCommands.isEmpty()) {
             this.initCommands();
@@ -69,24 +95,5 @@ public class WebSocketServer {
                 .filter(currentCommand -> currentCommand.isThat(commandName))
                 .findFirst();
         return command.orElse(null);
-    }
-
-    public static void main(String[] args) {
-        Server server = new Server(
-                "26.230.10.134",
-                8585,
-                "/api",
-                null,
-                WebSocketServer.class
-        );
-        try {
-            server.start();
-            System.out.println("WebSocket server started" + server.getPort());
-            while (true) {
-                Thread.sleep(1);
-            }
-        } catch (Exception e) {
-            System.err.println("Error starting WebSocket server: " + e.getMessage());
-        }
     }
 }

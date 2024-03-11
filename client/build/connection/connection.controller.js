@@ -14,6 +14,9 @@ var ConnectionController = /** @class */ (function () {
         AppService.on(Events.SetIP, function (ip) {
             ConnectionService.setIP(ip);
         });
+        AppService.on(Events.PostTask, function (task) {
+            _this.connectionService.onPostTask(task);
+        });
     }
     return ConnectionController;
 }());

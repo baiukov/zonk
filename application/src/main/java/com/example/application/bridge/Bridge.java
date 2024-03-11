@@ -1,5 +1,6 @@
 package com.example.application.bridge;
 
+import com.example.application.ZonkApplication;
 import javafx.scene.web.WebEngine;
 import netscape.javascript.JSObject;
 public class Bridge implements IBridge {
@@ -22,7 +23,10 @@ public class Bridge implements IBridge {
 
     @Override
     public void receiveDataFromWebPage(Object data) {
+        System.out.println("HERE");
+        ZonkApplication.socketClient.sendMessage((String) data);
         System.out.println("Received data from web page: " + data);
+
     }
 
     private String convertToJSObject(Object data) {

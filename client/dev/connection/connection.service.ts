@@ -1,5 +1,8 @@
+import { AppService } from '../app.service.js'
 import { ConnectionTypes } from '../enums/connectionTypes.enum.js'
+import { Events } from '../enums/events.enum.js'
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js'
+import { Task } from '../tasks/Task.js'
 
 
 export class ConnectionService {
@@ -54,20 +57,44 @@ export class ConnectionService {
 				this.emitWebSocket(config)
 				break
 			case ConnectionTypes.Sockets:
-				this.emitClient(config)
+				this.getTask(config)
 		}
 	}
 
-	private receiveDataFromJava = (data: string) => {
-
-		const a = $(document.createElement("h1")).text(data)
-		$("body").text(data)
-		//this.emitClient("Hello, app!")
+	private getTask = (config: Record<string, any>) => {
+		AppService.emit(Events.GetTask, config)
 	}
 
-	private emitClient(a: any) {
+	public onPostTask = (task: Task) => {
+		if (task.getStatus() === TaskStatuses.Unexecuted) {
+			this.emitSocketServer(task)
+		} else {
+			this.resolveTask(task)
+		}
+	}
+
+	private emitSocketServer = (task: Task) => {
 		// @ts-ignore
-		window.java.receiveDataFromWebPage(a)
+		window.java.receiveDataFromWebPage(task.toJSONString())
+	}
+
+	private receiveDataFromJava = (dataStr: string) => {
+		const data = JSON.parse(dataStr)
+		AppService.emit(Events.FetchTask, data)
+	}
+
+	private resolveTask = (task: Task) => {
+		const status = task.getStatus()
+		if (!task || status === TaskStatuses.Unexecuted) {
+			return
+		}
+		const response = task.getResponse()
+		if (!response) return
+		if (status === TaskStatuses.Successfull) {
+			task.getOnSuccess()(response)
+		} else {
+			task.getOnError()(response)
+		}
 	}
 
 	private emitWebSocket = (config: Record<string, any>) => {

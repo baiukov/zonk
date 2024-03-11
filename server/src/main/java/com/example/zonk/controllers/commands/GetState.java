@@ -1,4 +1,4 @@
-package com.example.zonk.controllers.websocket.commands;
+package com.example.zonk.controllers.commands;
 
 
 import com.example.zonk.enums.TaskStatuses;

@@ -7,12 +7,16 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ZonkApplication extends Application {
+
+    public static SocketClient socketClient;
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) throws IOException, InterruptedException {
+
+        socketClient = new SocketClient();
+        socketClient.start();
+
         WebView webView = new WebView();
         webView.getEngine().getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
             if (newExc != null) {
@@ -26,12 +30,7 @@ public class ZonkApplication extends Application {
         stage.show();
 
         Bridge bridge = new Bridge(webView.getEngine());
-        try {
-            bridge.sendDataToWebPage("Hello, world!");
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     public static void main(String[] args) {

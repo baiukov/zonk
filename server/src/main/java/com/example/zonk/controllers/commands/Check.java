@@ -1,17 +1,17 @@
-package com.example.zonk.controllers.websocket.commands;
+package com.example.zonk.controllers.commands;
 
 
 import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.interfaces.ICommand;
 import com.example.zonk.services.AppService;
 
-public class Reroll implements ICommand {
+public class Check implements ICommand {
     private final AppService appService;
-    private String name = "api/reroll";
+    private String name = "api/check";
 
     private String status = TaskStatuses.UNEXECUTED;
 
-    public Reroll(AppService appService) {
+    public Check(AppService appService) {
         this.appService = appService;
     }
 
@@ -32,8 +32,7 @@ public class Reroll implements ICommand {
     public String execute(String dataStr) {
         try {
             this.status = TaskStatuses.SUCCESS;
-            this.appService.reroll(dataStr);
-            return null;
+            return this.appService.check(dataStr);
         } catch (Exception e) {
             this.status = TaskStatuses.ERROR;
             return e.getMessage();

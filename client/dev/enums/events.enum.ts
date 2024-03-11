@@ -7,4 +7,7 @@ export enum Events {
 	SetConnectionType = "SetConnectionType",
 	SetIP = "SetIP",
 	EmitServer = "EmitServer",
+	GetTask = "GetTask",
+	PostTask = "PostTask",
+	FetchTask = "FetchTask"
 }

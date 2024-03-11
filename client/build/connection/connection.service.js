@@ -1,4 +1,6 @@
+import { AppService } from '../app.service.js';
 import { ConnectionTypes } from '../enums/connectionTypes.enum.js';
+import { Events } from '../enums/events.enum.js';
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js';
 var ConnectionService = /** @class */ (function () {
     function ConnectionService() {
@@ -32,13 +34,42 @@ var ConnectionService = /** @class */ (function () {
                     _this.emitWebSocket(config);
                     break;
                 case ConnectionTypes.Sockets:
-                    _this.emitClient(config);
+                    _this.getTask(config);
             }
         };
-        this.receiveDataFromJava = function (data) {
-            var a = $(document.createElement("h1")).text(data);
-            $("body").text(data);
-            //this.emitClient("Hello, app!")
+        this.getTask = function (config) {
+            AppService.emit(Events.GetTask, config);
+        };
+        this.onPostTask = function (task) {
+            if (task.getStatus() === TaskStatuses.Unexecuted) {
+                _this.emitSocketServer(task);
+            }
+            else {
+                _this.resolveTask(task);
+            }
+        };
+        this.emitSocketServer = function (task) {
+            // @ts-ignore
+            window.java.receiveDataFromWebPage(task.toJSONString());
+        };
+        this.receiveDataFromJava = function (dataStr) {
+            var data = JSON.parse(dataStr);
+            AppService.emit(Events.FetchTask, data);
+        };
+        this.resolveTask = function (task) {
+            var status = task.getStatus();
+            if (!task || status === TaskStatuses.Unexecuted) {
+                return;
+            }
+            var response = task.getResponse();
+            if (!response)
+                return;
+            if (status === TaskStatuses.Successfull) {
+                task.getOnSuccess()(response);
+            }
+            else {
+                task.getOnError()(response);
+            }
         };
         this.emitWebSocket = function (config) {
             if (!_this.webSocket || _this.webSocket.CLOSED || _this.webSocket.CLOSING) {
@@ -99,10 +130,6 @@ var ConnectionService = /** @class */ (function () {
         // @ts-ignore
         window.receiveDataFromJava = this.receiveDataFromJava;
     }
-    ConnectionService.prototype.emitClient = function (a) {
-        // @ts-ignore
-        window.java.receiveDataFromWebPage(a);
-    };
     ConnectionService.setIP = function (ip) {
         ConnectionService.ip = ip;
         localStorage.setItem("ip", ip);

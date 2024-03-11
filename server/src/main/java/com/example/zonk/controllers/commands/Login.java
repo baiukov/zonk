@@ -1,17 +1,18 @@
-package com.example.zonk.controllers.websocket.commands;
+package com.example.zonk.controllers.commands;
 
 
 import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.interfaces.ICommand;
 import com.example.zonk.services.AppService;
+import org.springframework.http.ResponseEntity;
 
-public class Roll implements ICommand {
+public class Login implements ICommand {
     private final AppService appService;
-    private String name = "api/roll";
+    private String name = "api/login";
 
     private String status = TaskStatuses.UNEXECUTED;
 
-    public Roll(AppService appService) {
+    public Login(AppService appService) {
         this.appService = appService;
     }
 
@@ -32,8 +33,7 @@ public class Roll implements ICommand {
     public String execute(String dataStr) {
         try {
             this.status = TaskStatuses.SUCCESS;
-            this.appService.roll(dataStr);
-            return null;
+            return this.appService.authorisePlayer(dataStr);
         } catch (Exception e) {
             this.status = TaskStatuses.ERROR;
             return e.getMessage();

@@ -66,7 +66,6 @@ export class LoginService {
 					eventName: ServerEvents.Login,
 					data: data,
 					onSuccess: (response: string) => {
-						console.log(response)
 						this.login(response)
 					},
 					onError: (error: string) => {

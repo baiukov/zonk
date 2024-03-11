@@ -1,17 +1,17 @@
-package com.example.zonk.controllers.websocket.commands;
+package com.example.zonk.controllers.commands;
 
 
 import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.interfaces.ICommand;
 import com.example.zonk.services.AppService;
 
-public class CloseGame implements ICommand {
+public class CreateGame implements ICommand {
     private final AppService appService;
-    private String name = "api/closeGame";
+    private String name = "api/createGame";
 
     private String status = TaskStatuses.UNEXECUTED;
 
-    public CloseGame(AppService appService) {
+    public CreateGame(AppService appService) {
         this.appService = appService;
     }
 
@@ -32,7 +32,7 @@ public class CloseGame implements ICommand {
     public String execute(String dataStr) {
         try {
             this.status = TaskStatuses.SUCCESS;
-            this.appService.closeGame(dataStr);
+            this.appService.createGame(dataStr);
             return null;
         } catch (Exception e) {
             this.status = TaskStatuses.ERROR;

@@ -49,7 +49,6 @@ var LoginService = /** @class */ (function () {
                     eventName: ServerEvents.Login,
                     data: data,
                     onSuccess: function (response) {
-                        console.log(response);
                         _this.login(response);
                     },
                     onError: function (error) {

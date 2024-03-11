@@ -8,4 +8,7 @@ export var Events;
     Events["SetConnectionType"] = "SetConnectionType";
     Events["SetIP"] = "SetIP";
     Events["EmitServer"] = "EmitServer";
+    Events["GetTask"] = "GetTask";
+    Events["PostTask"] = "PostTask";
+    Events["FetchTask"] = "FetchTask";
 })(Events || (Events = {}));
