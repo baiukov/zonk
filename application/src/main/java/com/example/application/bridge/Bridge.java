@@ -1,19 +1,13 @@
 package com.example.application.bridge;
 
-import com.example.application.ZonkApplication;
+import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
-import netscape.javascript.JSObject;
+
 public class Bridge implements IBridge {
     private final WebEngine webEngine;
 
     public Bridge(WebEngine webEngine) {
         this.webEngine = webEngine;
-        initializeJavaScriptBridge();
-    }
-
-    private void initializeJavaScriptBridge() {
-        JSObject window = (JSObject) webEngine.executeScript("window");
-        window.setMember("java", this);
     }
 
     @Override
@@ -23,13 +17,19 @@ public class Bridge implements IBridge {
 
     @Override
     public void receiveDataFromWebPage(Object data) {
-        System.out.println("HERE");
-        ZonkApplication.socketClient.sendMessage((String) data);
         System.out.println("Received data from web page: " + data);
-
     }
 
     private String convertToJSObject(Object data) {
         return "{\"data\": \"" + data.toString() + "\"}";
     }
+
+    public void exit() {
+        Platform.exit();
+    }
+
+    public void log(String text) {
+        System.out.println(text);
+    }
 }
+
