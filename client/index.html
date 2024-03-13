@@ -43,6 +43,15 @@
 							<input type='text' id='ip' required value='26.230.10.134'>
 						</div>
 
+						<div class='field'>
+							<select id='connection' class='connection'>
+								<option value='Rest'>Rest</option>
+								<option value='WebSockets'>WebSockets</option>
+								<option value='Sockets'>Sockets</option>
+							</select>
+
+						</div>
+
 						<button type='submit' class='submit' id='go'></button>
 
 					</form>
@@ -54,6 +63,6 @@
 
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script type='module' src="build/index.js"></script>
+<script type='module' src="dist/bundle.js"></script>
 
 </html>

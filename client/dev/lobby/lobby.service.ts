@@ -7,7 +7,7 @@ import { showPlayers } from '../utils/showPlayers.js'
 
 export class LobbyService {
 
-	private roomInterval: number | undefined
+	private roomInterval: NodeJS.Timeout | undefined
 
 	constructor() {
 		this.watch()
@@ -26,17 +26,19 @@ export class LobbyService {
 				"points": points,
 			}
 
-			AppService.emitServer(
-				ServerEvents.StartGame,
-				data,
-				(response: string) => {
-
-					console.log(response)
-					window.location.href = "../game"
-				},
-				(error: string) => {
-					console.log(error)
-				})
+			AppService.emit(
+				Events.EmitServer,
+				{
+					eventName: ServerEvents.StartGame,
+					data: data,
+					onSuccess: (response: string) => {
+						window.location.href = "../game"
+					},
+					onError: (error: string) => {
+						console.log(error)
+					}
+				}
+			)
 			return false
 		})
 	}
@@ -60,16 +62,19 @@ export class LobbyService {
 		const id = data.sessionID
 		if (!id) return
 
-		AppService.emitServer(
-			ServerEvents.GetRoom,
-			{ id: id },
-			(roomName: string) => {
-				this.getPlayers(roomName, id)
-				this.setRoom()
-			},
-			(error: string) => {
-				AppService.emit(Events.Notify, error)
-				AppService.emit(Events.ClearPlayer, 0)
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.GetRoom,
+				data: { id: id },
+				onSuccess: (roomName: string) => {
+					this.getPlayers(roomName, id)
+					this.setRoom()
+				},
+				onError: (error: string) => {
+					AppService.emit(Events.Notify, error)
+					AppService.emit(Events.ClearPlayer, 0)
+				}
 			}
 		)
 	}
@@ -84,16 +89,19 @@ export class LobbyService {
 		const data = {
 			room: roomName
 		}
-		AppService.emitServer(
-			ServerEvents.GetPlayers,
-			data,
-			(response: string) => {
-				this.update(response, roomName, id)
-			},
-			(error: string) => {
-				AppService.emit(Events.Notify, error)
-				window.location.href = ""
-				localStorage.removeItem("currentPlayer")
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.GetPlayers,
+				data: data,
+				onSuccess: (response: string) => {
+					this.update(response, roomName, id)
+				},
+				onError: (error: string) => {
+					AppService.emit(Events.Notify, error)
+					window.location.href = ""
+					localStorage.removeItem("currentPlayer")
+				}
 			}
 		)
 	}
@@ -109,12 +117,15 @@ export class LobbyService {
 			room: room
 		}
 
-		AppService.emitServer(
-			ServerEvents.AddPlayer,
-			dataToSend,
-			(_: string) => { },
-			(error: string) => {
-				AppService.emit(Events.Notify, error)
+		AppService.emit(
+			Events.EmitServer,
+			{
+				eventName: ServerEvents.AddPlayer,
+				data: dataToSend,
+				onSuccess: (_: string) => { },
+				onError: (error: string) => {
+					AppService.emit(Events.Notify, error)
+				}
 			}
 		)
 

@@ -16,8 +16,10 @@ export const languageConfig: LanguageConfig = {
 		start: "Start",
 		pts: "pts",
 		total: "total",
-		enough: "enough",
+		submitRoll: "enough",
 		reroll: "reroll",
+		won: "has won!",
+		congratulation: "CONGRATULATIONS!",
 
 		playerAlreadyExists: "Player already exists",
 		playerDoesntExist: "Player is not found",
@@ -26,7 +28,9 @@ export const languageConfig: LanguageConfig = {
 		roomIsFull: "Room is full",
 		smthWrong: "Something went wrong",
 		serverUnreachable: "Server is unreachable",
-		ipIsIncorrect: "IP address is not correct"
+		ipIsIncorrect: "IP address is not correct",
+		pickOne: "You should select a combination dice(-s) to reroll",
+		wrongCombination: "Choosen dices are not a combination"
 	},
 
 }

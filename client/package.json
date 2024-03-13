@@ -5,17 +5,27 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "tsc --project . --watch"
+    "watch": "tsc --project . --watch",
+    "build": "npx webpack --watch"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "jquery": "^3.7.1",
-    "ts": "^0.2.2",
+    "net": "^1.0.2",
+    "openssl": "^2.0.0",
+    "ts": "^0.0.0",
     "ts-node": "^10.9.2",
-    "undici-types": "^6.6.2"
+    "undici-types": "^6.7.1",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.29"
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@types/jquery": "^3.5.29",
+    "@types/uuid": "^9.0.8",
+    "babel-loader": "^9.1.3",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   }
 }

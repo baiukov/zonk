@@ -7,8 +7,12 @@
     "rootDir": "./dev",
     "strict": true,
     "esModuleInterop": true,
+    "moduleResolution": "node"
   },
   "include": [
     "./dev/**/*"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

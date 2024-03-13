@@ -7,5 +7,9 @@ export enum ServerEvents {
 	StartGame = "api/createGame",
 	UpdateState = "api/getState",
 	AddPlayer = "api/addPlayer",
-	Roll = "api/roll"
+	Roll = "api/roll",
+	SubmitRoll = "api/submitRoll",
+	Reroll = "api/reroll",
+	CheckCombination = "api/checkCombination",
+	CloseGame = "api/closeGame",
 }

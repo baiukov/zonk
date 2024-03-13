@@ -15,6 +15,10 @@ public class Player {
 
     private String status = PlayerStatuses.UNAUTHORIZED;
 
+    private int[] bannedDices = new int[6];
+
+    private int stableCurrentPoints = 0;
+
     public Player(String name) {
         this.playerName = name;
     }
@@ -45,4 +49,27 @@ public class Player {
     }
     public void withdrawCurrentPoints(int points) { this.currentPoints -= points; }
 
+    public int[] getBannedDices() {
+        return bannedDices;
+    }
+
+    public void setBannedDices(int[] bannedDices) {
+        this.bannedDices = bannedDices;
+    }
+
+    public int getStableCurrentPoints() {
+        return stableCurrentPoints;
+    }
+
+    public void setStableCurrentPoints(int stableCurrentPoints) {
+        this.stableCurrentPoints = stableCurrentPoints;
+    }
+
+    public void addStableCurrentPoints(int stableCurrentPoints) {
+        this.stableCurrentPoints += stableCurrentPoints;
+    }
+
+    public void withdrawStableCurrentPoints(int stableCurrentPoints) {
+        this.stableCurrentPoints -= stableCurrentPoints;
+    }
 }

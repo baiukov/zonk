@@ -32,12 +32,9 @@ public class RoomService {
 
     public List<Player> getPlayersByRoom(String roomName) throws RoomDoesntExist {
         Room room = this.getRoom(roomName);
-
-
         if (room == null) {
             throw new RoomDoesntExist("RoomDoesntExist");
         }
-
         return room.getPlayers();
     }
 
@@ -49,9 +46,11 @@ public class RoomService {
         return room.orElse(null);
     }
     public String getRoomByPlayerID(String id) {
+        System.out.println(id);
         for (Room room : rooms) {
             List<Player> players = room.getPlayers();
             for (Player player : players) {
+                System.out.println(player.getSessionId() + " " + player.getSessionId().equals(id));
                 if (player.getSessionId().equals(id)) {
                     return room.getName();
                 }

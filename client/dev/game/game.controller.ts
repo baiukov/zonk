@@ -10,7 +10,7 @@ export class GameController {
 		this.gameService = gameService
 
 		AppService.on(Events.PostLanguage, (newLanguage: string) => {
-			this.gameService.currentLanguage = newLanguage
+			this.gameService.setCurrentLanguage(newLanguage)
 		})
 	}
 }
