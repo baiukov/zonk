@@ -41,6 +41,7 @@ public class GetPlayers implements ICommand {
             this.status = TaskStatuses.SUCCESS;
             jsonObject.put("status", TaskStatuses.SUCCESS);
             jsonObject.put("data", this.appService.getPlayersByRoom(dataStr));
+            System.out.println("JSON" + jsonObject);
             return jsonObject.toString();
         } catch (Exception e) {
             this.status = TaskStatuses.ERROR;

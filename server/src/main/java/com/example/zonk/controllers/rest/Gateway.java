@@ -22,7 +22,7 @@ public class Gateway {
     @PostMapping("/getState")
     public ResponseEntity<String> getState(@RequestBody String dataStr) {
         try {
-            String result = this.appService.getState(dataStr);
+            String result = this.appService.getState(dataStr).toString();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
@@ -63,7 +63,7 @@ public class Gateway {
     @PostMapping("/checkCombination")
     public ResponseEntity<String> checkCombination(@RequestBody String dataStr) {
         try {
-            String result = this.appService.checkCombination(dataStr);
+            String result = this.appService.checkCombination(dataStr).toString();
             return ResponseEntity.ok(result);
         } catch(Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
@@ -93,7 +93,7 @@ public class Gateway {
     @PostMapping("/getPlayers")
     public ResponseEntity<String> getPlayers(@RequestBody String dataStr) {
         try {
-            String result = this.appService.getPlayersByRoom(dataStr);
+            String result = this.appService.getPlayersByRoom(dataStr).toString();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());

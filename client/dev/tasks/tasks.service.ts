@@ -14,10 +14,12 @@ export class TasksService {
 	}
 
 	public fetchTask = (data: Record<string, any>) => {
+		console.log("maindata", data.status)
 		const taskID = parseInt(data.taskID)
-		const response = data.data
+		console.log('data', data.data, JSON.stringify(data.data))
+		const response = JSON.stringify(data.data)
 		const statusStr = data.status
-		const status = Object.values(TaskStatuses).find(status => status === statusStr) as TaskStatuses;
+		const status = Object.values(TaskStatuses).find(status => status === statusStr) as TaskStatuses
 		console.log(taskID)
 		const task: Task | null = this.getTaskByID(taskID)
 		if (task) {

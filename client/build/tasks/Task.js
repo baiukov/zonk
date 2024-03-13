@@ -23,6 +23,7 @@ var Task = /** @class */ (function () {
                 status: _this.status,
                 data: JSON.stringify(_this.originData),
             };
+            console.log("toSend", JSON.stringify(json));
             return JSON.stringify(json);
         };
         this.id = id;

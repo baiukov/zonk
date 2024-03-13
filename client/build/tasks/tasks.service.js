@@ -12,8 +12,10 @@ var TasksService = /** @class */ (function () {
             AppService.emit(Events.PostTask, task);
         };
         this.fetchTask = function (data) {
+            console.log("maindata", data.status);
             var taskID = parseInt(data.taskID);
-            var response = data.data;
+            console.log('data', data.data, JSON.stringify(data.data));
+            var response = JSON.stringify(data.data);
             var statusStr = data.status;
             var status = Object.values(TaskStatuses).find(function (status) { return status === statusStr; });
             console.log(taskID);

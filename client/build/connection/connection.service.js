@@ -41,7 +41,6 @@ var ConnectionService = /** @class */ (function () {
             AppService.emit(Events.GetTask, config);
         };
         this.onPostTask = function (task) {
-            console.log(task.getStatus());
             if (task.getStatus() === TaskStatuses.Unexecuted) {
                 _this.emitSocketServer(task);
             }
@@ -50,7 +49,6 @@ var ConnectionService = /** @class */ (function () {
             }
         };
         this.emitSocketServer = function (task) {
-            console.log(task.getEventName(), task.getID(), task.getOriginData());
             // @ts-ignore
             window.cefQuery({ request: task.toJSONString(), onSuccess: function (_) { } });
         };
@@ -61,11 +59,11 @@ var ConnectionService = /** @class */ (function () {
         };
         this.resolveTask = function (task) {
             var status = task.getStatus();
-            console.log(status);
             if (!task || status === TaskStatuses.Unexecuted) {
                 return;
             }
             var response = task.getResponse();
+            console.log("response", response);
             if (!response)
                 return;
             if (status === TaskStatuses.Successfull) {

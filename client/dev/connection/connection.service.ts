@@ -66,7 +66,6 @@ export class ConnectionService {
 	}
 
 	public onPostTask = (task: Task) => {
-		console.log(task.getStatus())
 		if (task.getStatus() === TaskStatuses.Unexecuted) {
 			this.emitSocketServer(task)
 		} else {
@@ -75,9 +74,8 @@ export class ConnectionService {
 	}
 
 	private emitSocketServer = (task: Task) => {
-		console.log(task.getEventName(), task.getID(), task.getOriginData())
 		// @ts-ignore
-		window.cefQuery({ request: task.toJSONString(), onSuccess: (_) => {}});
+		window.cefQuery({ request: task.toJSONString(), onSuccess: (_) => { } })
 	}
 
 	private receiveDataFromJava = (dataStr: string) => {
@@ -88,11 +86,11 @@ export class ConnectionService {
 
 	private resolveTask = (task: Task) => {
 		const status = task.getStatus()
-		console.log(status)
 		if (!task || status === TaskStatuses.Unexecuted) {
 			return
 		}
 		const response = task.getResponse()
+		console.log("response", response)
 		if (!response) return
 		if (status === TaskStatuses.Successfull) {
 			task.getOnSuccess()(response)

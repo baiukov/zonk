@@ -37,6 +37,7 @@ public class ClientHandler extends Thread {
     }
 
     public void sendMessage(String message) {
+        System.out.println("Sent to client: " + message);
         this.out.println(message);
     }
 
