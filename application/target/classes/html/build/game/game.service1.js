@@ -5,17 +5,61 @@ import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
 import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';
-var GameService = /** @class */ (function () {
-    function GameService() {
+var GameService1 = /** @class */ (function () {
+    function GameService1() {
         var _this = this;
         this.dataIsNotRollingTime = 0;
         this.selectedDices = [false, false, false, false, false, false];
         this.currentLanguage = "ENG";
+        this.dices = [];
         this.watch = function () {
             $("#roll").click(function () {
-                _this.playDiceAnim(secToMs(5), []);
+                _this.selectedDices = [false, false, false, false, false, false];
+                _this.playDiceAnim(secToMs(5), [], [0, 1, 2, 3, 4, 5]);
                 var id = getID();
                 AppService.emitServer(ServerEvents.Roll, { id: id }, function (_) { }, function (_) { });
+                return false;
+            });
+            $("#submitRoll").click(function () {
+                var id = getID();
+                AppService.emitServer(ServerEvents.SubmitRoll, { id: id }, function (_) { }, function (_) { });
+                return false;
+            });
+            $("#reroll").click(function () {
+                var isAllFalse = true;
+                _this.selectedDices.forEach(function (dice) {
+                    if (!dice)
+                        return;
+                    isAllFalse = false;
+                });
+                if (isAllFalse) {
+                    AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].pickOne);
+                    return;
+                }
+                var id = getID();
+                var chosenDices = {};
+                var unchosenDices = [];
+                for (var i = 0; i < _this.selectedDices.length; i++) {
+                    if (!_this.selectedDices[i]) {
+                        unchosenDices.push(_this.dices[i - 1]);
+                        continue;
+                    }
+                    chosenDices[i] = _this.dices[i - 1];
+                }
+                var data = {
+                    id: id,
+                    chosenDices: chosenDices
+                };
+                var dicesToRoll = [];
+                for (var i = 0; i < _this.selectedDices.length; i++) {
+                    if (!_this.selectedDices[i])
+                        dicesToRoll.push(i);
+                }
+                console.log(dicesToRoll);
+                _this.playDiceAnim(secToMs(5), [], dicesToRoll);
+                AppService.emitServer(ServerEvents.Reroll, data, function (_) { }, function (_) {
+                    console.log(_);
+                });
                 return false;
             });
         };
@@ -51,10 +95,11 @@ var GameService = /** @class */ (function () {
             if (data.isRolling) {
                 $("#roll").attr("disabled", '');
                 if (!data.turn && !_this.diceAnimInterval) {
-                    _this.playDiceAnim(secToMs(4.9), []);
+                    _this.playDiceAnim(secToMs(4.9), [], [0, 1, 2, 3, 4, 5]);
                 }
             }
             if (data.dices) {
+                _this.dices = data.dices;
                 clearInterval(_this.diceAnimInterval);
                 _this.diceAnimInterval = undefined;
                 _this.setDice(data.dices);
@@ -64,22 +109,21 @@ var GameService = /** @class */ (function () {
                 _this.playNumbersAnim(element, parseInt($(element).text()) || 0, data.currentPoints);
             }
             if (!data.isPending || !data.turn) {
-                $("#roll").text(languageConfig[_this.currentLanguage].roll);
-                $("#reroll").remove();
+                $("#reroll").hide();
+                $("#submitRoll").hide();
+                $("#roll").show();
             }
-            if (data.isPending && data.turn && $("#reroll").length <= 0) {
-                $("#roll").text(languageConfig[_this.currentLanguage].enough);
-                var reroll = document.createElement("button");
-                $(reroll).attr("type", "submit")
-                    .addClass("reroll")
-                    .attr("id", "reroll")
-                    .text(languageConfig[_this.currentLanguage].reroll);
-                $(".submits").append(reroll);
+            console.log();
+            if (data.isPending && data.turn && !$("#reroll").is(":visible")) {
+                $("#roll").hide();
+                $("#submitRoll").show();
+                $("#reroll").show();
             }
         };
-        this.playDiceAnim = function (time, correctValues) {
+        this.playDiceAnim = function (time, correctValues, rollingDices) {
             var intervalTime = 100;
             var timeSpent = 0;
+            console.log("here", rollingDices);
             _this.diceAnimInterval = setInterval(function () {
                 if (timeSpent >= time && time != -1) {
                     _this.setDice(correctValues);
@@ -90,23 +134,28 @@ var GameService = /** @class */ (function () {
                     intervalTime *= ((time == -1) ? 1 : 1.15);
                     var values = [];
                     for (var i = 0; i < 6; i++) {
-                        values[i] = Math.floor(Math.random() * (6 - 1) + 1);
+                        if (rollingDices.includes(i)) {
+                            values[i] = Math.floor(Math.random() * (6 - 1) + 1);
+                        }
+                        else {
+                            values[i] = correctValues[i];
+                        }
                     }
                     _this.setDice(values);
                 }
                 timeSpent += 100;
             }, 100);
         };
-        //this.playDiceAnim(10000, [1, 2, 3, 4, 6])
         this.setDice([1, 2, 3, 4, 5, 6]);
         this.watch();
         this.watchState();
+        $("#submitRoll").hide();
+        $("#reroll").hide();
     }
-    GameService.prototype.setDice = function (values) {
+    GameService1.prototype.setDice = function (values) {
         var _this = this;
         var diceField = $(".dices");
         var dices = diceField.children("div");
-        var j = 1;
         dices.each(function (i) {
             var dice = dices[i];
             var doesExist = false;
@@ -140,34 +189,39 @@ var GameService = /** @class */ (function () {
             }
             var newDots = document.createElement("div");
             $(newDots).addClass("dots" + values[i]);
-            for (var j_1 = 0; j_1 < values[i]; j_1++) {
+            for (var j = 0; j < values[i]; j++) {
                 var dot = document.createElement("div");
                 $(dot).addClass("dot");
                 $(newDots).append(dot);
             }
             $(dice).append(newDots);
         });
-        for (var i = 1; i <= 6; i++) {
-            if ($("#clickHandler".concat(i)).length > 0)
-                return;
-            var clickHandler = document.createElement("div");
-            $(clickHandler).addClass("click-handler");
-            $(clickHandler).attr("id", "clickHandler" + i);
-            $(clickHandler).click(function (event) {
-                var idStr = $(event.target).attr("id");
-                var id = parseInt(idStr === null || idStr === void 0 ? void 0 : idStr.charAt(idStr.length - 1));
-                if (!_this.selectedDices[id]) {
-                    $("#dice".concat(id)).addClass("selected");
-                }
-                else {
-                    $("#dice".concat(id)).removeClass("selected");
-                }
-                _this.selectedDices[id] = !_this.selectedDices[id];
+        var _loop_1 = function (i) {
+            $("#dice" + i).ready(function () {
+                if ($("#clickHandler" + i).length > 0)
+                    return;
+                var clickHandler = document.createElement("div");
+                $(clickHandler).addClass("click-handler");
+                $(clickHandler).attr("id", "clickHandler" + i);
+                $(clickHandler).click(function (event) {
+                    var idStr = $(event.target).attr("id");
+                    var id = parseInt(idStr === null || idStr === void 0 ? void 0 : idStr.charAt(idStr.length - 1));
+                    if (!_this.selectedDices[id]) {
+                        $("#dice" + id).addClass("selected");
+                    }
+                    else {
+                        $("#dice" + id).removeClass("selected");
+                    }
+                    _this.selectedDices[id] = !_this.selectedDices[id];
+                });
+                $("#dice" + i).append(clickHandler);
             });
-            $("#dice".concat(i)).append(clickHandler);
+        };
+        for (var i = 1; i <= 6; i++) {
+            _loop_1(i);
         }
     };
-    GameService.prototype.playNumbersAnim = function (element, start, stop) {
+    GameService1.prototype.playNumbersAnim = function (element, start, stop) {
         var _this = this;
         if (start === 0 && stop === 0) {
             $(element).text(0);
@@ -192,6 +246,6 @@ var GameService = /** @class */ (function () {
             $(element).text(temp.toFixed(0));
         }, interval);
     };
-    return GameService;
+    return GameService1;
 }());
-export { GameService };
+export { GameService1 };

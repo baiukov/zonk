@@ -26,7 +26,7 @@ var AppService = /** @class */ (function () {
             return;
         }
         $.ajax({
-            url: "http://" + AppService.ip + ":8080/" + eventName,
+            url: "http://".concat(AppService.ip, ":8080/").concat(eventName),
             type: "POST",
             data: str,
             contentType: 'application/json',
