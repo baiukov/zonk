@@ -31,7 +31,6 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
     }
 
     public void sendMessage(String message) {
-        System.out.println(browser_);
         System.out.println(message);
         browser_.executeJavaScript("window.receiveMessageFromJava('" + message + "')", browser_.getURL(), 0);
     }
