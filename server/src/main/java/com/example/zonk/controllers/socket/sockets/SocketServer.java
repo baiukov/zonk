@@ -1,31 +1,31 @@
 package com.example.zonk.controllers.socket.sockets;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class SocketServer {
 
+    private static final Logger logger = LogManager.getLogger(SocketServer.class);
+
     public static void main(String[] args) {
         final int PORT = 8686;
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server started. Waiting for clients...");
+            logger.info("Server started on port " + PORT + ". Waiting for clients...");
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket);
+                logger.info("Client connected: " + clientSocket);
 
-                // Handle client in a new thread
                 Thread clientHandlerThread = new Thread(new ClientHandler(clientSocket));
                 clientHandlerThread.start();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Exception at server thread start" + e.getMessage());
         }
-    }
-
-    public void sendMessage(String message) {
-
     }
 }

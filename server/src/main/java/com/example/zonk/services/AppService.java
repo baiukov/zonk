@@ -9,6 +9,8 @@ import com.example.zonk.enums.PlayerStatuses;
 import com.example.zonk.exeptions.GameException;
 import com.example.zonk.exeptions.PlayerLoginException;
 import com.example.zonk.exeptions.RoomDoesntExist;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,8 @@ public class AppService {
     PlayerService playerService = new PlayerService();
     RoomService roomService = new RoomService();
 
+    private static final Logger logger = LogManager.getLogger(AppService.class);
+
 
     public String authorisePlayer(String dataStr) throws PlayerLoginException {
         JSONObject data = new JSONObject(dataStr);
@@ -35,7 +39,9 @@ public class AppService {
         }
         Player player = this.playerService.authorisePlayer(name, room);
         room.addPlayer(player);
-        return player.getSessionId();
+        String sessionID = player.getSessionId();
+        logger.info("New session ID for player generated - " + sessionID);
+        return sessionID;
     }
 
     public JSONObject getPlayersByRoom(String dataStr) throws RoomDoesntExist {
@@ -46,6 +52,7 @@ public class AppService {
         JSONObject json = new JSONObject();
         json.put("players", playerList);
         json.put("isInGame", game != null);
+        logger.info("New lobby room has been created. Info - " + json);
         return json;
     }
 
@@ -64,9 +71,11 @@ public class AppService {
         game = game != null ? game : this.gameService.getGameByRoomName(room);
         if (game != null) { return; }
         if (room == null) {
+            logger.warn("Room isn't found by playerID" + playerID);
             throw new GameException("RoomDoesntExist");
         }
         this.gameService.create(room, points);
+        logger.info("New game has been created at room " + room);
     }
 
     public JSONObject getState(String dataStr) throws GameException {

@@ -5,6 +5,8 @@
 package com.example.application;
 
 import me.friwi.jcefmaven.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.cef.CefApp;
 import org.cef.CefApp.CefAppState;
 import org.cef.CefClient;
@@ -40,6 +42,7 @@ public class MainFrame extends JFrame {
     private final CefBrowser browser_;
     private final Component browerUI_;
     private boolean browserFocus_ = true;
+    private static final Logger logger = LogManager.getLogger(MainFrame.class);
 
     private MainFrame(String startURL, boolean useOSR, boolean isTransparent, String[] args) throws UnsupportedPlatformException, CefInitializationException, IOException, InterruptedException {
 
@@ -128,5 +131,6 @@ public class MainFrame extends JFrame {
 
         boolean useOsr = false;
         new MainFrame("http://localhost:5500", useOsr, false, args);
+        logger.info("The application has been started");
     }
 }
