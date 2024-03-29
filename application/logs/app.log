@@ -1,0 +1,4 @@
+16:36:56.444 [main] INFO  com.example.application.MainFrame - Application has been started
+16:37:27.696 [main] INFO  com.example.application.MainFrame - The application has been started
+16:53:07.642 [main] INFO  com.example.application.SocketClient: Client has been connected to server 127.0.0.1:8686
+16:53:07.655 [main] INFO  com.example.application.MainFrame: The application has been started

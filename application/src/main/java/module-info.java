@@ -5,6 +5,7 @@ module com.example.application {
     requires jcef;
     requires java.desktop;
     requires jcefmaven;
+    requires org.apache.logging.log4j;
 
 
     opens com.example.application to javafx.fxml;
