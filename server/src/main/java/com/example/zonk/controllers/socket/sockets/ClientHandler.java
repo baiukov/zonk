@@ -1,6 +1,7 @@
 package com.example.zonk.controllers.socket.sockets;
 
 import com.example.zonk.controllers.socket.commands.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+@Slf4j
 public class ClientHandler extends Thread {
     private Socket clientSocket;
     private PrintWriter out;
@@ -27,17 +29,16 @@ public class ClientHandler extends Thread {
             this.out = out;
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                System.out.println("Received from client: " + inputLine);
-//                out.println("Server received: " + inputLine);
+                log.info("Received from client: " + inputLine);
                 this.commandController.onMessage(inputLine);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 
     public void sendMessage(String message) {
-        System.out.println("Sent to client: " + message);
+        log.info("Sent to client: " + message);
         this.out.println(message);
     }
 

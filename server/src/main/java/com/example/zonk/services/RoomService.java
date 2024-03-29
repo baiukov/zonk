@@ -3,17 +3,19 @@ package com.example.zonk.services;
 import com.example.zonk.entities.Player;
 import com.example.zonk.entities.Room;
 import com.example.zonk.exeptions.RoomDoesntExist;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class RoomService {
 
     private static final List<Room> rooms = new ArrayList<>();
 
     public Room addRoomIfAbsent(String name) {
-        Room room = null;
+        Room room;
         Optional<Room> optionalRoom = rooms
                 .stream()
                 .filter(currentRoom -> currentRoom.getName().equals(name))
@@ -22,10 +24,10 @@ public class RoomService {
         if (optionalRoom.isEmpty()) {
             room = new Room(name);
             rooms.add(room);
+            log.info("Room " + name + " has been successfully created");
         } else {
             room = optionalRoom.get();
         }
-
 
         return room;
     }
@@ -46,11 +48,9 @@ public class RoomService {
         return room.orElse(null);
     }
     public String getRoomByPlayerID(String id) {
-        System.out.println(id);
         for (Room room : rooms) {
             List<Player> players = room.getPlayers();
             for (Player player : players) {
-                System.out.println(player.getSessionId() + " " + player.getSessionId().equals(id));
                 if (player.getSessionId().equals(id)) {
                     return room.getName();
                 }

@@ -1,23 +1,22 @@
 package com.example.zonk.services;
 
-import com.example.zonk.entities.Combination;
 import com.example.zonk.entities.Game;
 import com.example.zonk.entities.Player;
 import com.example.zonk.entities.Room;
-import com.example.zonk.enums.Combinations;
 import com.example.zonk.enums.PlayerStatuses;
 import com.example.zonk.exeptions.GameException;
 import com.example.zonk.exeptions.PlayerLoginException;
 import com.example.zonk.exeptions.RoomDoesntExist;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
+@Slf4j
 public class AppService {
 
     GameService gameService = new GameService();
@@ -31,7 +30,10 @@ public class AppService {
         String roomName = data.getString("room").replaceAll("\"", "");
         Room room = roomService.addRoomIfAbsent(roomName);
         if (room.getPlayers().size() >= 4) {
-            throw new PlayerLoginException("roomIsFull");
+            String reason = "roomIsFull";
+            log.warn("Player " + name + " hasn't been authorised to room " + roomName + " successfully. " +
+                    "Caused by: " + reason);
+            throw new PlayerLoginException(reason);
         }
         Player player = this.playerService.authorisePlayer(name, room);
         room.addPlayer(player);
@@ -62,9 +64,15 @@ public class AppService {
         String room = this.roomService.getRoomByPlayerID(playerID);
         Game game = this.gameService.getGameByPlayerID(playerID);
         game = game != null ? game : this.gameService.getGameByRoomName(room);
-        if (game != null) { return; }
+        if (game != null) {
+            String reason = "GameDoesAlreadyExist";
+            log.warn("Game hasn't been created successfully. Caused by: " + reason);
+            throw new GameException(reason);
+        }
         if (room == null) {
-            throw new GameException("RoomDoesntExist");
+            String reason = "RoomDoesntExist";
+            log.warn("Game hasn't been created successfully. Caused by: " + reason);
+            throw new GameException(reason);
         }
         this.gameService.create(room, points);
     }
@@ -74,7 +82,9 @@ public class AppService {
         String playerID = data.getString("id").replaceAll("\"", "");
         Game game = this.gameService.getGameByPlayerID(playerID);
         if (game == null) {
-            throw new GameException("GameDoesntExist");
+            String reason = "GameDoesntExist";
+            log.warn("Cannot get game state. Caused by: " + reason);
+            throw new GameException(reason);
         }
         return game.getPlayerState(playerID);
     }
@@ -84,7 +94,9 @@ public class AppService {
         String playerID = data.getString("id").replaceAll("\"", "");
         Game game = this.gameService.getGameByPlayerID(playerID);
         if (game == null) {
-            throw new GameException("GameDoesntExist");
+            String reason = "GameDoesntExist";
+            log.warn("Cannot get game state. Caused by: " + reason);
+            throw new GameException(reason);
         }
         game.roll();
     }
@@ -94,6 +106,7 @@ public class AppService {
         String id = data.getString("id").replaceAll("\"", "");
         Player player = this.playerService.getPlayerByID(id);
         if (player == null) {
+            log.warn("Cannot properly get player status. Caused by: playerDoesn'tExist");
             return PlayerStatuses.UNKNOWN;
         }
         return player.getStatus();
@@ -104,7 +117,9 @@ public class AppService {
         String id = data.getString("id").replaceAll("\"", "");
         Game game = this.gameService.getGameByPlayerID(id);
         if (game == null) {
-            throw new GameException("GameDoesntExist");
+            String reason = "GameDoesntExist";
+            log.warn("Cannot get game state. Caused by: " + reason);
+            throw new GameException(reason);
         }
         game.submitRoll();
     }
@@ -115,7 +130,9 @@ public class AppService {
         Map<Integer, Integer> dices = this.getDicesMapped(data);
         Game game = this.gameService.getGameByPlayerID(id);
         if (game == null) {
-            throw new GameException("GameDoesntExist");
+            String reason = "GameDoesntExist";
+            log.warn("Cannot get game state. Caused by: " + reason);
+            throw new GameException(reason);
         }
         game.reroll(dices);
     }
@@ -125,7 +142,9 @@ public class AppService {
         String id = data.getString("id").replaceAll("\"", "");
         Game game = this.gameService.getGameByPlayerID(id);
         if (game == null) {
-            throw new GameException("GameDoesntExist");
+            String reason = "GameDoesntExist";
+            log.warn("Cannot get game state. Caused by: " + reason);
+            throw new GameException(reason);
         }
         Player player = this.playerService.getPlayerByID(id);
         boolean result = game.isACombination(this.getDicesMapped(data), player);
@@ -155,5 +174,25 @@ public class AppService {
         String id = data.getString("id").replaceAll("\"", "");
         Game game = this.gameService.getGameByPlayerID(id);
         this.gameService.closeGame(game);
+    }
+
+    public void addPlayer(String dataStr) throws GameException, PlayerLoginException {
+        JSONObject data = new JSONObject(dataStr);
+        String roomName = data.getString("room");
+        String id = data.getString("id");
+        Game game = this.gameService.getGameByRoomName(roomName);
+        Player player = this.playerService.getPlayerByID(id);
+        if (game == null) {
+            String reason = "GameDoesntExist";
+            log.warn("Cannot get game state. Caused by: " + reason);
+            throw new GameException(reason);
+        }
+        if (player == null) {
+            String reason = "PlayerDoesntExist";
+            log.warn("Cannot get game state. Caused by: " + reason);
+            throw new PlayerLoginException(reason);
+        }
+        game.addPlayer(player);
+        log.info("Player " + player.getName() + " has been added to room " + roomName);
     }
 }

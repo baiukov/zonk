@@ -5,20 +5,21 @@ import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.services.AppService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+
+import java.util.Optional;
+
 @Slf4j
-public class GetState implements ICommand {
+public class AddPlayer implements ICommand {
     private final AppService appService;
-    private String name = "api/getState";
+    private String name = "api/addPlayer";
     private String taskID;
     private String status = TaskStatuses.UNEXECUTED;
 
-    public GetState(AppService appService) {
+    public AddPlayer(AppService appService) {
         this.appService = appService;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
     public String getStatus() { return this.status; }
     public String getTaskID() { return this.taskID; }
 
@@ -29,7 +30,6 @@ public class GetState implements ICommand {
     public boolean isThat(String command) {
         return this.name.equals(command);
     }
-
     public void setTaskID(String taskID) { this.taskID = taskID; }
 
     @Override
@@ -38,8 +38,9 @@ public class GetState implements ICommand {
         jsonObject.put("taskID", this.taskID);
         try {
             this.status = TaskStatuses.SUCCESS;
+            this.appService.addPlayer(dataStr);
             jsonObject.put("status", TaskStatuses.SUCCESS);
-            jsonObject.put("data", this.appService.getState(dataStr));
+            jsonObject.put("data", Optional.empty());
             log.info("Command executed: " + name + "DataProviden: " + dataStr + "Result: " + jsonObject);
             return jsonObject.toString();
         } catch (Exception e) {

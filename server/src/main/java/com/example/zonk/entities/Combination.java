@@ -1,12 +1,11 @@
 package com.example.zonk.entities;
 
 import com.example.zonk.enums.Combinations;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@Slf4j
 public class Combination {
 
     private final Map<Combinations, Integer> costs = new HashMap<>();
@@ -88,6 +87,8 @@ public class Combination {
             if (n != 0) isAllACombination = false;
         }
         if (isAllACombination) { combinations.add(Combinations.ALLISCOMBINATION); }
+
+        log.info("Combination: " + Arrays.toString(arr) + " has been resolved as list of combinations: " + combinations);
 
         return combinations;
     }

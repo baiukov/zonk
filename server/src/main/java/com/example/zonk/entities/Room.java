@@ -19,9 +19,7 @@ public class Room {
         this.name = name;
     }
 
-    public void addPlayer(Player player) {
-        players.add(player);
-    }
+    public void addPlayer(Player player) { players.add(player); }
 
     public void removePlayer(Player player) {
         players.remove(player);

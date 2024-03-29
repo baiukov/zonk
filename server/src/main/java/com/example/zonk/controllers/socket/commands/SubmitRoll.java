@@ -3,10 +3,12 @@ package com.example.zonk.controllers.socket.commands;
 
 import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.services.AppService;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
 import java.util.Optional;
 
+@Slf4j
 public class SubmitRoll implements ICommand {
     private final AppService appService;
     private String name = "api/submitRoll";
@@ -42,11 +44,13 @@ public class SubmitRoll implements ICommand {
             this.appService.submitRoll(dataStr);
             jsonObject.put("status", TaskStatuses.SUCCESS);
             jsonObject.put("data", Optional.ofNullable(null));
+            log.info("Command executed: " + name + "DataProviden: " + dataStr + "Result: " + jsonObject);
             return jsonObject.toString();
         } catch (Exception e) {
             this.status = TaskStatuses.ERROR;
             jsonObject.put("status", TaskStatuses.ERROR);
             jsonObject.put("data", e.getMessage());
+            log.error("Command failed: " + name + "DataProviden: " + dataStr + "Result: " + jsonObject);
             return jsonObject.toString();
         }
     }

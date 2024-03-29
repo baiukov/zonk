@@ -7,20 +7,23 @@ import com.example.zonk.enums.GameStatuses;
 import com.example.zonk.enums.PlayerStatuses;
 import com.example.zonk.exeptions.GameException;
 import com.example.zonk.exeptions.RoomDoesntExist;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+@Slf4j
 public class GameService {
 
     private static final List<Game> games = new ArrayList<>();
-
     private static final Map<Game, Thread> threads = new HashMap<>();
 
     public void create(String roomName, int points) throws GameException {
         RoomService roomService = new RoomService();
         Room room = roomService.getRoom(roomName);
         if (room == null) {
-            throw new GameException("RoomDoesntExist");
+            String reason = "RoomDoesntExist";
+            log.warn("Game hasn't been created successfully. Caused by: " + reason);
+            throw new GameException(reason);
         }
         List<Player> playerList = room.getPlayers();
         for (Player player : playerList) {
@@ -31,20 +34,21 @@ public class GameService {
         gameThread.start();
         games.add(game);
         threads.put(game, gameThread);
+        log.info("New game has been successfully created for room " + room);
     }
 
     public Game getGameByPlayerID(String playerID) {
         Optional<Game> game = games
-                .stream()
-                .filter(
-                        currentGame -> currentGame.getPlayers()
-                                .stream()
-                                .anyMatch(player -> player
-                                        .getSessionId()
-                                        .equals(playerID)
-                                )
+            .stream()
+            .filter(
+                currentGame -> currentGame.getPlayers()
+                    .stream()
+                        .anyMatch(player -> player
+                            .getSessionId()
+                            .equals(playerID)
+                        )
                 )
-                .findFirst();
+            .findFirst();
         return game.orElse(null);
     }
 
@@ -63,10 +67,14 @@ public class GameService {
 
     public void closeGame(Game game) throws GameException {
         if (game == null) {
-            throw new GameException("GameDoesntExist");
+            String reason = "GameDoesn'tExist";
+            log.warn("Game hasn't been closed properly. Caused by: " + reason);
+            throw new GameException(reason);
         }
         if (!game.isHasFinished()) {
-            throw new GameException("GameHasntBeenFinished");
+            String reason = "GameHasntBeenFinished";
+            log.warn("Game hasn't been closed properly. Caused by: " + reason);
+            throw new GameException(reason);
         }
         Thread thread = threads.get(game);
         thread.interrupt();
@@ -77,5 +85,6 @@ public class GameService {
         };
         game.setPlayers(null);
         games.remove(game);
+        log.info("Game for room " + game.getRoom() + " has been closed.");
     }
 }

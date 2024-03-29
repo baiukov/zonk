@@ -3,10 +3,12 @@ package com.example.zonk.entities;
 import com.example.zonk.enums.Combinations;
 import com.example.zonk.enums.GameStatuses;
 import com.example.zonk.exeptions.GameException;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
 import java.util.*;
 
+@Slf4j
 public class Game implements Runnable {
 
     private final Room room;
@@ -50,20 +52,29 @@ public class Game implements Runnable {
 
     public void setDices(int[] dices) {this.dices = dices;}
 
+    public boolean isHasFinished() {
+        return hasFinished;
+    }
+
+    public void setHasFinished(boolean hasFinished) {
+        this.hasFinished = hasFinished;
+    }
+
     @Override
     public void run() {
         this.init();
     }
 
     public void init() {
-        this.players = new ArrayList<>(this.room.getPlayers());
+        players = new ArrayList<>(this.room.getPlayers());
         Collections.shuffle(this.players);
-        this.players.forEach(player -> {
+        players.forEach(player -> {
             player.setTotalPoints(0);
             player.setCurrentPoints(0);
         });
         this.turn = this.players.get(0);
         this.status = GameStatuses.WAITING;
+        log.info("New game has been initialized. Players list: " + players);
     }
 
     public JSONObject getPlayerState(String playerID) throws GameException {
@@ -85,6 +96,7 @@ public class Game implements Runnable {
         state.put("dices", this.dices);
         state.put("bannedDices", player.getBannedDices());
         state.put("winner", this.hasFinished ? this.turn.getName() : null);
+        log.info("Player " + player.getName() + " has current game state: " + state);
         return state;
     }
 
@@ -126,6 +138,7 @@ public class Game implements Runnable {
         int nextPlayerID = (currentTurnID + 1) >= players.size() ? 0 : currentTurnID + 1;
         turn = players.get(nextPlayerID);
         status = GameStatuses.WAITING;
+        log.info("Player " + player.getName() + " has submitted his roll");
     }
 
     public boolean isACombination(Map<Integer, Integer> dices, Player player) {
@@ -180,13 +193,5 @@ public class Game implements Runnable {
     public Player removePlayer(Player player) {
         this.players.remove(player);
         return player;
-    }
-
-    public boolean isHasFinished() {
-        return hasFinished;
-    }
-
-    public void setHasFinished(boolean hasFinished) {
-        this.hasFinished = hasFinished;
     }
 }

@@ -1,9 +1,9 @@
 package com.example.zonk.controllers.socket.commands;
 
 import com.example.zonk.controllers.socket.sockets.ClientHandler;
-import com.example.zonk.controllers.socket.sockets.SocketServer;
 import com.example.zonk.enums.TaskStatuses;
 import com.example.zonk.services.AppService;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
 import javax.websocket.OnMessage;
@@ -12,9 +12,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+@Slf4j
 public class CommandController {
 
-    private ClientHandler clientHandler;
+    private final ClientHandler clientHandler;
     private HashSet<ICommand> registeredCommands = new HashSet<>();
 
     public CommandController(ClientHandler clientHandler) {
@@ -35,6 +36,7 @@ public class CommandController {
         ICommand rerollCommand = new Reroll(appService);
         ICommand rollCommand = new Roll(appService);
         ICommand submitRollCommand = new SubmitRoll(appService);
+        ICommand addPlayer = new AddPlayer(appService);
 
         registeredCommands = new HashSet<>(Set.of(
                 loginCommand,
@@ -47,8 +49,10 @@ public class CommandController {
                 getStateCommand,
                 rerollCommand,
                 rollCommand,
-                submitRollCommand
+                submitRollCommand,
+                addPlayer
         ));
+        log.info("Commands have been implemented. Commands List: " + registeredCommands);
     }
 
     @OnMessage
@@ -63,6 +67,7 @@ public class CommandController {
         String status = command.getStatus();
         if (status.equals(TaskStatuses.UNEXECUTED)) return;
         this.clientHandler.sendMessage(result);
+        log.info("Message has been resolved. Input: " + message + ". Output: " + result);
     }
 
     private ICommand getCommand(String commandName) {

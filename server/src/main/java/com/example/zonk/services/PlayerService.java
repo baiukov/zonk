@@ -4,11 +4,13 @@ import com.example.zonk.entities.Player;
 import com.example.zonk.entities.Room;
 import com.example.zonk.enums.PlayerStatuses;
 import com.example.zonk.exeptions.PlayerLoginException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class PlayerService {
 
     private static final List<Player> players = new ArrayList<>();
@@ -23,15 +25,8 @@ public class PlayerService {
         Player newPlayer = new Player(name);
         players.add(newPlayer);
         newPlayer.setStatus(PlayerStatuses.INLOBBY);
+        log.info("Player " + name + " has been authorised to room " + room.getName());
         return newPlayer;
-    }
-
-    public Player getPlayer(String name) {
-        Optional<Player> player =  players
-                .stream()
-                .filter(currentPlayer -> currentPlayer.getName().equals(name))
-                .findFirst();
-        return player.orElse(null);
     }
 
     public Player getPlayerByID(String id) {

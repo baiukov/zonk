@@ -1,26 +1,25 @@
 package com.example.zonk.entities;
 
 import com.example.zonk.enums.PlayerStatuses;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
+@Slf4j
 public class Player {
 
     private String playerName;
-
-    private final String sessionId = UUID.randomUUID().toString();
-
+    private final String sessionId;
     private int totalPoints = 0;
     private int currentPoints = 0;
-
     private String status = PlayerStatuses.UNAUTHORIZED;
-
     private int[] bannedDices = new int[6];
-
     private int stableCurrentPoints = 0;
 
     public Player(String name) {
         this.playerName = name;
+        sessionId = UUID.randomUUID().toString();
+        log.info("New player has been created. Name: " + name + ". SessionID: " + sessionId);
     }
 
     public String getName() { return this.playerName; }
