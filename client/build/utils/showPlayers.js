@@ -1,3 +1,5 @@
+import { LogLevels } from '../enums/logLevels.enum';
+import { log } from './log.js';
 export var showPlayers = function (response) {
     var playerList = response.players;
     var playersView = document.getElementById("playerList");
@@ -22,8 +24,8 @@ export var showPlayers = function (response) {
             playersView === null || playersView === void 0 ? void 0 : playersView.appendChild(listElement);
         }
         else if (playerPoints != player.totalPoints) {
-            console.log(playerPoints, player.totalPoints);
             $(playerElement).text(player.name + " | " + player.totalPoints);
         }
     });
+    log(LogLevels.INFO, "Player list has been updated: " + playerList);
 };

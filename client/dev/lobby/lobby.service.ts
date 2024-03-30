@@ -1,7 +1,9 @@
 import { AppService } from '../app.service.js'
 import { Events } from '../enums/events.enum.js'
+import { LogLevels } from '../enums/logLevels.enum.js'
 import { ServerEvents } from '../enums/serverEvents.enum.js'
 import { getID } from '../utils/getID.js'
+import { log } from '../utils/log.js'
 import { secToMs } from '../utils/secToMs.js'
 import { showPlayers } from '../utils/showPlayers.js'
 
@@ -35,12 +37,13 @@ export class LobbyService {
 						window.location.href = "../game"
 					},
 					onError: (error: string) => {
-						console.log(error)
+						log(LogLevels.ERROR, "Cannot start the game. Caused by: " + error)
 					}
 				}
 			)
 			return false
 		})
+		log(LogLevels.INFO, "Lobby buttons' listeners have been initialized")
 	}
 
 	private setUpdateInterval = () => {
@@ -50,17 +53,27 @@ export class LobbyService {
 		this.roomInterval = setInterval(() => {
 			this.updatePlayerList()
 		}, secToMs(0.5))
+		log(LogLevels.INFO, "Lobby's interval has been initialized")
 	}
 
 	private updatePlayerList = () => {
 		const dataStr = localStorage.getItem("currentPlayer")
-		if (!dataStr) return
+		if (!dataStr) {
+			log(LogLevels.ERROR, "Cannot update player list. Cause by: player's data doesn't exist")
+			return
+		}
 
 		const data = JSON.parse(dataStr)
-		if (!data) return
+		if (!data) {
+			log(LogLevels.ERROR, "Cannot update player list. Cause by: player's data cannot be parsed")
+			return
+		}
 
 		const id = data.sessionID
-		if (!id) return
+		if (!id) {
+			log(LogLevels.ERROR, "Cannot update player list. Cause by: player doesn't have an sessionID")
+			return
+		}
 
 		AppService.emit(
 			Events.EmitServer,
@@ -74,6 +87,7 @@ export class LobbyService {
 				onError: (error: string) => {
 					AppService.emit(Events.Notify, error)
 					AppService.emit(Events.ClearPlayer, 0)
+					log(LogLevels.ERROR, "Cannot update player list. Cause by: player isn't in the room")
 				}
 			}
 		)
@@ -83,6 +97,7 @@ export class LobbyService {
 		if (window.location.pathname != "/pages/lobby/") {
 			window.location.href = "./pages/lobby"
 		}
+		log(LogLevels.INFO, "User was redirected to lobby screen")
 	}
 
 	private getPlayers = (roomName: string, id: string) => {
@@ -99,8 +114,9 @@ export class LobbyService {
 				},
 				onError: (error: string) => {
 					AppService.emit(Events.Notify, error)
-					window.location.href = ""
 					localStorage.removeItem("currentPlayer")
+					log(LogLevels.ERROR, "Cannot update player list. Caused by: " + error)
+					window.location.href = ""
 				}
 			}
 		)
@@ -125,6 +141,7 @@ export class LobbyService {
 				onSuccess: (_: string) => { },
 				onError: (error: string) => {
 					AppService.emit(Events.Notify, error)
+					log(LogLevels.ERROR, "Cannot add player to room. Caused by: " + error)
 				}
 			}
 		)

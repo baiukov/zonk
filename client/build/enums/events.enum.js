@@ -11,4 +11,5 @@ export var Events;
     Events["GetTask"] = "GetTask";
     Events["PostTask"] = "PostTask";
     Events["FetchTask"] = "FetchTask";
+    Events["Log"] = "Log";
 })(Events || (Events = {}));

@@ -1,3 +1,6 @@
+import { LogLevels } from '../enums/logLevels.enum'
+import { log } from './log.js'
+
 export const showPlayers = (response: Record<string, any>) => {
 	const playerList = response.players
 
@@ -24,8 +27,9 @@ export const showPlayers = (response: Record<string, any>) => {
 			$(listElement).text(player.name + " | " + player.totalPoints)
 			playersView?.appendChild(listElement)
 		} else if (playerPoints != player.totalPoints) {
-			console.log(playerPoints, player.totalPoints)
 			$(playerElement).text(player.name + " | " + player.totalPoints)
 		}
 	})
+
+	log(LogLevels.INFO, "Player list has been updated: " + playerList)
 }

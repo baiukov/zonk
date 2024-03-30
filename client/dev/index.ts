@@ -2,7 +2,5 @@ import { App } from './app.js'
 
 
 // @ts-ignore
-window.receiveMessageFromJava = () => {
-	console.log("her")
-}
+window.receiveMessageFromJava = () => { }
 new App()

@@ -1,9 +1,11 @@
 import { AppService } from '../app.service.js'
 import { Events } from '../enums/events.enum.js'
 import { GameStatuses } from '../enums/gameStatuses.enum.js'
+import { LogLevels } from '../enums/logLevels.enum.js'
 import { ServerEvents } from '../enums/serverEvents.enum.js'
 import { languageConfig } from '../language/language.config.js'
 import { getID } from '../utils/getID.js'
+import { log } from '../utils/log.js'
 import { secToMs } from '../utils/secToMs.js'
 import { showPlayers } from '../utils/showPlayers.js'
 import { GameView } from './game.view.js'
@@ -33,6 +35,7 @@ export class GameService {
 		$("#roll").click(this.roll)
 		$("#reroll").click(this.checkCombination)
 		$("#submitRoll").click(this.submitRoll)
+		log(LogLevels.INFO, "Game buttons' listeners have been initialized")
 	}
 
 	private submitRoll = () => {
@@ -46,8 +49,11 @@ export class GameService {
 				onSuccess: (_: string) => {
 					this.selectedDices = []
 					this.bannedDices = []
+					log(LogLevels.INFO, "The roll has been submited")
 				},
-				onError: (_: string) => { }
+				onError: (error: string) => {
+					log(LogLevels.ERROR, "Cannot submit roll. Caused by: " + error)
+				}
 			}
 		)
 		return false
@@ -55,6 +61,7 @@ export class GameService {
 
 	private checkCombination = () => {
 		if (this.selectedDices.length === 0) {
+			log(LogLevels.WARN, "Cannot check combination. Caused by: none of dice are picked")
 			AppService.emit(Events.Notify, languageConfig[this.currentLanguage].pickOne)
 			return
 		}
@@ -81,14 +88,16 @@ export class GameService {
 					if (JSON.parse(response).result) {
 						this.reroll(data)
 					} else {
+						log(LogLevels.WARN, "Cannot reroll. Caused by: wrong combination")
 						AppService.emit(
 							Events.Notify,
 							languageConfig[this.currentLanguage].wrongCombination
 						)
 					}
 				},
-				onError: (message: string) => {
-					AppService.emit(Events.Notify, message)
+				onError: (error: string) => {
+					log(LogLevels.ERROR, "Cannot reroll. Caused by: " + error)
+					AppService.emit(Events.Notify, error)
 					return false
 				}
 			}
@@ -108,8 +117,10 @@ export class GameService {
 						if (this.selectedDices.includes(i)) continue
 						this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1))
 					}
+					log(LogLevels.INFO, "Player has rerolled successfully.")
 				},
-				onError: (_: string) => {
+				onError: (error: string) => {
+					log(LogLevels.ERROR, "Cannot reroll. Caused by: " + error)
 				}
 			}
 		)
@@ -122,7 +133,7 @@ export class GameService {
 		allDices.each((i: number) => {
 			const dice = allDices[i]
 			const diceIDStr = $(dice).attr("id")
-			if (!diceIDStr) return undefined
+			if (!diceIDStr) { return undefined }
 			const currentDiceID = parseInt(diceIDStr[diceIDStr.length - 1])
 			if (currentDiceID !== diceID) return undefined
 			const diceChildren = $(dice).children("div")
@@ -148,8 +159,12 @@ export class GameService {
 			{
 				eventName: ServerEvents.Roll,
 				data: { id: id },
-				onSuccess: (_: string) => { },
-				onError: (_: string) => { }
+				onSuccess: (_: string) => {
+					log(LogLevels.INFO, "Player has rolled successfully")
+				},
+				onError: (error: string) => {
+					log(LogLevels.ERROR, "Cannot roll. Caused by: " + error)
+				}
 			}
 		)
 		return false
@@ -170,6 +185,7 @@ export class GameService {
 						this.update(response)
 					},
 					onError: (error: string) => {
+						log(LogLevels.ERROR, "Cannot update player list. Caused by: " + error)
 						AppService.emit(Events.Notify, error)
 						window.location.href = "../lobby"
 					}
@@ -181,6 +197,7 @@ export class GameService {
 	private update = (dataStr: string) => {
 		const data = JSON.parse(dataStr)
 		if (!data) {
+			log(LogLevels.ERROR, "Cannot update game state. Caused by: no data")
 			AppService.emit(Events.Notify, languageConfig[this.currentLanguage].smthWrong)
 			return
 		}
@@ -203,6 +220,7 @@ export class GameService {
 		if (!winner) return
 		$(".win").show()
 		$("#winner").text(winner)
+		log(LogLevels.INFO, "Game has been finished. Winner: " + winner)
 		setTimeout(() => {
 			if (!turn) {
 				window.location.href = "../lobby"
@@ -214,9 +232,11 @@ export class GameService {
 					eventName: ServerEvents.CloseGame,
 					data: { id: getID() },
 					onSuccess: (_: string) => {
+						log(LogLevels.INFO, "Game has been closed successfully")
 						window.location.href = "../lobby"
 					},
 					onError: (error: string) => {
+						log(LogLevels.ERROR, "Cannot close game. Caused by: " + error)
 						AppService.emit(Events.Notify, error)
 					}
 				}
@@ -261,12 +281,15 @@ export class GameService {
 
 	private setCurrentPoints = (currentPoints: number) => {
 		const element = $("#currentPoints") as unknown as HTMLElement
-		if (parseInt($(element).text()) === currentPoints || this.intervals.numberAnimInterval) return
+		if (parseInt($(element).text()) === currentPoints || this.intervals.numberAnimInterval) {
+			return
+		}
 		this.playNumbersAnim(
 			element,
 			parseInt($(element).text()) || 0,
 			currentPoints,
 		)
+		log(LogLevels.INFO, "Current points have been updated. New amount: " + currentPoints)
 	}
 
 	private updateDices = (dices: Array<number> | undefined, status: string, dataBannedDices: Array<number>) => {

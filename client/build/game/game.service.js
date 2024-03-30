@@ -1,9 +1,11 @@
 import { AppService } from '../app.service.js';
 import { Events } from '../enums/events.enum.js';
 import { GameStatuses } from '../enums/gameStatuses.enum.js';
+import { LogLevels } from '../enums/logLevels.enum.js';
 import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
+import { log } from '../utils/log.js';
 import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';
 import { GameView } from './game.view.js';
@@ -25,6 +27,7 @@ var GameService = /** @class */ (function () {
             $("#roll").click(_this.roll);
             $("#reroll").click(_this.checkCombination);
             $("#submitRoll").click(_this.submitRoll);
+            log(LogLevels.INFO, "Game buttons' listeners have been initialized");
         };
         this.submitRoll = function () {
             var id = getID();
@@ -34,13 +37,17 @@ var GameService = /** @class */ (function () {
                 onSuccess: function (_) {
                     _this.selectedDices = [];
                     _this.bannedDices = [];
+                    log(LogLevels.INFO, "The roll has been submited");
                 },
-                onError: function (_) { }
+                onError: function (error) {
+                    log(LogLevels.ERROR, "Cannot submit roll. Caused by: " + error);
+                }
             });
             return false;
         };
         this.checkCombination = function () {
             if (_this.selectedDices.length === 0) {
+                log(LogLevels.WARN, "Cannot check combination. Caused by: none of dice are picked");
                 AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].pickOne);
                 return;
             }
@@ -62,11 +69,13 @@ var GameService = /** @class */ (function () {
                         _this.reroll(data);
                     }
                     else {
+                        log(LogLevels.WARN, "Cannot reroll. Caused by: wrong combination");
                         AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].wrongCombination);
                     }
                 },
-                onError: function (message) {
-                    AppService.emit(Events.Notify, message);
+                onError: function (error) {
+                    log(LogLevels.ERROR, "Cannot reroll. Caused by: " + error);
+                    AppService.emit(Events.Notify, error);
                     return false;
                 }
             });
@@ -83,8 +92,10 @@ var GameService = /** @class */ (function () {
                             continue;
                         _this.playDiceAnim(i, secToMs(5), Math.round(Math.random() * 5 + 1));
                     }
+                    log(LogLevels.INFO, "Player has rerolled successfully.");
                 },
-                onError: function (_) {
+                onError: function (error) {
+                    log(LogLevels.ERROR, "Cannot reroll. Caused by: " + error);
                 }
             });
             return false;
@@ -95,8 +106,9 @@ var GameService = /** @class */ (function () {
             allDices.each(function (i) {
                 var dice = allDices[i];
                 var diceIDStr = $(dice).attr("id");
-                if (!diceIDStr)
+                if (!diceIDStr) {
                     return undefined;
+                }
                 var currentDiceID = parseInt(diceIDStr[diceIDStr.length - 1]);
                 if (currentDiceID !== diceID)
                     return undefined;
@@ -120,8 +132,12 @@ var GameService = /** @class */ (function () {
             AppService.emit(Events.EmitServer, {
                 eventName: ServerEvents.Roll,
                 data: { id: id },
-                onSuccess: function (_) { },
-                onError: function (_) { }
+                onSuccess: function (_) {
+                    log(LogLevels.INFO, "Player has rolled successfully");
+                },
+                onError: function (error) {
+                    log(LogLevels.ERROR, "Cannot roll. Caused by: " + error);
+                }
             });
             return false;
         };
@@ -137,6 +153,7 @@ var GameService = /** @class */ (function () {
                         _this.update(response);
                     },
                     onError: function (error) {
+                        log(LogLevels.ERROR, "Cannot update player list. Caused by: " + error);
                         AppService.emit(Events.Notify, error);
                         window.location.href = "../lobby";
                     }
@@ -146,6 +163,7 @@ var GameService = /** @class */ (function () {
         this.update = function (dataStr) {
             var data = JSON.parse(dataStr);
             if (!data) {
+                log(LogLevels.ERROR, "Cannot update game state. Caused by: no data");
                 AppService.emit(Events.Notify, languageConfig[_this.currentLanguage].smthWrong);
                 return;
             }
@@ -167,6 +185,7 @@ var GameService = /** @class */ (function () {
                 return;
             $(".win").show();
             $("#winner").text(winner);
+            log(LogLevels.INFO, "Game has been finished. Winner: " + winner);
             setTimeout(function () {
                 if (!turn) {
                     window.location.href = "../lobby";
@@ -176,9 +195,11 @@ var GameService = /** @class */ (function () {
                     eventName: ServerEvents.CloseGame,
                     data: { id: getID() },
                     onSuccess: function (_) {
+                        log(LogLevels.INFO, "Game has been closed successfully");
                         window.location.href = "../lobby";
                     },
                     onError: function (error) {
+                        log(LogLevels.ERROR, "Cannot close game. Caused by: " + error);
                         AppService.emit(Events.Notify, error);
                     }
                 });
@@ -220,9 +241,11 @@ var GameService = /** @class */ (function () {
         };
         this.setCurrentPoints = function (currentPoints) {
             var element = $("#currentPoints");
-            if (parseInt($(element).text()) === currentPoints || _this.intervals.numberAnimInterval)
+            if (parseInt($(element).text()) === currentPoints || _this.intervals.numberAnimInterval) {
                 return;
+            }
             _this.playNumbersAnim(element, parseInt($(element).text()) || 0, currentPoints);
+            log(LogLevels.INFO, "Current points have been updated. New amount: " + currentPoints);
         };
         this.updateDices = function (dices, status, dataBannedDices) {
             var bannedDices = [];

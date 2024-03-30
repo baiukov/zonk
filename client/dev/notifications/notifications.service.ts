@@ -1,3 +1,5 @@
+import { LogLevels } from '../enums/logLevels.enum.js'
+import { log } from '../utils/log.js'
 import { secToMs } from '../utils/secToMs.js'
 
 export class NotificationsService {
@@ -29,7 +31,7 @@ export class NotificationsService {
 		}
 
 		show(error)
-
+		log(LogLevels.INFO, "Notification has been shown. Message: " + message)
 	}
 
 }

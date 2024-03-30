@@ -1,3 +1,5 @@
+import { LogLevels } from '../enums/logLevels.enum.js';
+import { log } from '../utils/log.js';
 import { languageConfig } from './language.config.js';
 var LanguageService = /** @class */ (function () {
     function LanguageService() {
@@ -20,6 +22,7 @@ var LanguageService = /** @class */ (function () {
                         $(element).text(text);
                 }
             });
+            log(LogLevels.INFO, "Language " + _this.language + " has been initialized");
         };
         document.addEventListener("DOMContentLoaded", function () {
             _this.update(_this.language);

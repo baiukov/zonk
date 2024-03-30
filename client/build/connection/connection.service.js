@@ -1,7 +1,9 @@
 import { AppService } from '../app.service.js';
 import { ConnectionTypes } from '../enums/connectionTypes.enum.js';
 import { Events } from '../enums/events.enum.js';
+import { LogLevels } from '../enums/logLevels.enum.js';
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js';
+import { log } from '../utils/log.js';
 var ConnectionService = /** @class */ (function () {
     function ConnectionService() {
         var _this = this;
@@ -9,6 +11,7 @@ var ConnectionService = /** @class */ (function () {
         this.setConnectionType = function (type) {
             _this.connectionType = type;
             localStorage.setItem("connectionType", type);
+            log(LogLevels.INFO, "Connection has changed to: " + type);
         };
         this.checkConnectionType = function () {
             var savedType = localStorage.getItem("connectionType");
@@ -25,16 +28,13 @@ var ConnectionService = /** @class */ (function () {
             ConnectionService.ip = storedIP.replaceAll('"', '');
         };
         this.emitServer = function (config) {
-            console.log(_this.connectionType, config);
             switch (_this.connectionType) {
                 case ConnectionTypes.Rest:
                     _this.emitRestServer(config);
                     break;
-                case ConnectionTypes.WebSockets:
-                    _this.emitWebSocket(config);
-                    break;
                 case ConnectionTypes.Sockets:
                     _this.getTask(config);
+                    break;
             }
         };
         this.getTask = function (config) {
@@ -51,63 +51,31 @@ var ConnectionService = /** @class */ (function () {
         this.emitSocketServer = function (task) {
             // @ts-ignore
             window.cefQuery({ request: task.toJSONString(), onSuccess: function (_) { } });
+            log(LogLevels.INFO, "Message to client has been sent. Message: " + task.toJSONString);
         };
         this.receiveDataFromJava = function (dataStr) {
             var data = JSON.parse(dataStr);
-            console.log("toresolve", data);
+            log(LogLevels.INFO, "Get message from client. Message: " + dataStr);
             AppService.emit(Events.FetchTask, data);
         };
         this.resolveTask = function (task) {
             var status = task.getStatus();
             if (!task || status === TaskStatuses.Unexecuted) {
+                log(LogLevels.ERROR, "Cannot resolve task properly, because it doesn't exist or unexecuted");
                 return;
             }
             var response = task.getResponse();
-            console.log("response", response);
-            if (!response)
+            if (!response) {
+                log(LogLevels.ERROR, "Cannot resolve task properly, because there is no response");
                 return;
+            }
             if (status === TaskStatuses.Successfull) {
                 task.getOnSuccess()(response);
             }
             else {
                 task.getOnError()(response);
             }
-        };
-        this.emitWebSocket = function (config) {
-            if (!_this.webSocket || _this.webSocket.CLOSED || _this.webSocket.CLOSING) {
-                _this.connectToWebSocket();
-            }
-            var dataToSend = JSON.stringify(config.data);
-            var messageHandler = function (event) {
-                var data = event.data;
-                if (!data)
-                    return;
-                var messages = data.split(" ");
-                var status = messages[0];
-                var response = messages[1];
-                if (status === TaskStatuses.Unexecuted)
-                    return;
-                if (status === TaskStatuses.Successfull) {
-                    config.onSuccess(response);
-                }
-                else {
-                    config.onError(response);
-                }
-                // this.webSocket?.close()
-                // this.webSocket = undefined
-            };
-            var interval = setInterval(function () {
-                if (!_this.webSocket)
-                    return;
-                if (_this.webSocket.CONNECTING || !_this.webSocket.OPEN)
-                    return;
-                _this.webSocket.send("".concat(config.eventName, " ").concat(dataToSend));
-                _this.webSocket.onmessage = messageHandler;
-                clearInterval(interval);
-            }, 10);
-        };
-        this.connectToWebSocket = function () {
-            _this.webSocket = new WebSocket("ws://".concat(ConnectionService.ip, ":8585/api/websockets"));
+            log(LogLevels.INFO, "Task " + task.getID + " has been successfully resolved.");
         };
         this.emitRestServer = function (config) {
             var str = JSON.stringify(config.data);
@@ -135,6 +103,7 @@ var ConnectionService = /** @class */ (function () {
     ConnectionService.setIP = function (ip) {
         ConnectionService.ip = ip;
         localStorage.setItem("ip", ip);
+        log(LogLevels.INFO, "IP has changed to: " + ip);
     };
     return ConnectionService;
 }());

@@ -3,9 +3,6 @@ export class AppService {
 
 	private static events: Record<string, Function> = {}
 
-	constructor() {
-	}
-
 	public static on = (eventName: string, event: Function) => {
 		AppService.events[eventName] = event
 	}

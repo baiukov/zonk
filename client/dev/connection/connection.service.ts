@@ -1,8 +1,10 @@
 import { AppService } from '../app.service.js'
 import { ConnectionTypes } from '../enums/connectionTypes.enum.js'
 import { Events } from '../enums/events.enum.js'
+import { LogLevels } from '../enums/logLevels.enum.js'
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js'
 import { Task } from '../tasks/Task.js'
+import { log } from '../utils/log.js'
 
 
 export class ConnectionService {
@@ -10,8 +12,6 @@ export class ConnectionService {
 	private connectionType: string | undefined
 
 	private static ip: string | undefined
-
-	private webSocket: WebSocket | undefined
 
 	constructor() {
 		this.checkConnectionType()
@@ -25,11 +25,13 @@ export class ConnectionService {
 	public setConnectionType = (type: ConnectionTypes) => {
 		this.connectionType = type
 		localStorage.setItem("connectionType", type)
+		log(LogLevels.INFO, "Connection has changed to: " + type)
 	}
 
 	public static setIP = (ip: string) => {
 		ConnectionService.ip = ip
 		localStorage.setItem("ip", ip)
+		log(LogLevels.INFO, "IP has changed to: " + ip)
 	}
 
 	private checkConnectionType = () => {
@@ -48,16 +50,13 @@ export class ConnectionService {
 	}
 
 	public emitServer = (config: Record<string, any>) => {
-		console.log(this.connectionType, config)
 		switch (this.connectionType) {
 			case ConnectionTypes.Rest:
 				this.emitRestServer(config)
 				break
-			case ConnectionTypes.WebSockets:
-				this.emitWebSocket(config)
-				break
 			case ConnectionTypes.Sockets:
 				this.getTask(config)
+				break
 		}
 	}
 
@@ -76,63 +75,32 @@ export class ConnectionService {
 	private emitSocketServer = (task: Task) => {
 		// @ts-ignore
 		window.cefQuery({ request: task.toJSONString(), onSuccess: (_) => { } })
+		log(LogLevels.INFO, "Message to client has been sent. Message: " + task.toJSONString)
 	}
 
 	private receiveDataFromJava = (dataStr: string) => {
 		const data = JSON.parse(dataStr)
-		console.log("toresolve", data)
+		log(LogLevels.INFO, "Get message from client. Message: " + dataStr)
 		AppService.emit(Events.FetchTask, data)
 	}
 
 	private resolveTask = (task: Task) => {
 		const status = task.getStatus()
 		if (!task || status === TaskStatuses.Unexecuted) {
+			log(LogLevels.ERROR, "Cannot resolve task properly, because it doesn't exist or unexecuted")
 			return
 		}
 		const response = task.getResponse()
-		console.log("response", response)
-		if (!response) return
+		if (!response) {
+			log(LogLevels.ERROR, "Cannot resolve task properly, because there is no response")
+			return
+		}
 		if (status === TaskStatuses.Successfull) {
 			task.getOnSuccess()(response)
 		} else {
 			task.getOnError()(response)
 		}
-	}
-
-	private emitWebSocket = (config: Record<string, any>) => {
-		if (!this.webSocket || this.webSocket.CLOSED || this.webSocket.CLOSING) {
-			this.connectToWebSocket()
-		}
-
-		const dataToSend = JSON.stringify(config.data)
-
-		const messageHandler = (event: Record<string, any>) => {
-			const data: string = event.data
-			if (!data) return
-			const messages = data.split(" ")
-			const status = messages[0]
-			const response = messages[1]
-			if (status === TaskStatuses.Unexecuted) return
-			if (status === TaskStatuses.Successfull) {
-				config.onSuccess(response)
-			} else {
-				config.onError(response)
-			}
-			// this.webSocket?.close()
-			// this.webSocket = undefined
-		}
-
-		const interval = setInterval(() => {
-			if (!this.webSocket) return
-			if (this.webSocket.CONNECTING || !this.webSocket.OPEN) return
-			this.webSocket.send(`${config.eventName} ${dataToSend}`)
-			this.webSocket.onmessage = messageHandler
-			clearInterval(interval)
-		}, 10)
-	}
-
-	private connectToWebSocket = () => {
-		this.webSocket = new WebSocket(`ws://${ConnectionService.ip}:8585/api/websockets`)
+		log(LogLevels.INFO, "Task " + task.getID + " has been successfully resolved.")
 	}
 
 	private emitRestServer = (config: Record<string, any>) => {

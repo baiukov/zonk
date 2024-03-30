@@ -1,3 +1,5 @@
+import { LogLevels } from '../enums/logLevels.enum.js';
+import { log } from '../utils/log.js';
 import { secToMs } from '../utils/secToMs.js';
 var NotificationsService = /** @class */ (function () {
     function NotificationsService() {
@@ -24,6 +26,7 @@ var NotificationsService = /** @class */ (function () {
             });
         };
         show(error);
+        log(LogLevels.INFO, "Notification has been shown. Message: " + message);
     };
     return NotificationsService;
 }());

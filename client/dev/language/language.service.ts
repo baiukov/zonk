@@ -1,3 +1,5 @@
+import { LogLevels } from '../enums/logLevels.enum.js'
+import { log } from '../utils/log.js'
 import { languageConfig } from './language.config.js'
 
 export class LanguageService {
@@ -31,6 +33,7 @@ export class LanguageService {
 					$(element).text(text)
 			}
 		})
+		log(LogLevels.INFO, "Language " + this.language + " has been initialized")
 	}
 
 

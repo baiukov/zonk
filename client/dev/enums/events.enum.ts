@@ -9,5 +9,6 @@ export enum Events {
 	EmitServer = "EmitServer",
 	GetTask = "GetTask",
 	PostTask = "PostTask",
-	FetchTask = "FetchTask"
+	FetchTask = "FetchTask",
+	Log = "Log"
 }

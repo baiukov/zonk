@@ -1,9 +1,11 @@
 import { AppService } from '../app.service.js'
 import { Events } from '../enums/events.enum.js'
+import { LogLevels } from '../enums/logLevels.enum.js'
 import { PlayerStatus } from '../enums/PlayerStatus.enum.js'
 import { ServerEvents } from '../enums/serverEvents.enum.js'
 import { languageConfig } from '../language/language.config.js'
 import { getID } from '../utils/getID.js'
+import { log } from '../utils/log.js'
 import { save } from '../utils/save.js'
 
 export class LoginService {
@@ -34,8 +36,10 @@ export class LoginService {
 							window.location.href = "/pages/lobby"
 							break
 					}
+					log(LogLevels.INFO, "Player's status is " + status + ", redirecting..")
 				},
 				onError: (error: string) => {
+					log(LogLevels.ERROR, "Cannot check player's status. Caused by: " + error)
 					AppService.emit(Events.Notify, error)
 				}
 			}
@@ -71,12 +75,13 @@ export class LoginService {
 					onError: (error: string) => {
 						AppService.emit(Events.GetLanguage, null)
 						AppService.emit(Events.Notify, languageConfig[this.currentLanguage][error])
+						log(LogLevels.ERROR, "Cannot procceed in the logging. Caused by: " + error)
 					}
 				}
 			)
 			return false
 		})
-
+		log(LogLevels.INFO, "Lobby buttons' listeners have been initialized")
 	}
 
 	private login = (sessionID: string) => {
@@ -85,11 +90,13 @@ export class LoginService {
 		}
 		save(data)
 		window.location.href = "./pages/lobby"
+		log(LogLevels.INFO, "Player has been logged in and will be redirected to lobby. SessionID: " + sessionID)
 	}
 
 	public clearPlayer = () => {
 		window.location.pathname = ""
 		localStorage.removeItem("currentPlayer")
+		log(LogLevels.WARN, "This player has been removed from the game")
 	}
 
 }

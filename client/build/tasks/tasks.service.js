@@ -1,24 +1,22 @@
 import { AppService } from '../app.service.js';
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js';
 import { Events } from '../enums/events.enum.js';
+import { LogLevels } from '../enums/logLevels.enum.js';
+import { log } from '../utils/log.js';
 import { Task } from './Task.js';
 var TasksService = /** @class */ (function () {
     function TasksService() {
         var _this = this;
         this.taskPool = [];
         this.getTask = function (config) {
-            console.log("cfg", config);
             var task = _this.createTask(config);
             AppService.emit(Events.PostTask, task);
         };
         this.fetchTask = function (data) {
-            console.log("maindata", data.status);
             var taskID = parseInt(data.taskID);
-            console.log('data', data.data, JSON.stringify(data.data));
             var response = JSON.stringify(data.data);
             var statusStr = data.status;
             var status = Object.values(TaskStatuses).find(function (status) { return status === statusStr; });
-            console.log(taskID);
             var task = _this.getTaskByID(taskID);
             if (task) {
                 task.setStatus(status);
@@ -33,6 +31,7 @@ var TasksService = /** @class */ (function () {
             }
             var task = new Task(newID, config);
             _this.taskPool.push(task);
+            log(LogLevels.INFO, "New task has been created: " + task.getID() + " " + task.getEventName() + " " + task.getOriginData());
             return task;
         };
         this.generateTaskID = function () {

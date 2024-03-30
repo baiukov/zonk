@@ -1,7 +1,9 @@
 import { AppService } from '../app.service.js';
 import { Events } from '../enums/events.enum.js';
+import { LogLevels } from '../enums/logLevels.enum.js';
 import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { getID } from '../utils/getID.js';
+import { log } from '../utils/log.js';
 import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';
 var LobbyService = /** @class */ (function () {
@@ -29,6 +31,7 @@ var LobbyService = /** @class */ (function () {
                 });
                 return false;
             });
+            log(LogLevels.INFO, "Lobby buttons' listeners have been initialized");
         };
         this.setUpdateInterval = function () {
             if (window.location.pathname != "/pages/lobby/")
@@ -37,17 +40,24 @@ var LobbyService = /** @class */ (function () {
             _this.roomInterval = setInterval(function () {
                 _this.updatePlayerList();
             }, secToMs(0.5));
+            log(LogLevels.INFO, "Lobby's interval has been initialized");
         };
         this.updatePlayerList = function () {
             var dataStr = localStorage.getItem("currentPlayer");
-            if (!dataStr)
+            if (!dataStr) {
+                log(LogLevels.ERROR, "Cannot update player list. Cause by: player's data doesn't exist");
                 return;
+            }
             var data = JSON.parse(dataStr);
-            if (!data)
+            if (!data) {
+                log(LogLevels.ERROR, "Cannot update player list. Cause by: player's data cannot be parsed");
                 return;
+            }
             var id = data.sessionID;
-            if (!id)
+            if (!id) {
+                log(LogLevels.ERROR, "Cannot update player list. Cause by: player doesn't have an sessionID");
                 return;
+            }
             AppService.emit(Events.EmitServer, {
                 eventName: ServerEvents.GetRoom,
                 data: { id: id },
@@ -58,6 +68,7 @@ var LobbyService = /** @class */ (function () {
                 onError: function (error) {
                     AppService.emit(Events.Notify, error);
                     AppService.emit(Events.ClearPlayer, 0);
+                    log(LogLevels.ERROR, "Cannot update player list. Cause by: player isn't in the room");
                 }
             });
         };
@@ -65,6 +76,7 @@ var LobbyService = /** @class */ (function () {
             if (window.location.pathname != "/pages/lobby/") {
                 window.location.href = "./pages/lobby";
             }
+            log(LogLevels.INFO, "User was redirected to lobby screen");
         };
         this.getPlayers = function (roomName, id) {
             var data = {
@@ -78,8 +90,9 @@ var LobbyService = /** @class */ (function () {
                 },
                 onError: function (error) {
                     AppService.emit(Events.Notify, error);
-                    window.location.href = "";
                     localStorage.removeItem("currentPlayer");
+                    log(LogLevels.ERROR, "Cannot update player list. Caused by: " + error);
+                    window.location.href = "";
                 }
             });
         };
@@ -99,6 +112,7 @@ var LobbyService = /** @class */ (function () {
                 onSuccess: function (_) { },
                 onError: function (error) {
                     AppService.emit(Events.Notify, error);
+                    log(LogLevels.ERROR, "Cannot add player to room. Caused by: " + error);
                 }
             });
         };

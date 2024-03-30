@@ -43,7 +43,6 @@ export class Task {
 			status: this.status,
 			data: JSON.stringify(this.originData),
 		}
-		console.log("toSend", JSON.stringify(json))
 
 		return JSON.stringify(json)
 	}

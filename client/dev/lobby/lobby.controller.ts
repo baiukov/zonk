@@ -6,7 +6,6 @@ export class LobbyController {
 
 	constructor(lobbyService: LobbyService) {
 		this.lobbyService = lobbyService
-
 	}
 
 }

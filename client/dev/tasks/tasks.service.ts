@@ -1,6 +1,8 @@
 import { AppService } from '../app.service.js'
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js'
 import { Events } from '../enums/events.enum.js'
+import { LogLevels } from '../enums/logLevels.enum.js'
+import { log } from '../utils/log.js'
 import { Task } from './Task.js'
 
 export class TasksService {
@@ -8,19 +10,15 @@ export class TasksService {
 	private taskPool: Array<Task> = []
 
 	public getTask = (config: Record<string, any>) => {
-		console.log("cfg", config)
 		const task = this.createTask(config)
 		AppService.emit(Events.PostTask, task)
 	}
 
 	public fetchTask = (data: Record<string, any>) => {
-		console.log("maindata", data.status)
 		const taskID = parseInt(data.taskID)
-		console.log('data', data.data, JSON.stringify(data.data))
 		const response = JSON.stringify(data.data)
 		const statusStr = data.status
 		const status = Object.values(TaskStatuses).find(status => status === statusStr) as TaskStatuses
-		console.log(taskID)
 		const task: Task | null = this.getTaskByID(taskID)
 		if (task) {
 			(task as Task).setStatus(status);
@@ -36,6 +34,7 @@ export class TasksService {
 		}
 		const task = new Task(newID, config)
 		this.taskPool.push(task)
+		log(LogLevels.INFO, "New task has been created: " + task.getID() + " " + task.getEventName() + " " + task.getOriginData())
 		return task
 	}
 
