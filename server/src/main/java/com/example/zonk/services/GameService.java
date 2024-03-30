@@ -71,7 +71,7 @@ public class GameService {
             log.warn("Game hasn't been closed properly. Caused by: " + reason);
             throw new GameException(reason);
         }
-        if (!game.isHasFinished()) {
+        if (!game.hasFinished()) {
             String reason = "GameHasntBeenFinished";
             log.warn("Game hasn't been closed properly. Caused by: " + reason);
             throw new GameException(reason);

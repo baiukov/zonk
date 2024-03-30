@@ -9,17 +9,36 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Třída pro posloucháni a komunikaci s klienty.
+ *
+ * @author Aleksei Baiukov
+ * @version 30.03.2024
+ */
 @Slf4j
 public class ClientHandler extends Thread {
-    private Socket clientSocket;
+    // uložení klienta
+    private final Socket clientSocket;
+
+    // uložení streamu pro posílání zpráv
     private PrintWriter out;
+
+    // uložení kontrolleru komand
     private CommandController commandController;
 
+    /**
+     * Konstruktor třídy specifikující socket klienta
+     */
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
         this.commandController = new CommandController(this);
     }
 
+    /**
+     * Metoda pro nastartování posloucháče klientu, který pokusí se vytvořit streamy pro
+     * posílání a načítání zpráv, a když dostane zprávu od klienta, přepošle ji kontrolleru
+     * komand a bude čekat dál, pokud se žádná chyba nenastane
+     */
     @Override
     public void run() {
         try (
@@ -37,10 +56,14 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Metoda pro posílání zpráv klientovi přes uložený stream na posílání.
+     *
+     * @param message zpráva pro klienta
+     */
     public void sendMessage(String message) {
         log.info("Sent to client: " + message);
         this.out.println(message);
     }
-
 
 }

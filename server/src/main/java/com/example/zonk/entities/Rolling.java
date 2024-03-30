@@ -7,15 +7,36 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Třída popisující entitu procesu házení kostkami ve vymezeném
+ * vlakně. Při hazení kostkami, vytovří, změní se stav hry, pak se
+ * vytvoří nové vlakno pro tuto třídu a proces se nastartuje. Až
+ * se proces hazení ukončí třída svou čínnost ukončí a zruší vlakno.
+ *
+ * @author Aleksei Baiukov
+ * @version 30.03.2024
+ */
 @Slf4j
 public class Rolling implements Runnable {
 
+    // uložení instanci hry, ve které probíhá hazení
     Game game;
 
+    /**
+     * Konstruktor třídy specifikující hru ve které číní hazení
+     */
     public Rolling(Game game) {
         this.game = game;
     }
 
+    /**
+     * Metoda pro provádění procesu hazení kostkami. Počká 5 sekud než se zpracuje,
+     * pak zjistí který hráč teď hazí a jaký má stav a vygeneruje pro něj sadu nových
+     * kostek kromě těch, co jsou zablokovány, to jsou ty, které vybral pro přehazení (pokud
+     * jde o přehazení). Potom zjistí jaké a jestli jsou kombinace v nově vygenerováné sadě
+     * kostek a vymaže kombinace odehrané. Na konec přídá hráči aktuální scóre a ukončí vlakno
+     *
+     */
     @Override
     public void run() {
         try {

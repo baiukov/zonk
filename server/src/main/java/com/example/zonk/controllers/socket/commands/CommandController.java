@@ -12,16 +12,33 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Třída, která zpracová zpracování příkazu tak, že dostane zparsovány název příkazu a data
+ * od klienta a pokusí se vyhledat a zpracovat příkaz
+ *
+ * @author Aleksei Baiukov
+ * @version 30.03.2024
+ */
 @Slf4j
 public class CommandController {
 
+    // uložení posloucháče klientů
     private final ClientHandler clientHandler;
+
+    // seznam znamých příkazů
     private HashSet<ICommand> registeredCommands = new HashSet<>();
 
+    /**
+     * Konstruktor třídy specifikující posloucháče klientů
+     */
     public CommandController(ClientHandler clientHandler) {
         this.clientHandler = clientHandler;
     };
 
+    /**
+     * Metoda pro initializaci příkazů a uložení je do seznamů znamých
+     * příkazů
+     */
     public void initCommands() {
         AppService appService = new AppService();
 
@@ -55,8 +72,18 @@ public class CommandController {
         log.info("Commands have been implemented. Commands List: " + registeredCommands);
     }
 
+    /**
+     * Metoda vyvolána po získání zprávy od klienta. Zpráva obsahuje balík dat
+     * prostřednictvím JSON řádku. Tato metoda naparsuje je do tří entit: data pro
+     * předání ke zpracování, identifikáční číslo úkolu a název příkazu, podle názvu
+     * se pak zkusí vyhledat příkaz v seznamu znamých příkazů, zpracovat tento příkaz a
+     * poslat odpověď klientovi
+     *
+     * @param message zpráva od klienta JSON řádkem
+     *
+     */
     @OnMessage
-    public void onMessage(String message) throws IOException {
+    public void onMessage(String message) {
         JSONObject data = new JSONObject(message);
         String commandName = data.getString("commandName");
         String dataStr = data.getString("data");
@@ -70,6 +97,14 @@ public class CommandController {
         log.info("Message has been resolved. Input: " + message + ". Output: " + result);
     }
 
+    /**
+     * Metoda pro vyhledávání příkazů ze seznamu znamých příkazů.
+     * Pokud seznam je prazdny, vyvolá initializaci tohoto seznamu,
+     * jinak vrátí instanci příkazu nebo null
+     *
+     * @param commandName název příkazu pro vyhledání
+     * @return instance hledáného příkazu nebo null
+     */
     private ICommand getCommand(String commandName) {
         if (registeredCommands.isEmpty()) {
             this.initCommands();
