@@ -1,3 +1,6 @@
+/**
+ *  Dostuné okna otevřené uživatelem
+ */
 export var Windows;
 (function (Windows) {
     Windows[Windows["Login"] = 0] = "Login";

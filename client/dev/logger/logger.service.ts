@@ -1,5 +1,8 @@
 import { LogLevels } from '../enums/logLevels.enum.js'
 
+/*
+	Třída LoggerService - je třída služby loggeru, která se zabývá zpracováním logiky logování informací tak, že do konzole vypíše získanou zprávu úpavenou podle patternu, klient ji převezme a zaloguje vlastnimi prostředky
+*/
 export class LoggerService {
 
 	public log(type: number, message: string) {

@@ -9,26 +9,38 @@ import { log } from '../utils/log.js';
 import { secToMs } from '../utils/secToMs.js';
 import { showPlayers } from '../utils/showPlayers.js';
 import { GameView } from './game.view.js';
+/*
+    Třída GameService - je třída služby hry, která se zabývá zpracováním logiky akce, které se provadějí během hry
+*/
 var GameService = /** @class */ (function () {
+    // konstruktor třídy, který vyvolá potřebné pro initializaci metody
     function GameService() {
         var _this = this;
+        // uložení aktuálního jazyka
         this.currentLanguage = "ENG";
+        // vytvoření a uložení instance view hry
         this.view = new GameView();
+        // uložení probíhajících intervalů
         this.intervals = {
             diceAnimInterval: null,
             numberAnimInterval: null
         };
+        // uložení seznamů vybraných kostek
         this.selectedDices = [];
+        // uložení seznamů zablokovaných kostek
         this.bannedDices = [];
+        // metoda pro nastavení aktuálního jazyka
         this.setCurrentLanguage = function (language) {
             _this.currentLanguage = language;
         };
+        // metoda pro nastavení poslouchače kliknutí tlačitek
         this.watch = function () {
             $("#roll").click(_this.roll);
             $("#reroll").click(_this.checkCombination);
             $("#submitRoll").click(_this.submitRoll);
             log(LogLevels.INFO, "Game buttons' listeners have been initialized");
         };
+        // metoda potvrzení výsledku kola po hazení kostek, pošle požadavek o to na server
         this.submitRoll = function () {
             var id = getID();
             AppService.emit(Events.EmitServer, {
@@ -45,6 +57,7 @@ var GameService = /** @class */ (function () {
             });
             return false;
         };
+        // metoda ověření kombinací, vybraných hráčem, po ověření, že je vybrán aspoň jedena kostka, pošle požadavek o ověření na server
         this.checkCombination = function () {
             if (_this.selectedDices.length === 0) {
                 log(LogLevels.WARN, "Cannot check combination. Caused by: none of dice are picked");
@@ -81,6 +94,7 @@ var GameService = /** @class */ (function () {
             });
             return false;
         };
+        // metoda pro přehození kostek, pošle požadavek na server
         this.reroll = function (data) {
             $(".click-handler").click(function () { return false; });
             AppService.emit(Events.EmitServer, {
@@ -100,6 +114,7 @@ var GameService = /** @class */ (function () {
             });
             return false;
         };
+        // metoda pro žískání počtu bodů na kostce
         this.getDiceAmount = function (diceID) {
             var allDices = $(".dice");
             var amount = 0;
@@ -122,6 +137,7 @@ var GameService = /** @class */ (function () {
             });
             return amount;
         };
+        // metoda pro hazení kostkami, pošle požadavek na server
         this.roll = function () {
             for (var i = 0; i < 6; i++) {
                 if (_this.selectedDices.includes(i))
@@ -141,6 +157,7 @@ var GameService = /** @class */ (function () {
             });
             return false;
         };
+        // metoda pro obnovení stránky hry pro hráče, nastavuje se interval pro posílání požadavků na server s dotazem na aktuální stav
         this.watchUpdate = function () {
             if (window.location.pathname != "/pages/game/")
                 return;
@@ -160,6 +177,7 @@ var GameService = /** @class */ (function () {
                 });
             }, 100);
         };
+        // metoda pro obnovení prvků stránky hry po získání nových dat o aktuálním stavu
         this.update = function (dataStr) {
             var data = JSON.parse(dataStr);
             if (!data) {
@@ -180,6 +198,7 @@ var GameService = /** @class */ (function () {
             _this.selectedUpdate();
             _this.checkWin(data.winner, data.turn);
         };
+        // metoda pro ověření, jestli už není vítěž, pokud je, tak se zobrazí okno s jménem vítěze a pošle požadavek o ukončení hry
         this.checkWin = function (winner, turn) {
             if (!winner)
                 return;
@@ -205,6 +224,7 @@ var GameService = /** @class */ (function () {
                 });
             }, secToMs(10));
         };
+        // metoda pro obnovení vybraných kostek
         this.selectedUpdate = function () {
             for (var i = 0; i < 6; i++) {
                 var element = $("#dice".concat(i));
@@ -217,6 +237,7 @@ var GameService = /** @class */ (function () {
                 $(element).removeClass('selected');
             }
         };
+        // metoda pro ověření viditelnosti tlačitek správy kola
         this.checkButtonsVisibilty = function (status, turn) {
             if (turn && status != GameStatuses.PENDING) {
                 $("#roll").show();
@@ -239,6 +260,7 @@ var GameService = /** @class */ (function () {
                 $("#roll").attr("disabled", '');
             }
         };
+        // metoda pro nastavení aktuálního počtu bodů za kolo
         this.setCurrentPoints = function (currentPoints) {
             var element = $("#currentPoints");
             if (parseInt($(element).text()) === currentPoints || _this.intervals.numberAnimInterval) {
@@ -247,6 +269,7 @@ var GameService = /** @class */ (function () {
             _this.playNumbersAnim(element, parseInt($(element).text()) || 0, currentPoints);
             log(LogLevels.INFO, "Current points have been updated. New amount: " + currentPoints);
         };
+        // metoda pro obnovení zablokovaných kostek
         this.updateDices = function (dices, status, dataBannedDices) {
             var bannedDices = [];
             for (var i = 0; i < dataBannedDices.length; i++) {
@@ -265,12 +288,14 @@ var GameService = /** @class */ (function () {
                 _this.selectedDices.push(dice);
             });
         };
+        // metoda pro obnovení celkového scóre, pokud se počet změnil
         this.setPoints = function (element, points) {
             var currentPoints = parseInt(element.text());
             if (currentPoints === points)
                 return;
             element.text(points);
         };
+        // metoda pro ověření, jestli hráč teď hraje
         this.checkTurn = function (turn, status) {
             if (turn || status != GameStatuses.ROLLING || _this.intervals.diceAnimInterval)
                 return;
@@ -278,6 +303,7 @@ var GameService = /** @class */ (function () {
                 _this.playDiceAnim(i, secToMs(5.2), 1);
             }
         };
+        // metoda pro nastavení kostek pro nehrající hráče
         this.setDicesForNotTurn = function (status, turn, bannedDices) {
             if (status != GameStatuses.ROLLING)
                 return;
@@ -294,6 +320,7 @@ var GameService = /** @class */ (function () {
                 _this.playDiceAnim(dice, 5, 1);
             });
         };
+        // metoda pro initializaci poslouchačů tlačítek a kostek na desce
         this.init = function () {
             $("#roll").hide();
             $("#reroll").hide();
@@ -302,6 +329,7 @@ var GameService = /** @class */ (function () {
                 _this.setDice(i, i + 1, true);
             }
         };
+        // metoda přehrávání animaci při hazení kostek
         this.playDiceAnim = function (diceID, time, correctValue) {
             var nextTimeToSwitch = time * 0.01;
             var currentTime = 0;
@@ -321,6 +349,7 @@ var GameService = /** @class */ (function () {
                 currentTime += 50;
             }, 50);
         };
+        // metoda pro nastavení počtu bodů na kostce a jestli je možné ji výbrat
         this.setDice = function (diceID, amount, isClickable) {
             var diceField = $(".dices");
             var dices = diceField.children("div");
@@ -355,6 +384,7 @@ var GameService = /** @class */ (function () {
         this.watch();
         this.watchUpdate();
     }
+    // metoda pro přehrávání animaci čísel
     GameService.prototype.playNumbersAnim = function (element, start, stop) {
         var _this = this;
         if (start === 0 && stop === 0) {

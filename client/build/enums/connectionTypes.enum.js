@@ -1,6 +1,10 @@
+/**
+ *  Dostuné typy připojení
+ */
 export var ConnectionTypes;
 (function (ConnectionTypes) {
+    // restový typ připojení 
     ConnectionTypes["Rest"] = "Rest";
-    ConnectionTypes["WebSockets"] = "WebSockets";
+    // socketový typ připojení
     ConnectionTypes["Sockets"] = "Sockets";
 })(ConnectionTypes || (ConnectionTypes = {}));

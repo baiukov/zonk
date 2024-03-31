@@ -1,5 +1,6 @@
-import { LogLevels } from '../enums/logLevels.enum';
+import { LogLevels } from '../enums/logLevels.enum.js';
 import { log } from './log.js';
+// metoda pro úkládání dat uživatele do lokálního úložiště
 export var save = function (data) {
     var dataStr = localStorage.getItem("currentPlayer");
     var currentData = {};

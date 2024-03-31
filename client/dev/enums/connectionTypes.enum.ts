@@ -1,5 +1,10 @@
+/**
+ *  Dostuné typy připojení
+ */
 export enum ConnectionTypes {
+	// restový typ připojení 
 	Rest = "Rest",
-	WebSockets = "WebSockets",
+
+	// socketový typ připojení
 	Sockets = "Sockets",
 }

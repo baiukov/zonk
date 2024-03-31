@@ -1,5 +1,9 @@
+/*
+    Třída GameView - je třída pro vytváření přehledu statických prvků stránky hry a nastavení jejich dynamických zpracování událostí
+*/
 var GameView = /** @class */ (function () {
     function GameView() {
+        // metoda pro nastavení viditelných černých teček na bílem čtverečku - kostce
         this.setDiceAmount = function (element, amount) {
             if (amount === 5) {
                 var dotsFirst = $("<div class='dots5'></div>");
@@ -22,6 +26,7 @@ var GameView = /** @class */ (function () {
             }
             $(element).append(newDots);
         };
+        // metoda pro poslouchání údalosti kliknutí na kostku, resp. její výběr
         this.setClickHandler = function (id, selectedDices, isClickable, bannedDices) {
             if ($("clickHandler".concat(id)).length > 0)
                 return;

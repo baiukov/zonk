@@ -1,3 +1,6 @@
+/**
+ *  Dostuné názvy eventů k registraci a vyvolání
+ */
 export var Events;
 (function (Events) {
     Events["Notify"] = "ShowNotification";

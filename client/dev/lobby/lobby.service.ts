@@ -7,15 +7,18 @@ import { log } from '../utils/log.js'
 import { secToMs } from '../utils/secToMs.js'
 import { showPlayers } from '../utils/showPlayers.js'
 
+/*
+	Třída LobbyService - je třída služby lobby, která se zabývá zpracováním logiky mistnosti, do které se hráči připojí, než se hra nastartuje a může ji úpravovat
+*/
 export class LobbyService {
 
-	private roomInterval: NodeJS.Timeout | undefined
-
+	// konstruktor třídy, ze po načítání stránky, bude vyvolána metoda obnovení seznamů hráčů a poslouchání stisknutí tlačitek
 	constructor() {
 		this.watch()
 		this.setUpdateInterval()
 	}
 
+	// metoda pro poslouchání stisnutí tlačitka nastartování hry, až bude stisnuté jedním z hráčů, ověří jestli cíl hry uveden správně a spustí ji, reps. pošle požadavek o spuštění na server
 	private watch = () => {
 		$("#start").click(() => {
 			const id = getID()
@@ -46,16 +49,18 @@ export class LobbyService {
 		log(LogLevels.INFO, "Lobby buttons' listeners have been initialized")
 	}
 
+	// metoda nastavující obnovení seznamů hráčů, pokud uživatel není na této stránce, nebude spuštěna
 	private setUpdateInterval = () => {
 		if (window.location.pathname != "/pages/lobby/") return
 		this.updatePlayerList()
 
-		this.roomInterval = setInterval(() => {
+		setInterval(() => {
 			this.updatePlayerList()
 		}, secToMs(0.5))
 		log(LogLevels.INFO, "Lobby's interval has been initialized")
 	}
 
+	// metoda obnovení seznamů hráčů, pošle požadavek název mistnosti na server, jako data předá identifikáční číslo uživatele v této mistnosti
 	private updatePlayerList = () => {
 		const dataStr = localStorage.getItem("currentPlayer")
 		if (!dataStr) {
@@ -93,6 +98,7 @@ export class LobbyService {
 		)
 	}
 
+	// metoda pro přesměrování uživatele do stránky mistnosti
 	private setRoom = () => {
 		if (window.location.pathname != "/pages/lobby/") {
 			window.location.href = "./pages/lobby"
@@ -100,6 +106,7 @@ export class LobbyService {
 		log(LogLevels.INFO, "User was redirected to lobby screen")
 	}
 
+	// metoda obnovení dotazu seznamů hráčů, pošle požadavek o seznam na server, jako data předá název mistnosti. Pokud se nastane chyba, vrátí hráče na hlávní stránku
 	private getPlayers = (roomName: string, id: string) => {
 		const data = {
 			room: roomName
@@ -122,6 +129,7 @@ export class LobbyService {
 		)
 	}
 
+	// metoda pro viditelné obnovení seznamu hráčů. Až dostane seznam ze serveru, obnoví seznam hračů, jinak přidá nového hráče k mistnosti, resp. pošle požadavek o to
 	private update = (dataStr: string, room: string, id: string) => {
 		const data = JSON.parse(dataStr)
 		showPlayers(data)

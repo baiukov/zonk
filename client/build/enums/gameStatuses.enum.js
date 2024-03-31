@@ -1,3 +1,6 @@
+/**
+ *  Dostuné stavy hry
+ */
 export var GameStatuses;
 (function (GameStatuses) {
     GameStatuses["WAITING"] = "Waiting";

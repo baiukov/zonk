@@ -1,6 +1,7 @@
-import { LogLevels } from '../enums/logLevels.enum'
+import { LogLevels } from '../enums/logLevels.enum.js'
 import { log } from './log.js'
 
+// metoda pro obnovení seznamů hráčů v levém menu v looby a ve hře, dostane seznam ze serveru a přeparsuje vypíše hráče ve vhodném formátu
 export const showPlayers = (response: Record<string, any>) => {
 	const playerList = response.players
 

@@ -9,6 +9,9 @@ import { NotificationsModule } from './notifications/notifications.module.js'
 import { TasksModule } from './tasks/tasks.module.js'
 import { log } from './utils/log.js'
 
+/*
+	Třída App - je třída modulu aplikace, která se zabývá vytvařením všech ostatních modulu a služby aplikace
+*/
 export class App {
 
 	constructor() {

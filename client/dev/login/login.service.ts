@@ -8,17 +8,24 @@ import { getID } from '../utils/getID.js'
 import { log } from '../utils/log.js'
 import { save } from '../utils/save.js'
 
+/*
+	Třída LoginService - je třída služby příhlášení, která se zabývá zpracováním logiky příhlášení a přidavání nových hráčů do mistností
+*/
 export class LoginService {
 
+	// uložení aktuálního jazyka
 	private currentLanguage: string = "ENG";
 
+	// konstruktor třídy, ze po načítání stránky, bude vyvolána metoda poslouchání stisknutí tlačitek a ověření stavu hráče, jestli už není ve hře
 	constructor() {
 		this.watch()
 		this.checkPlayer()
 	}
 
+	// setter jazyka
 	public setCurrentLanguage = (language: string) => { this.currentLanguage = language }
 
+	// metoda ověření stavu hráče, jestli už není ve hře, nebude vyvolána pokud není na hlávní stránce, jinak pošle požadavek o zjištění stavu na server. Podle odpovědí přesměruje hráče
 	private checkPlayer = () => {
 		if (window.location.pathname != "/") return
 
@@ -46,6 +53,7 @@ export class LoginService {
 		)
 	}
 
+	// metoda nastavení tlačítka příhlášení. Ověří, jestli data jsou uvedená správně a pošle požadavek na server o registrace nového hráče a přidaní ho do mistnosti
 	private watch = () => {
 		$("#go").click(() => {
 			const name = $("#name").val()
@@ -84,6 +92,7 @@ export class LoginService {
 		log(LogLevels.INFO, "Lobby buttons' listeners have been initialized")
 	}
 
+	// metoda pro uložení sessionID, vygenerováného serverem, do lokálního uložiště
 	private login = (sessionID: string) => {
 		const data = {
 			sessionID: sessionID
@@ -93,6 +102,7 @@ export class LoginService {
 		log(LogLevels.INFO, "Player has been logged in and will be redirected to lobby. SessionID: " + sessionID)
 	}
 
+	// metoda pro vymazání hráče, resp. dat uživatele jako hráče z lokálního uložiště
 	public clearPlayer = () => {
 		window.location.pathname = ""
 		localStorage.removeItem("currentPlayer")

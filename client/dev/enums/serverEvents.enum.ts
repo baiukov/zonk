@@ -1,5 +1,7 @@
+/**
+ *  Dostuné názvy příkazu/koncových bodů na serveru
+ */
 export enum ServerEvents {
-
 	Login = "api/login",
 	GetPlayers = "api/getPlayers",
 	Check = "api/check",

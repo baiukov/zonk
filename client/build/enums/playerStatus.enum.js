@@ -1,3 +1,6 @@
+/**
+ *  Dostuné stavy hráčů
+ */
 export var PlayerStatus;
 (function (PlayerStatus) {
     PlayerStatus["UNKNOWN"] = "unknown";

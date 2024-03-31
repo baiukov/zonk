@@ -1,3 +1,6 @@
+/**
+ *  Dostuné úrovně logování zpráv
+ */
 export enum LogLevels {
 	INFO = 0,
 	WARN = 1,

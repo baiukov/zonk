@@ -7,11 +7,18 @@ import { languageConfig } from '../language/language.config.js';
 import { getID } from '../utils/getID.js';
 import { log } from '../utils/log.js';
 import { save } from '../utils/save.js';
+/*
+    Třída LoginService - je třída služby příhlášení, která se zabývá zpracováním logiky příhlášení a přidavání nových hráčů do mistností
+*/
 var LoginService = /** @class */ (function () {
+    // konstruktor třídy, ze po načítání stránky, bude vyvolána metoda poslouchání stisknutí tlačitek a ověření stavu hráče, jestli už není ve hře
     function LoginService() {
         var _this = this;
+        // uložení aktuálního jazyka
         this.currentLanguage = "ENG";
+        // setter jazyka
         this.setCurrentLanguage = function (language) { _this.currentLanguage = language; };
+        // metoda ověření stavu hráče, jestli už není ve hře, nebude vyvolána pokud není na hlávní stránce, jinak pošle požadavek o zjištění stavu na server. Podle odpovědí přesměruje hráče
         this.checkPlayer = function () {
             if (window.location.pathname != "/")
                 return;
@@ -35,6 +42,7 @@ var LoginService = /** @class */ (function () {
                 }
             });
         };
+        // metoda nastavení tlačítka příhlášení. Ověří, jestli data jsou uvedená správně a pošle požadavek na server o registrace nového hráče a přidaní ho do mistnosti
         this.watch = function () {
             $("#go").click(function () {
                 var name = $("#name").val();
@@ -65,6 +73,7 @@ var LoginService = /** @class */ (function () {
             });
             log(LogLevels.INFO, "Lobby buttons' listeners have been initialized");
         };
+        // metoda pro uložení sessionID, vygenerováného serverem, do lokálního uložiště
         this.login = function (sessionID) {
             var data = {
                 sessionID: sessionID
@@ -73,6 +82,7 @@ var LoginService = /** @class */ (function () {
             window.location.href = "./pages/lobby";
             log(LogLevels.INFO, "Player has been logged in and will be redirected to lobby. SessionID: " + sessionID);
         };
+        // metoda pro vymazání hráče, resp. dat uživatele jako hráče z lokálního uložiště
         this.clearPlayer = function () {
             window.location.pathname = "";
             localStorage.removeItem("currentPlayer");

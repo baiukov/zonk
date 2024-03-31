@@ -1,3 +1,4 @@
+// metoda pro získání uloženého identifikáčního čísla uživatele
 export var getID = function () {
     var playerStr = localStorage.getItem("currentPlayer");
     if (!playerStr)

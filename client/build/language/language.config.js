@@ -1,3 +1,4 @@
+// objekt jazykových prvků pro jednoduché přeložení textů
 export var languageConfig = {
     "ENG": {
         name: "Nickname",

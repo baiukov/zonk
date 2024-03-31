@@ -1,3 +1,6 @@
+/**
+ *  Dostuné stavy úkolů pro socketový server
+ */
 export var TaskStatuses;
 (function (TaskStatuses) {
     TaskStatuses["Unexecuted"] = "UNEXECUTED";

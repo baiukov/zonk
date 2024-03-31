@@ -4,6 +4,7 @@ interface LanguageConfig {
 	}
 }
 
+// objekt jazykových prvků pro jednoduché přeložení textů
 export const languageConfig: LanguageConfig = {
 	"ENG": {
 		name: "Nickname",

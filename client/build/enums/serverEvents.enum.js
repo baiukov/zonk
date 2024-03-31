@@ -1,3 +1,6 @@
+/**
+ *  Dostuné názvy příkazu/koncových bodů na serveru
+ */
 export var ServerEvents;
 (function (ServerEvents) {
     ServerEvents["Login"] = "api/login";

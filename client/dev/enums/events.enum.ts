@@ -1,3 +1,6 @@
+/**
+ *  Dostuné názvy eventů k registraci a vyvolání
+ */
 export enum Events {
 	Notify = "ShowNotification",
 	GetLanguage = "GetLanguage",

@@ -3,6 +3,9 @@ import { log } from '../utils/log.js'
 import { LoggerController } from './logger.controller.js'
 import { LoggerService } from './logger.service.js'
 
+/*
+	Třída LoggerModule - je třída modulu zpracování loggeru, která se zabývá vytvařením služby a správce loggeru
+*/
 export class LoggerModule {
 
 	constructor() {

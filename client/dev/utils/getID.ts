@@ -1,3 +1,4 @@
+// metoda pro získání uloženého identifikáčního čísla uživatele
 export const getID = () => {
 	const playerStr = localStorage.getItem("currentPlayer")
 	if (!playerStr) return null

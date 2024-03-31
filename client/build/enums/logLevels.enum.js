@@ -1,3 +1,6 @@
+/**
+ *  Dostuné úrovně logování zpráv
+ */
 export var LogLevels;
 (function (LogLevels) {
     LogLevels[LogLevels["INFO"] = 0] = "INFO";

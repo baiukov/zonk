@@ -3,6 +3,9 @@ import { log } from '../utils/log.js'
 import { GameController } from './game.controller.js'
 import { GameService } from './game.service.js'
 
+/*
+	Třída GameModule - je třída modulu hry, která se zabývá vytvařením služby a správce hry
+*/
 export class GameModule {
 
 	constructor() {

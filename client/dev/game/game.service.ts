@@ -10,27 +10,42 @@ import { secToMs } from '../utils/secToMs.js'
 import { showPlayers } from '../utils/showPlayers.js'
 import { GameView } from './game.view.js'
 
+/*
+	Třída GameService - je třída služby hry, která se zabývá zpracováním logiky akce, které se provadějí během hry
+*/
 export class GameService {
 
+	// uložení aktuálního jazyka
 	private currentLanguage = "ENG"
+
+	// vytvoření a uložení instance view hry
 	private view = new GameView()
+
+	// uložení probíhajících intervalů
 	private intervals: Record<string, NodeJS.Timeout | null> = {
 		diceAnimInterval: null,
 		numberAnimInterval: null
 	}
+
+	// uložení seznamů vybraných kostek
 	private selectedDices: Array<number> = []
+
+	// uložení seznamů zablokovaných kostek
 	private bannedDices: Array<number> = []
 
-	public setCurrentLanguage = (language: string) => {
-		this.currentLanguage = language
-	}
-
+	// konstruktor třídy, který vyvolá potřebné pro initializaci metody
 	constructor() {
 		this.init()
 		this.watch()
 		this.watchUpdate()
 	}
 
+	// metoda pro nastavení aktuálního jazyka
+	public setCurrentLanguage = (language: string) => {
+		this.currentLanguage = language
+	}
+
+	// metoda pro nastavení poslouchače kliknutí tlačitek
 	private watch = () => {
 		$("#roll").click(this.roll)
 		$("#reroll").click(this.checkCombination)
@@ -38,6 +53,7 @@ export class GameService {
 		log(LogLevels.INFO, "Game buttons' listeners have been initialized")
 	}
 
+	// metoda potvrzení výsledku kola po hazení kostek, pošle požadavek o to na server
 	private submitRoll = () => {
 		const id = getID()
 
@@ -59,6 +75,7 @@ export class GameService {
 		return false
 	}
 
+	// metoda ověření kombinací, vybraných hráčem, po ověření, že je vybrán aspoň jedena kostka, pošle požadavek o ověření na server
 	private checkCombination = () => {
 		if (this.selectedDices.length === 0) {
 			log(LogLevels.WARN, "Cannot check combination. Caused by: none of dice are picked")
@@ -105,6 +122,7 @@ export class GameService {
 		return false
 	}
 
+	// metoda pro přehození kostek, pošle požadavek na server
 	private reroll = (data: Record<string, string | Object>) => {
 		$(".click-handler").click(() => { return false })
 		AppService.emit(
@@ -127,6 +145,7 @@ export class GameService {
 		return false
 	}
 
+	// metoda pro žískání počtu bodů na kostce
 	private getDiceAmount = (diceID: number) => {
 		const allDices = $(".dice")
 		let amount: number = 0
@@ -146,6 +165,7 @@ export class GameService {
 		return amount
 	}
 
+	// metoda pro hazení kostkami, pošle požadavek na server
 	private roll = () => {
 		for (let i = 0; i < 6; i++) {
 			if (this.selectedDices.includes(i)) continue
@@ -170,6 +190,7 @@ export class GameService {
 		return false
 	}
 
+	// metoda pro obnovení stránky hry pro hráče, nastavuje se interval pro posílání požadavků na server s dotazem na aktuální stav
 	private watchUpdate = () => {
 		if (window.location.pathname != "/pages/game/") return
 
@@ -194,6 +215,7 @@ export class GameService {
 		}, 100)
 	}
 
+	// metoda pro obnovení prvků stránky hry po získání nových dat o aktuálním stavu
 	private update = (dataStr: string) => {
 		const data = JSON.parse(dataStr)
 		if (!data) {
@@ -216,6 +238,7 @@ export class GameService {
 		this.checkWin(data.winner, data.turn)
 	}
 
+	// metoda pro ověření, jestli už není vítěž, pokud je, tak se zobrazí okno s jménem vítěze a pošle požadavek o ukončení hry
 	private checkWin = (winner: string, turn: boolean) => {
 		if (!winner) return
 		$(".win").show()
@@ -245,6 +268,7 @@ export class GameService {
 		}, secToMs(10))
 	}
 
+	// metoda pro obnovení vybraných kostek
 	private selectedUpdate = () => {
 		for (let i = 0; i < 6; i++) {
 			const element = $(`#dice${i}`)
@@ -257,6 +281,7 @@ export class GameService {
 		}
 	}
 
+	// metoda pro ověření viditelnosti tlačitek správy kola
 	private checkButtonsVisibilty = (status: string, turn: boolean) => {
 		if (turn && status != GameStatuses.PENDING) {
 			$("#roll").show()
@@ -279,6 +304,7 @@ export class GameService {
 		}
 	}
 
+	// metoda pro nastavení aktuálního počtu bodů za kolo
 	private setCurrentPoints = (currentPoints: number) => {
 		const element = $("#currentPoints") as unknown as HTMLElement
 		if (parseInt($(element).text()) === currentPoints || this.intervals.numberAnimInterval) {
@@ -292,6 +318,7 @@ export class GameService {
 		log(LogLevels.INFO, "Current points have been updated. New amount: " + currentPoints)
 	}
 
+	// metoda pro obnovení zablokovaných kostek
 	private updateDices = (dices: Array<number> | undefined, status: string, dataBannedDices: Array<number>) => {
 		const bannedDices = []
 		for (let i = 0; i < dataBannedDices.length; i++) {
@@ -308,12 +335,14 @@ export class GameService {
 		})
 	}
 
+	// metoda pro obnovení celkového scóre, pokud se počet změnil
 	private setPoints = (element: JQuery<HTMLElement>, points: number) => {
 		const currentPoints = parseInt(element.text())
 		if (currentPoints === points) return
 		element.text(points)
 	}
 
+	// metoda pro ověření, jestli hráč teď hraje
 	private checkTurn = (turn: boolean, status: string) => {
 		if (turn || status != GameStatuses.ROLLING || this.intervals.diceAnimInterval) return
 		for (let i = 0; i < 6; i++) {
@@ -321,6 +350,7 @@ export class GameService {
 		}
 	}
 
+	// metoda pro nastavení kostek pro nehrající hráče
 	private setDicesForNotTurn = (status: string, turn: boolean, bannedDices: Array<number>) => {
 		if (status != GameStatuses.ROLLING) return
 		if (turn) return
@@ -336,6 +366,7 @@ export class GameService {
 		})
 	}
 
+	// metoda pro initializaci poslouchačů tlačítek a kostek na desce
 	private init = () => {
 		$("#roll").hide()
 		$("#reroll").hide()
@@ -345,6 +376,7 @@ export class GameService {
 		}
 	}
 
+	// metoda přehrávání animaci při hazení kostek
 	private playDiceAnim = (diceID: number, time: number, correctValue: number) => {
 		let nextTimeToSwitch = time * 0.01
 		let currentTime = 0
@@ -366,6 +398,7 @@ export class GameService {
 
 	}
 
+	// metoda pro nastavení počtu bodů na kostce a jestli je možné ji výbrat
 	private setDice = (diceID: number, amount: number, isClickable: boolean) => {
 		const diceField = $(".dices")
 		const dices = diceField.children("div")
@@ -400,6 +433,7 @@ export class GameService {
 
 	}
 
+	// metoda pro přehrávání animaci čísel
 	private playNumbersAnim(element: HTMLElement, start: number, stop: number) {
 		if (start === 0 && stop === 0) {
 			$(element).text(0)
