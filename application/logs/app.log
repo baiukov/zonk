@@ -2,3 +2,9 @@
 16:37:27.696 [main] INFO  com.example.application.MainFrame - The application has been started
 16:53:07.642 [main] INFO  com.example.application.SocketClient: Client has been connected to server 127.0.0.1:8686
 16:53:07.655 [main] INFO  com.example.application.MainFrame: The application has been started
+12:40:47.768 [main] ERROR com.example.application.SocketClient: Exception occurred at client socket start 
+Connection refused: connect
+12:40:47.778 [main] INFO  com.example.application.MainFrame: The application has been started
+12:43:21.683 [main] ERROR com.example.application.SocketClient: Exception occurred at client socket start 
+Connection refused: connect
+12:43:21.690 [main] INFO  com.example.application.MainFrame: The application has been started
