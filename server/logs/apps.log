@@ -759,3 +759,4 @@
 2024-03-29 12:37:32,246 INFO [Thread-1] c.e.z.c.s.s.ClientHandler [ClientHandler.java:41] Sent to client: {"data":"Optional.empty","taskID":"18597","status":"SUCCESS"}
 2024-03-29 12:37:32,246 INFO [Thread-1] c.e.z.c.s.c.CommandController [CommandController.java:70] Message has been resolved. Input: {"taskID":"18597","commandName":"api/roll","status":"UNEXECUTED","data":"{\"id\":\"\\\"481e6fd7-2907-4e87-89d5-332ca831c5ae\\\"\"}"}. Output: {"data":"Optional.empty","taskID":"18597","status":"SUCCESS"}
 2024-03-29 12:37:32,247 ERROR [Thread-1] c.e.z.c.s.s.ClientHandler [ClientHandler.java:36] Connection reset
+2024-03-30 21:59:25,816 INFO [main] c.e.z.c.s.s.SocketServer [SocketServer.java:29] Server started. Waiting for clients...

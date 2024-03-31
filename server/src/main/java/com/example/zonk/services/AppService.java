@@ -15,15 +15,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Třída služby aplikace - je služba uchovavající další potřebné
+ * služby: hry, hráče, místnosti atd.
+ * Přesměruje příkazový požadavek požadavek na další službu
+ *
+ * @author Aleksei Baiukov
+ * @version 30.03.2024
+ */
 @Component
 @Slf4j
 public class AppService {
 
+    // uložení instance služby hry
     GameService gameService = new GameService();
+
+    // uložení instance služby hráče
     PlayerService playerService = new PlayerService();
+
+    // uložení instance služby mistnosti
     RoomService roomService = new RoomService();
 
-
+    /**
+     * Metoda pro založení nového hráče. Pokud už je v mistnosti hráč se stejném jménem,
+     * tak vyhlasí se chyba, jinak hráč bude založen a přesměrován do lobby
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws PlayerLoginException vyjímka vyhozená při existujícím hráči
+     */
     public String authorisePlayer(String dataStr) throws PlayerLoginException {
         JSONObject data = new JSONObject(dataStr);
         String name = data.getString("name");
@@ -40,6 +59,12 @@ public class AppService {
         return player.getSessionId();
     }
 
+    /**
+     * Metoda pro získání seznamu hráčů podle názvu mistnosti
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws RoomDoesntExist vyjímka vyhozená při nenalezení mistnosti
+     */
     public JSONObject getPlayersByRoom(String dataStr) throws RoomDoesntExist {
         JSONObject data = new JSONObject(dataStr);
         String roomName = data.getString("room").replaceAll("\"", "");
@@ -51,12 +76,24 @@ public class AppService {
         return json;
     }
 
+    /**
+     * Metoda pro získání mistnosti podle hráče
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     */
     public String getRoomByPlayerID(String dataStr) {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id").replaceAll("\"", "");
         return this.roomService.getRoomByPlayerID(id);
     }
 
+    /**
+     * Metoda pro založení nové hry. Požadavek s naparsovanými daty se přesměruje
+     * na služby hry, pokud existuje hledaná mistrnost a neexistuje už v ni hra
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení mistnosti nebo nalezení hry
+     */
     public void createGame(String dataStr) throws GameException {
         JSONObject data = new JSONObject(dataStr);
         String playerID = data.getString("id").replaceAll("\"", "");
@@ -77,6 +114,13 @@ public class AppService {
         this.gameService.create(room, points);
     }
 
+    /**
+     * Metoda pro získání aktuálního stavu hry pro konkretního hráče. Požadavek
+     * se přesměruje na službu hry, pokud hra existuje, jinak vyhodí chybu
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení hry
+     */
     public JSONObject getState(String dataStr) throws GameException {
         JSONObject data = new JSONObject(dataStr);
         String playerID = data.getString("id").replaceAll("\"", "");
@@ -89,7 +133,14 @@ public class AppService {
         return game.getPlayerState(playerID);
     }
 
-    public void roll(String dataStr) throws GameException, InterruptedException {
+    /**
+     * Metoda pro zpracování požadavku o hazení kostkami. Požadavek
+     * se přesměruje na službu hry, pokud hra existuje, jinak vyhodí chybu
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení hry
+     */
+    public void roll(String dataStr) throws GameException {
         JSONObject data = new JSONObject(dataStr);
         String playerID = data.getString("id").replaceAll("\"", "");
         Game game = this.gameService.getGameByPlayerID(playerID);
@@ -101,17 +152,30 @@ public class AppService {
         game.roll();
     }
 
+    /**
+     * Metoda pro ověření aktuálního stavu hráče. Pokud hráč nebyl nalezen, vrátí
+     * stav, že takový hráč je neznámý
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     */
     public String check(String dataStr) {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id").replaceAll("\"", "");
         Player player = this.playerService.getPlayerByID(id);
         if (player == null) {
-            log.warn("Cannot properly get player status. Caused by: playerDoesn'tExist");
+            log.warn("Cannot properly get player status. Caused by: player doesn't exist");
             return PlayerStatuses.UNKNOWN;
         }
         return player.getStatus();
     }
 
+    /**
+     * Metoda pro zpracování požadavku o potvrzení kola po hazení kostkami.
+     * Zpracuje se, pokud hra existuje, jinak vyhodí chybu
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení hry
+     */
     public void submitRoll(String dataStr) throws GameException {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id").replaceAll("\"", "");
@@ -124,6 +188,13 @@ public class AppService {
         game.submitRoll();
     }
 
+    /**
+     * Metoda pro zpracování požadavku o přehazení kostkami. Požadavek
+     * se přesměruje na službu hry, pokud hra existuje, jinak vyhodí chybu
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení hry
+     */
     public void reroll(String dataStr) throws GameException, InterruptedException {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id").replaceAll("\"", "");
@@ -137,6 +208,13 @@ public class AppService {
         game.reroll(dices);
     }
 
+    /**
+     * Metoda pro ověření kombinací vybrané hračem. Zpracuje se, pokud
+     * existuje hra, jinak vyhodí chybu
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení hry
+     */
     public JSONObject checkCombination(String dataStr) throws GameException {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id").replaceAll("\"", "");
@@ -153,6 +231,14 @@ public class AppService {
         return json;
     }
 
+    /**
+     * Metoda pro přemapování kostek. Získá původní mapping kostek, a přemapuje je
+     * na typ klíč hodnota - číslo kostky, hodnota kostky v bodech.
+     * Zpracuje se, jestli náhodně nebude změněn seznam za dobu běhu, jinak vyhodí chybu
+     *
+     * @param data balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při změně seznamu
+     */
     public Map<Integer, Integer> getDicesMapped(JSONObject data) throws GameException {
         JSONObject dicesMap = data.getJSONObject("chosenDices");
         Map<String, Object> dicesStr = dicesMap.toMap();
@@ -164,11 +250,19 @@ public class AppService {
                 dices.put(diceID, diceValue);
             }
         } catch (Exception e) {
+            log.error("Cannot remap dices. Caused by: " + e.getMessage());
             throw new GameException(e.getMessage());
         }
         return dices;
     }
 
+    /**
+     * Metoda pro zpracování požadavku o uzavření hry. Požadavek
+     * se přesměruje na službu hry, pokud hra existuje, jinak vyhodí chybu
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení hry
+     */
     public void closeGame(String dataStr) throws GameException {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id").replaceAll("\"", "");
@@ -176,6 +270,14 @@ public class AppService {
         this.gameService.closeGame(game);
     }
 
+    /**
+     * Metoda pro zpracování požadavku o přídání dalšího hráče. Požadavek
+     * se přesměruje na službu hry, pokud hra a hráč existují, jinak vyhodí chybu
+     *
+     * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
+     * @throws GameException vyjímka vyhozená při nenalezení hry
+     * @throws PlayerLoginException vyjímka vyhozená při nenalezení hráče
+     */
     public void addPlayer(String dataStr) throws GameException, PlayerLoginException {
         JSONObject data = new JSONObject(dataStr);
         String roomName = data.getString("room");

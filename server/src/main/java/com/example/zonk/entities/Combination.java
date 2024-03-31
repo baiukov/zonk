@@ -5,11 +5,22 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+/**
+ * Pomocní třída pro zpracování entity kombinací. Je bezstatová, neukládá
+ * žádná dynamická data. Obsahuje pomocní metody pro řešení kombinací
+ *
+ * @author Aleksei Baiukov
+ * @version 30.03.2024
+ */
 @Slf4j
 public class Combination {
 
+    // uložení všech kombinací s jejích cenami
     private final Map<Combinations, Integer> costs = new HashMap<>();
 
+    /**
+     * Konstruktor třídy, který vygeneruje dostupné kombinace s cenami
+     */
     public Combination() {
         costs.put(Combinations.ONE, 100);
         costs.put(Combinations.FIVE, 50);
@@ -30,6 +41,13 @@ public class Combination {
         costs.put(Combinations.ONETOFIVE, 500);
     }
 
+    /**
+     * Vrátí sadu kombinací, které obsahuje předané pole
+     * kostek. Pokud žádná není, tak vrátí prazdný seznam
+     *
+     * @param arr pole kostek
+     * @return seznam kombinací v poli
+     */
     public List<Combinations> getCombinations(int[] arr) {
         int[] signature = this.getSignature(arr);
 
@@ -93,6 +111,15 @@ public class Combination {
         return combinations;
     }
 
+    /**
+     * Metoda přeparsuje pole s kostkami na více speciální pole,
+     * prvky kterého obsahují počet bodů na kostkách
+     *
+     * Příklad: [3, 5, 5, 3, 1, 3] -> [0, 1, 0, 3, 0, 2]
+     *
+     * @param arr pole s kostkami
+     * @return úpravené pole
+     */
     private int[] getSignature(int[] arr) {
         int[] signature = new int[arr.length + 1];
         for (int num : arr) {
@@ -102,6 +129,12 @@ public class Combination {
     }
 
 
+    /**
+     * Pomocí metoda, ověří jestli kombinací je od 1 do 6
+     *
+     * @param sign signature pole s kostkami
+     * @return jestli je kombinací od 1 do 6
+     */
     private boolean isOneToSix(int[] sign) {
         for (int i = 1; i < sign.length; i++) {
             if (sign[i] != 1) return false;
@@ -109,12 +142,25 @@ public class Combination {
         return true;
     }
 
+    /**
+     * Pomocí metoda, ověří jestli kombinací je od 2 do 6
+     *
+     * @param sign signature pole s kostkami
+     * @return jestli je kombinací od 2 do 6
+     */
     private boolean isTwoToSix(int[] sign) {
         for (int i = 2; i < sign.length; i++) {
             if (sign[i] != 1) return false;
         }
         return true;
     }
+
+    /**
+     * Pomocí metoda, ověří jestli kombinací je od 1 do 5
+     *
+     * @param sign signature pole s kostkami
+     * @return jestli je kombinací od 1 do 5
+     */
     private boolean isOneToFive(int[] sign) {
         for (int i = 1; i < sign.length - 1; i++) {
             if (sign[i] != 1) return false;
@@ -122,6 +168,15 @@ public class Combination {
         return true;
     }
 
+    /**
+     * Metoda pro spočítání bodů z kombinací.
+     * Vezme si každou kombinaci ze seznamu a přičte
+     * odpovídající počet bodu za ni. Pokud všechny kostky je
+     * kombinací, zdvojnásobí výsledek
+     *
+     * @param combinations seznam kombinací
+     * @return points počet bodů
+     */
     public int countPoints(List<Combinations> combinations) {
 
         int points = 0;
