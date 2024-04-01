@@ -19,6 +19,13 @@ var ConnectionService = /** @class */ (function () {
             localStorage.setItem("connectionType", type);
             log(LogLevels.INFO, "Connection has changed to: " + type);
         };
+        this.setIP = function (ip) {
+            ConnectionService.ip = ip;
+            localStorage.setItem("ip", ip);
+            // @ts-ignore
+            window.cefQuery({ request: "IP " + ip, onSuccess: function (_) { } });
+            log(LogLevels.INFO, "IP has changed to: " + ip);
+        };
         // metoda pro ověření typu připojení, pokud žádný nebyl uložen, využí standardní REST připojení
         this.checkConnectionType = function () {
             var savedType = localStorage.getItem("connectionType");
@@ -115,11 +122,6 @@ var ConnectionService = /** @class */ (function () {
         // @ts-ignore
         window.receiveMessageFromJava = this.receiveDataFromJava;
     }
-    ConnectionService.setIP = function (ip) {
-        ConnectionService.ip = ip;
-        localStorage.setItem("ip", ip);
-        log(LogLevels.INFO, "IP has changed to: " + ip);
-    };
     return ConnectionService;
 }());
 export { ConnectionService };

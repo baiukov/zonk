@@ -27,7 +27,7 @@ export class ConnectionController {
 
 		// registrace eventu nastavení ip adresy
 		AppService.on(Events.SetIP, (ip: string) => {
-			ConnectionService.setIP(ip)
+			this.connectionService.setIP(ip)
 		})
 
 		// registrace eventu, který je vyvolán po nalezení úkolu

@@ -35,9 +35,11 @@ export class ConnectionService {
 		log(LogLevels.INFO, "Connection has changed to: " + type)
 	}
 
-	public static setIP = (ip: string) => {
+	public setIP = (ip: string) => {
 		ConnectionService.ip = ip
 		localStorage.setItem("ip", ip)
+		// @ts-ignore
+		window.cefQuery({ request: "IP " + ip, onSuccess: (_) => { } })
 		log(LogLevels.INFO, "IP has changed to: " + ip)
 	}
 

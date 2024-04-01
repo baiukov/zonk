@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
+import org.cef.browser.CefMessageRouter;
 import org.cef.callback.CefQueryCallback;
 import org.cef.handler.CefMessageRouterHandlerAdapter;
 
@@ -18,7 +19,7 @@ import org.cef.handler.CefMessageRouterHandlerAdapter;
 public class MessageRouter extends CefMessageRouterHandlerAdapter {
 
     // uložení socketu klienta
-    private final SocketClient socketClient;
+    private SocketClient socketClient;
 
     // uložení prohlížeče, ve kterém frontend běží
     private final CefBrowser browser_;
@@ -30,8 +31,7 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
      * Konstruktor třídy specifikující socket klienta a prohlížeč s frontendovou
      * aplikací
      */
-    public MessageRouter(SocketClient socketClient, CefBrowser browser) {
-        this.socketClient = socketClient;
+    public MessageRouter(CefBrowser browser) {
         this.browser_ = browser;
         logger.debug("Message router has been created");
     }
@@ -57,6 +57,15 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
             CefQueryCallback callback
     ) {
         logger.info("Message got from frontend - " + request);
+        if (request.startsWith("IP")) {
+            String ip = request.split(" ")[1];
+
+            // připojení k socketovému serveru jako klient
+            socketClient = new SocketClient();
+            socketClient.start(ip.split(":")[0]);
+            socketClient.setMessageRouter(this);
+            return false;
+        }
         socketClient.sendMessage(request);
         return false;
     }
@@ -69,7 +78,7 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
      * @param message obsah zprávy
      */
     public void sendMessage(String message) {
-        browser_.executeJavaScript("window.receiveMessageFromJava('" + message + "')", browser_.getURL(), 0);
         logger.info("Message prepared sent to frontend - " + message);
+        browser_.executeJavaScript("window.receiveMessageFromJava('" + message + "')", browser_.getURL(), 0);
     }
 }

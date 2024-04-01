@@ -107,15 +107,10 @@ public class MainFrame extends JFrame {
         setSize(800, 600);
         setVisible(true);
 
-        // připojení k socketovému serveru jako klient
-        SocketClient socketClient = new SocketClient();
-        socketClient.start();
-
         // nastavení přesměrováče zpráv
         CefMessageRouter messageRouter = CefMessageRouter.create();
-        MessageRouter customRouter = new MessageRouter(socketClient, browser_);
+        MessageRouter customRouter = new MessageRouter(browser_);
         messageRouter.addHandler(customRouter, true);
-        socketClient.setMessageRouter(customRouter);
         client_.addMessageRouter(messageRouter);
 
         // při kliknutí křížku uzavře okno

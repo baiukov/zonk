@@ -18,11 +18,8 @@ import java.net.Socket;
  */
 public class SocketClient {
 
-    // uložení IP socketového serveru
-    private static final String SERVER_IP = "127.0.0.1";
-
     // uložení portu socketového serveru
-    private static final int SERVER_PORT = 8686;
+    private static int SERVER_PORT = 8686;
 
     // uložení streamu pro posílání zpráv serveru
     private PrintWriter out;
@@ -51,9 +48,9 @@ public class SocketClient {
      *
      * @throws IOException chyba vstupu vystupu
      */
-    public void start() {
+    public void start(String ip) {
         try {
-            Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+            Socket socket = new Socket(ip, SERVER_PORT);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -71,7 +68,7 @@ public class SocketClient {
                 }
             });
             readerThread.start();
-            logger.info("Client has been connected to server " + SERVER_IP + ":" + SERVER_PORT);
+            logger.info("Client has been connected to server " + ip + ":" + SERVER_PORT);
         } catch (IOException ex) {
             logger.error("Exception occurred at client socket start \n" + ex.getMessage());
         }
