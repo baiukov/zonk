@@ -4019,3 +4019,4 @@ Connection refused: connect
 {"taskID":"38878","commandName":"api/getPlayers","status":"UNEXECUTED","data":"{\"room\":\"\\\"1\\\"\"}"}
 17:11:47.679 [Thread-614] INFO  com.example.application.SocketClient: Message got from the server - {"data":{"players":[{"currentPoints":0,"name":"x","totalPoints":0,"sessionId":"2897eeff-dba2-4649-a987-a0901b37e913","bannedDices":[0,0,0,0,0,0],"status":"inlobby"}],"isInGame":false},"taskID":"38878","status":"SUCCESS"}
 17:11:47.679 [Thread-614] INFO  com.example.application.MessageRouter: Message prepared sent to frontend - {"data":{"players":[{"currentPoints":0,"name":"x","totalPoints":0,"sessionId":"2897eeff-dba2-4649-a987-a0901b37e913","bannedDices":[0,0,0,0,0,0],"status":"inlobby"}],"isInGame":false},"taskID":"38878","status":"SUCCESS"}
+17:15:42.274 [main] INFO  com.example.application.MainFrame: The application has been started

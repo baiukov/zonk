@@ -134,7 +134,7 @@ public class MainFrame extends JFrame {
             throws UnsupportedPlatformException, CefInitializationException, IOException, InterruptedException
     {
         boolean useOsr = false;
-        new MainFrame("http://localhost:5500", useOsr, false, args);
+        new MainFrame("https://baiukov.github.io/zonk/client/", useOsr, false, args);
         logger.info("The application has been started");
     }
 }
