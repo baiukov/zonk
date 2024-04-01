@@ -152,14 +152,14 @@ public class Game implements Runnable {
      */
     @Override
     public void run() {
-        players = new ArrayList<>(this.room.getPlayers());
-        Collections.shuffle(this.players);
+        players = new ArrayList<>(room.getPlayers());
+        Collections.shuffle(players);
         players.forEach(player -> {
             player.setTotalPoints(0);
             player.setCurrentPoints(0);
         });
-        this.turn = this.players.get(0);
-        this.status = GameStatuses.WAITING;
+        turn = players.get(0);
+        status = GameStatuses.WAITING;
         log.info("New game has been initialized. Players list: " + players);
     }
 
@@ -204,7 +204,7 @@ public class Game implements Runnable {
     public void roll() {
         status = GameStatuses.ROLLING;
         Rolling rolling = new Rolling(this);
-        rolling.run();
+        new Thread(rolling).start();
 //        to be deleted
 //        dices = null;
 //        Thread.sleep(5 * 1000);
@@ -244,6 +244,7 @@ public class Game implements Runnable {
             this.hasFinished = true;
             log.info("The game for room: " + room.getName() + " has been finished. Winner: "
                     + player.getName() + " his total score is " + player.getTotalPoints() + " points!");
+            status = GameStatuses.FINISHED;
             return;
         }
         int currentTurnID = players.indexOf(turn);
@@ -297,7 +298,7 @@ public class Game implements Runnable {
             diceValues[id] = chosenDices.get(id);
         }
 
-        if (!this.isACombination(chosenDices, player)) {
+        if (!isACombination(chosenDices, player)) {
             throw new GameException("DicesIsNotCombination");
         }
 

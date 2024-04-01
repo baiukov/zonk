@@ -75,7 +75,7 @@ public class RoomService {
      * @return instance mistnosti nebo null
      */
     public Room getRoom(String name) {
-        Optional<Room> room =  rooms
+        Optional<Room> room = rooms
                 .stream()
                 .filter(currentRoom -> currentRoom.getName().equals(name))
                 .findFirst();

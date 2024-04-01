@@ -19,4 +19,9 @@ public class GameStatuses {
      */
     public static String PENDING = "Pending";
 
+    /**
+     *  Hra je ukončená, ale nemusí být ještě zavřená
+     */
+    public static String FINISHED = "Finished";
+
 }

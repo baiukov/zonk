@@ -19,7 +19,7 @@ public class Player {
     private String playerName;
 
     // uložení identifikáčního čísla hráče
-    private final String sessionId;
+    private String sessionId;
 
     // uložení celkového skóre hráče. Na začátku hry je 0
     private int totalPoints = 0;
@@ -93,6 +93,13 @@ public class Player {
      * @param name nové jméno hráče
      */
     public void setName(String name) {this.playerName = name; }
+
+    /**
+     * Nastaví nové identifikáční číslo tohoto hráče
+     *
+     * @param id nové identifikáční číslo hráče
+     */
+    public void setSessionId(String id) { this.sessionId = id; }
 
     /**
      * Nastaví nové celkové scóre tomuto hráči

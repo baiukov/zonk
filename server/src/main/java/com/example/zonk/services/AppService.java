@@ -28,13 +28,13 @@ import java.util.Map;
 public class AppService {
 
     // uložení instance služby hry
-    GameService gameService = new GameService();
+    private final GameService gameService = new GameService();
 
     // uložení instance služby hráče
-    PlayerService playerService = new PlayerService();
+    private final PlayerService playerService = new PlayerService();
 
     // uložení instance služby mistnosti
-    RoomService roomService = new RoomService();
+    private final RoomService roomService = new RoomService();
 
     /**
      * Metoda pro založení nového hráče. Pokud už je v mistnosti hráč se stejném jménem,
@@ -195,10 +195,10 @@ public class AppService {
      * @param dataStr balík dat typu JSON řádku získaný od příkazu nebo gatewaye
      * @throws GameException vyjímka vyhozená při nenalezení hry
      */
-    public void reroll(String dataStr) throws GameException, InterruptedException {
+    public void reroll(String dataStr) throws GameException {
         JSONObject data = new JSONObject(dataStr);
         String id = data.getString("id").replaceAll("\"", "");
-        Map<Integer, Integer> dices = this.getDicesMapped(data);
+        Map<Integer, Integer> dices = getDicesMapped(data);
         Game game = this.gameService.getGameByPlayerID(id);
         if (game == null) {
             String reason = "GameDoesntExist";

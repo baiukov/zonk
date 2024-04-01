@@ -53,7 +53,7 @@ public class GameService {
         gameThread.start();
         games.add(game);
         threads.put(game, gameThread);
-        log.info("New game has been successfully created for room " + room);
+        log.info("New game has been successfully created for room: " + room);
     }
 
     /**
