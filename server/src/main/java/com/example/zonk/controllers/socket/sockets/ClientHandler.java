@@ -24,7 +24,7 @@ public class ClientHandler extends Thread {
     private PrintWriter out;
 
     // uložení kontrolleru komand
-    private CommandController commandController;
+    private final CommandController commandController;
 
     /**
      * Konstruktor třídy specifikující socket klienta

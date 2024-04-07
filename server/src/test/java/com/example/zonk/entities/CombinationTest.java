@@ -81,7 +81,6 @@ public class CombinationTest {
     @ParameterizedTest
     @MethodSource("getTestCases")
     void givenDicesShouldReturnIfCombination(String message, int[] dices, List<Combinations> expectedValue) {
-        System.out.println(message);
         Combination combination = new Combination();
         assertEquals(expectedValue, combination.getCombinations(dices));
     }

@@ -1,6 +1,7 @@
 package com.example.zonk.controllers.socket.commands;
 
 import com.example.zonk.enums.TaskStatuses;
+import com.example.zonk.services.AppService;
 
 /**
  * Rozhrání nastavující proměnné a metody pro všechny příkazy.
@@ -11,6 +12,8 @@ import com.example.zonk.enums.TaskStatuses;
  * @version 30.03.2024
  */
 public interface ICommand {
+    AppService appService = null;
+
     // název příkazu
     String name = null;
 

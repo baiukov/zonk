@@ -1,2 +1,4 @@
 ﻿client/node_modules
 application/jcef-bundle
+application/out
+server/out
