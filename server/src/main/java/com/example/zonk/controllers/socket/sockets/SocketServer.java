@@ -23,7 +23,7 @@ public class SocketServer {
      * @param args argumenty při spuštění této aplikaci v VM
      */
     public static void main(String[] args) {
-        final int PORT = 8686;
+        final int PORT = 8080;
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             log.info("Server started. Waiting for clients...");

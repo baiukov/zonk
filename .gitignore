@@ -2,3 +2,5 @@
 application/jcef-bundle
 application/out
 server/out
+application/.idea
+application/logs

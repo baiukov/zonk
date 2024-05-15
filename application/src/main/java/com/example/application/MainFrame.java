@@ -134,7 +134,7 @@ public class MainFrame extends JFrame {
             throws UnsupportedPlatformException, CefInitializationException, IOException, InterruptedException
     {
         boolean useOsr = false;
-        new MainFrame("http://26.230.10.134:5500", useOsr, false, args);
+        new MainFrame("http://45.67.57.171:8000", useOsr, false, args);
         logger.info("The application has been started");
     }
 }

@@ -41,7 +41,7 @@ public class GameServiceTest {
 
     @Test
     void givenGameAndUnrealRoomNameShouldReturnGame() {
-        assertNull(gameService.getGameByRoomName("randomRoomName"));
+        assertNotNull(gameService.getGameByRoomName("randomRoomName")); ;
     }
 
     @Test

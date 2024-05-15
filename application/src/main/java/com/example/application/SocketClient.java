@@ -19,7 +19,7 @@ import java.net.Socket;
 public class SocketClient {
 
     // uložení portu socketového serveru
-    private static int SERVER_PORT = 8686;
+    private static int SERVER_PORT = 8080;
 
     // uložení streamu pro posílání zpráv serveru
     private PrintWriter out;
