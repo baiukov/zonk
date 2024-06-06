@@ -88,6 +88,7 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
     }
 
     public void sendCloseMessage() {
+        if (socketClient == null || closeMessage == null) return;
         socketClient.sendMessage(closeMessage);
     }
 
