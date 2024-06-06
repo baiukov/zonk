@@ -54,6 +54,7 @@ public class CommandController {
         ICommand rollCommand = new Roll(appService);
         ICommand submitRollCommand = new SubmitRoll(appService);
         ICommand addPlayer = new AddPlayer(appService);
+        ICommand removePlayer = new RemovePlayer(appService);
 
         registeredCommands = new HashSet<>(Set.of(
                 loginCommand,
@@ -67,7 +68,8 @@ public class CommandController {
                 rerollCommand,
                 rollCommand,
                 submitRollCommand,
-                addPlayer
+                addPlayer,
+                removePlayer
         ));
         log.info("Commands have been implemented. Commands List: " + registeredCommands);
     }

@@ -2,8 +2,10 @@ import { AppService } from '../app.service.js'
 import { ConnectionTypes } from '../enums/connectionTypes.enum.js'
 import { Events } from '../enums/events.enum.js'
 import { LogLevels } from '../enums/logLevels.enum.js'
+import { ServerEvents } from '../enums/serverEvents.enum.js'
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js'
 import { Task } from '../tasks/Task.js'
+import { getID } from '../utils/getID.js'
 import { log } from '../utils/log.js'
 
 /*
@@ -41,6 +43,15 @@ export class ConnectionService {
 		// @ts-ignore
 		window.cefQuery({ request: "IP " + ip, onSuccess: (_) => { } })
 		log(LogLevels.INFO, "IP has changed to: " + ip)
+	}
+
+	public setCloseMessage = () => {
+		const task = new Task(99999, { eventName: ServerEvents.RemovePlayer,  data: {id: getID() } })
+		const taskString = "CLOSE " + task.toJSONString()
+
+		//@ts-ignore
+		window.cefQuery({ request: taskString, onSuccess: (_) => { } })
+		log(LogLevels.INFO, "Message to client has been sent. Message: " + task.toJSONString)
 	}
 
 	// metoda pro ověření typu připojení, pokud žádný nebyl uložen, využí standardní REST připojení

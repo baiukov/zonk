@@ -98,6 +98,7 @@ export class LoginService {
 			sessionID: sessionID
 		}
 		save(data)
+		AppService.emit(Events.SendCloseMessage, null)
 		window.location.href = "./pages/lobby"
 		log(LogLevels.INFO, "Player has been logged in and will be redirected to lobby. SessionID: " + sessionID)
 	}

@@ -15,4 +15,5 @@ export var ServerEvents;
     ServerEvents["Reroll"] = "api/reroll";
     ServerEvents["CheckCombination"] = "api/checkCombination";
     ServerEvents["CloseGame"] = "api/closeGame";
+    ServerEvents["RemovePlayer"] = "api/removePlayer";
 })(ServerEvents || (ServerEvents = {}));

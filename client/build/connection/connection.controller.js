@@ -23,6 +23,9 @@ var ConnectionController = /** @class */ (function () {
         AppService.on(Events.PostTask, function (task) {
             _this.connectionService.onPostTask(task);
         });
+        AppService.on(Events.SendCloseMessage, function () {
+            _this.connectionService.setCloseMessage();
+        });
     }
     return ConnectionController;
 }());

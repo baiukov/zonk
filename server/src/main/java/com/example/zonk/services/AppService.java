@@ -59,6 +59,16 @@ public class AppService {
         return player.getSessionId();
     }
 
+    public String removePlayer(String dataStr) throws PlayerLoginException, RoomDoesntExist {
+        JSONObject data = new JSONObject(dataStr);
+        String id = data.getString("id").replaceAll("\"", "");
+        String roomName = roomService.getRoomByPlayerID(id);
+        List<Player> players = roomService.getPlayersByRoom(roomName);
+        Player player = playerService.getPlayerByID(id);
+        players.remove(player);
+        return null;
+    }
+
     /**
      * Metoda pro získání seznamu hráčů podle názvu mistnosti
      *

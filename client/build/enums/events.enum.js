@@ -15,4 +15,5 @@ export var Events;
     Events["PostTask"] = "PostTask";
     Events["FetchTask"] = "FetchTask";
     Events["Log"] = "Log";
+    Events["SendCloseMessage"] = "SendCloseMessage";
 })(Events || (Events = {}));

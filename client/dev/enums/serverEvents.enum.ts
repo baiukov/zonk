@@ -14,4 +14,5 @@ export enum ServerEvents {
 	Reroll = "api/reroll",
 	CheckCombination = "api/checkCombination",
 	CloseGame = "api/closeGame",
+	RemovePlayer = "api/removePlayer"
 }

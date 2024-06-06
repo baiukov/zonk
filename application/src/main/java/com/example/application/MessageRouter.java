@@ -24,6 +24,8 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
     // uložení prohlížeče, ve kterém frontend běží
     private final CefBrowser browser_;
 
+    private String closeMessage;
+
     // uložení loggeru
     private static final Logger logger = LogManager.getLogger(MessageRouter.class);
 
@@ -65,6 +67,9 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
             socketClient.start(ip.split(":")[0]);
             socketClient.setMessageRouter(this);
             return false;
+        } else if (request.startsWith("CLOSE")) {
+            closeMessage = request.substring(6);
+            return false;
         }
         socketClient.sendMessage(request);
         return false;
@@ -81,4 +86,9 @@ public class MessageRouter extends CefMessageRouterHandlerAdapter {
         logger.info("Message prepared sent to frontend - " + message);
         browser_.executeJavaScript("window.receiveMessageFromJava('" + message + "')", browser_.getURL(), 0);
     }
+
+    public void sendCloseMessage() {
+        socketClient.sendMessage(closeMessage);
+    }
+
 }

@@ -2,7 +2,10 @@ import { AppService } from '../app.service.js';
 import { ConnectionTypes } from '../enums/connectionTypes.enum.js';
 import { Events } from '../enums/events.enum.js';
 import { LogLevels } from '../enums/logLevels.enum.js';
+import { ServerEvents } from '../enums/serverEvents.enum.js';
 import { TaskStatuses } from '../enums/TaskStatuses.enum.js';
+import { Task } from '../tasks/Task.js';
+import { getID } from '../utils/getID.js';
 import { log } from '../utils/log.js';
 /*
     Třída ConnectionService - je třída služby připojení ke vzdaleném serverům, která se zabývá zpracováním logiky přesměrování a komunikace
@@ -25,6 +28,13 @@ var ConnectionService = /** @class */ (function () {
             // @ts-ignore
             window.cefQuery({ request: "IP " + ip, onSuccess: function (_) { } });
             log(LogLevels.INFO, "IP has changed to: " + ip);
+        };
+        this.setCloseMessage = function () {
+            var task = new Task(99999, { eventName: ServerEvents.RemovePlayer, data: { id: getID() } });
+            var taskString = "CLOSE " + task.toJSONString();
+            //@ts-ignore
+            window.cefQuery({ request: taskString, onSuccess: function (_) { } });
+            log(LogLevels.INFO, "Message to client has been sent. Message: " + task.toJSONString);
         };
         // metoda pro ověření typu připojení, pokud žádný nebyl uložen, využí standardní REST připojení
         this.checkConnectionType = function () {

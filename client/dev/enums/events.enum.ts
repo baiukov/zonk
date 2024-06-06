@@ -13,5 +13,6 @@ export enum Events {
 	GetTask = "GetTask",
 	PostTask = "PostTask",
 	FetchTask = "FetchTask",
-	Log = "Log"
+	Log = "Log",
+	SendCloseMessage = "SendCloseMessage"
 }

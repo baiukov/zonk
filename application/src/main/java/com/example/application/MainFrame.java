@@ -117,6 +117,8 @@ public class MainFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                customRouter.sendCloseMessage();
+
                 CefApp.getInstance().dispose();
                 dispose();
             }

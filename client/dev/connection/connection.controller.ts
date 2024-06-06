@@ -35,6 +35,9 @@ export class ConnectionController {
 			this.connectionService.onPostTask(task)
 		})
 
+		AppService.on(Events.SendCloseMessage, () => {
+			this.connectionService.setCloseMessage()
+		})
 	}
 
 }
