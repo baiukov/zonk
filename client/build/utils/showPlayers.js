@@ -14,9 +14,11 @@ export var showPlayers = function (response) {
         });
         return playerElement;
     };
+    var existingPlayers = [];
     playerList.forEach(function (player) {
         var playerLable = player.name.split("|");
         var playerName = playerLable[0];
+        existingPlayers.push(playerName);
         var playerElement = getPlayerInList(playerName);
         var playerPoints = playerElement == null ? 0 : $(playerElement).text().split("|")[1];
         var listElement = document.createElement("li");
@@ -26,6 +28,13 @@ export var showPlayers = function (response) {
         }
         else if (playerPoints != player.totalPoints) {
             $(playerElement).text(player.name + " | " + player.totalPoints);
+        }
+    });
+    $("li").each(function (_) {
+        var playerInList = $(this).text().split(" | ")[0];
+        log(LogLevels.INFO, "HERE " + playerInList + existingPlayers);
+        if (!existingPlayers.includes(playerInList)) {
+            $(this).remove();
         }
     });
     log(LogLevels.INFO, "Player list has been updated: " + playerList);

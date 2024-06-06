@@ -65,6 +65,10 @@ public class AppService {
         String roomName = roomService.getRoomByPlayerID(id);
         List<Player> players = roomService.getPlayersByRoom(roomName);
         Player player = playerService.getPlayerByID(id);
+        try {
+            Game game = gameService.getGameByPlayerID(id);
+            game.removePlayer(player);
+        } catch (Exception ignored) { }
         players.remove(player);
         return null;
     }
